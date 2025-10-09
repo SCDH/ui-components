@@ -1,73 +1,63 @@
-# React + TypeScript + Vite
+# UI Components for SCDH
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Getting Started as a Designer
 
-Currently, two official plugins are available:
+### Prerequirements
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+1. NodeJS
+2. Either npm (comes with node) or pnpm
 
-## React Compiler
+Why we recommend using pnpm? See: https://pnpm.io/motivation  
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+On Windows, use PowerShell `Invoke-WebRequest https://get.pnpm.io/install.ps1 -UseBasicParsing | Invoke-Expression`  
 
-## Expanding the ESLint configuration
+On Linux/Mac, use `curl -fsSL https://get.pnpm.io/install.sh | sh -`  
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Quick Setup
+1. Install dependencies: `pnpm install`
+2. Start Storybook: `pnpm run storybook`
+3. Open http://localhost:6006 to see components
 
+### Styling the Button Exmample Component
+
+#### Where to make design changes:
+- **Main Button Component**: [`src/components/ui/scdh/button.tsx`](src/components/ui/scdh/button.tsx)
+- **Global Fonts & Colors**: [`src/index.css`](src/index.css)
+- **Tailwind Config**: [`tailwind.config.js`](tailwind.config.js)
+
+#### How to customize:
+
+**Colors**: Add custom colors in [`tailwind.config.js`](tailwind.config.js):
 ```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+colors: {
+  'scdh-blue': 'rgba(159, 210, 237, 1)',
+  'scdh-dark': '#333333'
+}
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+**Button Styling**: Modify classes in [`button.tsx`](src/components/ui/scdh/button.tsx):
+```tsx
+// SCDH brand colors for default variant
+variant === 'default' && [
+  "bg-scdh-blue text-black",     // Background & text color
+  "hover:bg-scdh-blue/80",       // Hover state
+  "rounded-lg",                  // Border radius (8px)
+]
 ```
+
+**Fonts**: Already configured in [`src/index.css`](src/index.css) - Metawebpro is applied globally.
+
+#### Tailwind Classes Cheatsheet:
+- **Colors**: `bg-blue-500`, `text-white`, `border-gray-300`
+- **Spacing**: `p-4` (padding), `m-2` (margin), `px-6` (horizontal padding)
+- **Sizing**: `w-full` (width), `h-10` (height)
+- **Border**: `rounded-lg` (8px), `rounded-md` (6px), `border-2`
+- **Typography**: `text-sm`, `text-base`, `font-medium`, `font-bold`
+
+#### Workflow:
+1. Edit [`button.tsx`](src/components/ui/scdh/button.tsx) with Tailwind classes
+2. Save file → Storybook auto-reloads
+3. Test different button variants in Storybook
+4. Add custom colors to [`tailwind.config.js`](tailwind.config.js) if needed
+
+**Tip**: Use browser DevTools to inspect generated CSS and fine-tune classes!
