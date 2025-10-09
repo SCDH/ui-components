@@ -39,29 +39,22 @@ type Story = StoryObj<typeof meta>;
 // Variants
 export const Default: Story = {
   args: {
-    children: 'Default Button',
+    children: 'Button',
     variant: 'default'
   }
 };
 
 export const Outline: Story = {
   args: {
-    children: 'Outline Button',
+    children: 'Button',
     variant: 'outline'
-  }
-};
-
-export const Ghost: Story = {
-  args: {
-    children: 'Ghost Button',
-    variant: 'ghost'
   }
 };
 
 // Sizes
 export const Small: Story = {
   args: {
-    children: 'Small Button',
+    children: 'Button',
     size: 'small'
   }
 };
@@ -120,7 +113,7 @@ export const FullWidth: Story = {
 // States
 export const Disabled: Story = {
   args: {
-    children: 'Disabled Button',
+    children: 'Button',
     disabled: true
   }
 };

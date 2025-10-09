@@ -14,9 +14,8 @@ export interface ButtonProps extends Omit<ShadcnButtonProps, 'variant' | 'size'>
    * Button variant - simplified from shadcn's 6 variants to 3 SCDH-specific ones
    * - default: SCDH primary button with sky blue colors
    * - outline: Outlined button for secondary actions
-   * - ghost: Minimal button without background
    */
-  variant?: 'default' | 'outline' | 'ghost'
+  variant?: 'default' | 'outline'
   
   /** 
    * Button size - simplified from shadcn's 4 sizes to 3 practical ones
@@ -34,16 +33,15 @@ export interface ButtonProps extends Omit<ShadcnButtonProps, 'variant' | 'size'>
 }
 
 /**
- * SCDH Button Component
+ * SCDH Button Component (Example)
  * 
  * This component wraps the shadcn/ui Button to provide a simplified API
  * while maintaining all the accessibility features and robustness of shadcn.
  * 
  * Key benefits:
  * - Uses shadcn/ui as foundation (accessibility, Radix primitives, etc.)
- * - Applies SCDH-specific styling (sky blue color scheme)
+ * - Applies SCDH-specific styling and brand colors
  * - Simplified API compared to shadcn (fewer variants/sizes)
- * - Uses Tailwind classes instead of hardcoded hex colors
  */
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'default', size = 'default', fullWidth, className, ...props }, ref) => {
@@ -64,14 +62,18 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           // Base transition for smooth color changes on hover/focus
           "transition-colors duration-200",
           
+          // Designer specifications for border radius (8px)
+          "rounded-lg",
+
+          // Font size based on button size for optimal readability
+          size === 'small' ? 'text-sm' : size === 'icon' ? 'text-sm' : 'text-base',
+          
           // SCDH brand colors for default variant
-          // Using Tailwind's sky color palette instead of hardcoded hex values
-          // This ensures consistency with the design system
           variant === 'default' && [
-            "bg-sky-200 text-sky-900",      // Light sky background with dark text
-            "hover:bg-sky-300",             // Slightly darker on hover
-            "active:bg-sky-400",            // Even darker when pressed
-            "focus-visible:ring-sky-500"    // Sky blue focus ring for accessibility
+            "bg-scdh-blue text-black",        // Designer specified: rgba(159, 210, 237, 1) bg, black text
+            "hover:bg-scdh-blue/80",            // Slightly more transparent on hover
+            "active:bg-scdh-blue/60",           // Even more transparent when pressed
+            "focus-visible:ring-scdh-blue"      // Focus ring using brand color
           ],
           
           // Apply full width styling when requested
@@ -79,7 +81,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           fullWidth && "w-full",
           
           // Allow additional custom classes to be passed in
-          // This provides flexibility for one-off styling needs
+          // This provides flexibility for distinct styling needs
           className
         )}
         {...props}
