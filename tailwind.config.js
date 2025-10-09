@@ -7,6 +7,10 @@ export default {
 	],
 	theme: {
 		extend: {
+			fontFamily: {
+				'metawebpro': ['Metawebpro', 'system-ui', 'sans-serif'],
+				'wwu-symbol': ['WWU Symbol', 'system-ui', 'sans-serif']
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',

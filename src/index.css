@@ -2,9 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+/* SCDH Custom Fonts */
+@font-face {
+  font-family: 'Metawebpro';
+  src: url('./assets/fonts/metawebpro-normal.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap; /* Improves loading performance */
+}
+
+@font-face {
+  font-family: 'Metawebpro';
+  src: url('./assets/fonts/metawebpro-bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'WWU Symbol';
+  src: url('./assets/fonts/wwu_symbol.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Metawebpro', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
