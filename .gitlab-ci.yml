@@ -1,0 +1,11 @@
+image: node:lts
+
+create-pages:
+  pages:
+    publish: storybook-static
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+  before_script:
+    - npm ci
+  script:
+    - npm run build-storybook
