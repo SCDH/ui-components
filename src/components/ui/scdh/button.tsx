@@ -1,5 +1,5 @@
 import * as React from "react"
-import { Button as ShadcnButton, type ButtonProps as ShadcnButtonProps } from "@/components/ui/button"
+import { Button as ShadcnButton, type ButtonProps as ShadcnButtonProps } from "@/components/ui/imports/button"
 import { cn } from "@/lib/utils"
 
 /**
@@ -59,8 +59,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         variant={shadcnVariant}
         size={shadcnSize}
         className={cn(
-          // Base transition for smooth color changes on hover/focus
-          "transition-colors duration-200",
+          // Base transition for smooth color changes and transform on hover/focus
+          "transition-all duration-200",
+          
+          // SCDH hover scale effect for interactive feedback
+          "hover:scale-105",
           
           // Designer specifications for border radius (8px)
           "rounded-lg",
