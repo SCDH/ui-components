@@ -1,8 +1,23 @@
 {
-  "name": "ui-components",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@scdh/ui-components",
+  "version": "1.0.0",
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "src/styles.css",
+    "src/assets/fonts"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./styles.css": "./src/styles.css"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
