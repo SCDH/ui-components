@@ -18,6 +18,7 @@ export default {
 			},
 			colors: {
 				'scdh-blue': 'hsl(201, 68%, 78%)', // Example SCDH Brand Color
+				'scdh-text': 'hsl(222, 84%, 5%)', // SCDH Text Color
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
 				card: {
