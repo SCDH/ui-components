@@ -22,7 +22,7 @@ On Linux/Mac, use `curl -fsSL https://get.pnpm.io/install.sh | sh -`
 
 #### Where to make design changes:
 - **Main Button Component**: [`src/components/ui/scdh/button.tsx`](src/components/ui/scdh/button.tsx)
-- **Global Fonts & Colors**: [`src/index.css`](src/index.css)
+- **Global Fonts & Colors**: [`src/styles.css`](src/styles.css)
 - **Tailwind Config**: [`tailwind.config.js`](tailwind.config.js)
 
 #### How to customize:
@@ -45,19 +45,28 @@ variant === 'default' && [
 ]
 ```
 
-**Fonts**: Already configured in [`src/index.css`](src/index.css) - Metawebpro is applied globally.
+#### What Goes Where?
 
-#### Tailwind Classes Cheatsheet:
-- **Colors**: `bg-blue-500`, `text-white`, `border-gray-300`
-- **Spacing**: `p-4` (padding), `m-2` (margin), `px-6` (horizontal padding)
-- **Sizing**: `w-full` (width), `h-10` (height)
-- **Border**: `rounded-lg` (8px), `rounded-md` (6px), `border-2`
-- **Typography**: `text-sm`, `text-base`, `font-medium`, `font-bold`
+| Type | `styles.css` | `preview.css` |
+|------|--------------|---------------|
+| Tailwind directives | ✅ | ❌ |
+| Font definitions | ✅ | ❌ |
+| CSS custom properties | ✅ | ❌ |
+| Component base styles | ✅ | ❌ |
+| Storybook canvas styling | ❌ | ✅ |
+| Link/heading styles | ❌ | ✅ |
+| Body layout | ❌ | ✅ |
+| Dark mode (preview) | ❌ | ✅ |
 
-#### Workflow:
-1. Edit [`button.tsx`](src/components/ui/scdh/button.tsx) with Tailwind classes
-2. Save file → Storybook auto-reloads
-3. Test different button variants in Storybook
-4. Add custom colors to [`tailwind.config.js`](tailwind.config.js) if needed
 
-**Tip**: Use browser DevTools to inspect generated CSS and fine-tune classes!
+## For npm Package Consumers (WIP)
+
+```tsx
+// Consumer's app
+import '@scdh/ui-components/styles.css';
+import { Button, TreeView } from '@scdh/ui-components';
+
+function App() {
+  return <Button>Click me</Button>;
+}
+```
