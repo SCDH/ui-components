@@ -7,7 +7,17 @@ import { cn } from "@/lib/utils"
 // Basic Button Setup by shadcn/ui
 // https://ui.shadcn.com/docs/components/button
 
+// What is Radix UI Slot?
+// Slot is a utility component that merges props and forwards them to its immediate child.
+// It allows polymorphic rendering - your Button can render as a <button>, <a>, or any other element.
+// Example: <Button asChild><a href="/home">Link</a></Button> renders as <a> with Button styles.
+
+// What is class-variance-authority (cva)?
+// CVA is a utility for managing complex className strings in a more structured way.
+// It helps generating typesafe CSS variants for components in React/TypeScript projects.
+
 const buttonVariants = cva(
+  // Base styles, for all variants and sizes
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
@@ -37,24 +47,49 @@ const buttonVariants = cva(
   }
 )
 
+// TypeScript Interface for Button Props
+// An interface defines the "shape" of an object - what properties it should have and their types
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  // `extends` combines multiple interfaces/types into one (Intersection)
+  // This is called "Interface Extension" or "Multiple Inheritance"
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, // All standard button HTML attributes (onClick, disabled, etc.)
+    VariantProps<typeof buttonVariants> { // Extracts variant types from our cva definition
+  // `typeof buttonVariants` gets the type of the cva function result
+  // `VariantProps` then extracts the variant props (variant, size) as optional properties
+  
+  // Optional property (note the ?)
+  // `asChild` allows rendering as a different component via Radix UI's Slot
   asChild?: boolean
 }
 
+// React.forwardRef is used to pass refs through components
+// Generic type parameters: <RefType, PropsType>
+// This enables parent components to get direct access to the underlying DOM element
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  // First parameter: destructured props with default values
+  // `...props` is the rest operator - collects all remaining props
   ({ className, variant, size, asChild = false, ...props }, ref) => {
+    // Conditional component selection using ternary operator
+    // If asChild=true, render as Slot (Radix primitive), otherwise as regular button
     const Comp = asChild ? Slot : "button"
+    
     return (
       <Comp
+        // cn() merges className strings intelligently (handles conflicts)
+        // buttonVariants() is called as a function with our variant values
+        // This generates the appropriate Tailwind classes based on the variants
         className={cn(buttonVariants({ variant, size, className }))}
+        // Forward the ref to the underlying element (important for DOM access)
         ref={ref}
+        // Spread operator: passes all remaining props (onClick, disabled, etc.)
         {...props}
       />
     )
   }
 )
+
+// DisplayName for better debugging in React DevTools
+// Without this, the component would show as "Anonymous" in the component tree
 Button.displayName = "Button"
 
 export { Button, buttonVariants }
