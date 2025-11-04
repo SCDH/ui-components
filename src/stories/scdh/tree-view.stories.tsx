@@ -7,7 +7,9 @@ import {
   MoreHorizontalIcon,
   EditIcon,
   TrashIcon,
-  PlusIcon
+  PlusIcon,
+  BookOpenIcon,
+  ScrollTextIcon
 } from 'lucide-react';
 import { TreeView, createTreeData, type TreeDataItem } from '@/components/ui/scdh/tree-view';
 
@@ -46,7 +48,106 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// Sample tree data for stories
+// Sample tree data for documents
+const sampleData = [
+    {
+        context: "https://distributed-text-services.github.io/specifications/context/1.0rc1.json",
+        dtsVersion: "1.0rc1",
+        collection: {
+            id: "root",
+            type: "Collection",
+            title: "Klassische Texte",
+            description: "Eine kleine Sammlung klassischer Werke.",
+            members: [
+                {
+                    id: "faust",
+                    type: "Resource",
+                    title: "Goethe: Faust I",
+                    description: "Drei Szenen aus Faust I.",
+                    scenes: [
+                        {
+                            identifier: "scene1",
+                            title: "Nacht",
+                            content: [
+                                "Habe nun, ach! Philosophie, Juristerei und Medizin und leider auch Theologie studiert, mit heißem Bemühn.",
+                                "Da steh ich nun, ich armer Tor, und bin so klug als wie zuvor.",
+                                "Heiße Magister, heiße Doktor gar und ziehe schon an die zehen Jahr herauf, herab und quer und krumm meine Schüler an der Nase herum."
+                            ]
+                        },
+                        {
+                            identifier: "scene2",
+                            title: "Vor dem Tor",
+                            content: [
+                                "Vom Eise befreit sind Strom und Bäche durch des Frühlings holden, belebenden Blick.",
+                                "Im Tale grünet Hoffnungsglück; der alte Winter, in seiner Schwäche, zog sich in rauhe Berge zurück.",
+                                "Von dorther sendet er, fliehend, nur ohnmächtige Schauer körnigen Eises in Streifen über die grünende Flur."
+                            ]
+                        },
+                        {
+                            identifier: "scene3",
+                            title: "Studierzimmer",
+                            content: [
+                                "Mein schöner Abendstern, wohl grüß ich dich! Du Freundlicher, wie gerne sah ich dich!",
+                                "O bleib, mein Licht, mein Hoffnungsschein, o bleib, und führe mich heim!",
+                                "Wie schwinden mir der Erde Schranken, wie drängt sich alles in Gefühl!"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+]
+
+/**
+ * Helper function to transform DTS JSON to TreeView structure
+ * Converts hierarchical DTS data (collections, resources, scenes) into tree items
+ */
+function transformDTStoTree(dtsData: typeof sampleData): TreeDataItem[] {
+  const data = dtsData[0]
+  
+  // Create root collection node
+  const rootCollection: TreeDataItem = {
+    id: data.collection.id,
+    name: data.collection.title,
+    icon: FolderIcon,
+    openIcon: FolderOpenIcon,
+    children: []
+  }
+  
+  // Transform each member (resource) in the collection
+  data.collection.members.forEach(member => {
+    const resourceNode: TreeDataItem = {
+      id: member.id,
+      name: member.title,
+      icon: BookOpenIcon,
+      openIcon: BookOpenIcon,
+      children: []
+    }
+    
+    // Transform scenes as child items of the resource
+    if (member.scenes) {
+      member.scenes.forEach(scene => {
+        const sceneNode: TreeDataItem = {
+          id: scene.identifier,
+          name: scene.title,
+          icon: ScrollTextIcon,
+          // Store the content for potential use in click handlers
+          onClick: () => {
+            console.log(`Selected scene: ${scene.title}`, scene.content)
+          }
+        }
+        resourceNode.children?.push(sceneNode)
+      })
+    }
+    
+    rootCollection.children?.push(resourceNode)
+  })
+  
+  return [rootCollection]
+}
+
+// Sample tree data for file systems
 const sampleFileSystem: TreeDataItem[] = [
   {
     id: 'src',
@@ -350,6 +451,147 @@ export const DisabledItems: Story = {
     docs: {
       description: {
         story: 'Items can be disabled to prevent interaction while still showing them in the tree structure.'
+      }
+    }
+  }
+};
+
+// ==========================================
+// DTS Data Examples
+// ==========================================
+
+/**
+ * Basic DTS tree showing collection, resource, and scenes
+ * This demonstrates how to use TreeView with DTS data structures
+ */
+export const DTSBasic: Story = {
+  args: {
+    data: transformDTStoTree(sampleData),
+    expandAll: true,
+  },
+  parameters: {
+    layout: 'padded',
+    docs: {
+      description: {
+        story: 'TreeView displaying DTS (Distributed Text Services) data with collections, resources, and scenes. Click on scenes to see their content in the console.'
+      }
+    }
+  }
+};
+
+/**
+ * DTS tree with compact mode
+ * Better for displaying large text collections
+ */
+export const DTSCompact: Story = {
+  args: {
+    data: transformDTStoTree(sampleData),
+    compact: true,
+    expandAll: true,
+  },
+  parameters: {
+    layout: 'padded',
+    docs: {
+      description: {
+        story: 'Compact view of DTS data - useful when displaying large text collections with many scenes.'
+      }
+    }
+  }
+};
+
+/**
+ * DTS tree with initial selection
+ * Shows how to pre-select a specific scene
+ */
+export const DTSWithSelection: Story = {
+  args: {
+    data: transformDTStoTree(sampleData),
+    initialSelectedItemId: 'scene2', // Pre-select "Vor dem Tor"
+    expandAll: true,
+  },
+  parameters: {
+    layout: 'padded',
+    docs: {
+      description: {
+        story: 'DTS tree with a pre-selected scene. The "Vor dem Tor" scene is initially highlighted.'
+      }
+    }
+  }
+};
+
+/**
+ * DTS tree collapsed by default
+ * Users can explore the hierarchy step by step
+ */
+export const DTSCollapsed: Story = {
+  args: {
+    data: transformDTStoTree(sampleData),
+    expandAll: false,
+  },
+  parameters: {
+    layout: 'padded',
+    docs: {
+      description: {
+        story: 'DTS tree starts collapsed, allowing users to explore the collection hierarchy at their own pace.'
+      }
+    }
+  }
+};
+
+/**
+ * DTS tree with action buttons
+ * Shows how to add interactive elements to DTS items
+ */
+export const DTSWithActions: Story = {
+  args: {
+    data: (() => {
+      const treeData = transformDTStoTree(sampleData)
+      
+      // Add actions to the root collection
+      if (treeData[0]) {
+        treeData[0].actions = (
+          <div className="flex gap-1">
+            <div className="h-6 w-6 flex items-center justify-center rounded hover:bg-gray-100 transition-colors">
+              <PlusIcon className="h-3 w-3" />
+            </div>
+          </div>
+        )
+        
+        // Add actions to each resource
+        treeData[0].children?.forEach(resource => {
+          resource.actions = (
+            <div className="flex gap-1">
+              <div className="h-6 w-6 flex items-center justify-center rounded hover:bg-gray-100 transition-colors">
+                <EditIcon className="h-3 w-3" />
+              </div>
+              <div className="h-6 w-6 flex items-center justify-center rounded hover:bg-gray-100 transition-colors">
+                <MoreHorizontalIcon className="h-3 w-3" />
+              </div>
+            </div>
+          )
+          
+          // Add actions to each scene
+          resource.children?.forEach(scene => {
+            scene.actions = (
+              <div className="flex gap-1">
+                <div className="h-6 w-6 flex items-center justify-center rounded hover:bg-gray-100 transition-colors">
+                  <EditIcon className="h-3 w-3" />
+                </div>
+              </div>
+            )
+          })
+        })
+      }
+      
+      return treeData
+    })(),
+    expandAll: true,
+  },
+  parameters: {
+    layout: 'padded',
+    docs: {
+      description: {
+        story: 'DTS tree with action buttons for each item type. Collections can add new items, resources can be edited or have additional options, and scenes can be edited.'
       }
     }
   }
