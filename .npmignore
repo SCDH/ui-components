@@ -1,0 +1,47 @@
+# Source files
+src/
+
+# Storybook
+.storybook/
+storybook-static/
+src/stories/
+
+# Tests
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+vitest.shims.d.ts
+
+# Build tools
+vite.config.ts
+tsconfig.json
+tsconfig.app.json
+tsconfig.node.json
+tailwind.config.js
+postcss.config.js
+eslint.config.js
+
+# Development
+.vscode/
+.idea/
+*.log
+.DS_Store
+
+# Git
+.git/
+.github/
+.gitignore
+
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+
+# Documentation (keep README.md)
+*.md
+!README.md
+
+# Other
+public/
+index.html
+*.tsbuildinfo
