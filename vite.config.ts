@@ -39,15 +39,26 @@ export default defineConfig(({ mode }) => {
             },
             // Preserve module structure for better tree-shaking
             preserveModules: false,
+            // Extract CSS into separate file
+            assetFileNames: (assetInfo) => {
+              if (assetInfo.name === 'style.css') return 'styles.css';
+              return assetInfo.name || 'assets/[name][extname]';
+            },
           }
         },
         sourcemap: true,
         emptyOutDir: true,
+        // Ensure CSS is extracted
+        cssCodeSplit: false,
       },
       resolve: {
         alias: {
           "@": path.resolve(dirname, "./src"),
         },
+      },
+      // Include CSS processing with Tailwind
+      css: {
+        postcss: './postcss.config.js',
       },
     };
   }

@@ -5,6 +5,9 @@
  * This file exports all components, utilities, and types for external use.
  */
 
+// Import styles - will be compiled to CSS during build
+import './styles.css'
+
 // Export all SCDH components
 export * from './components/ui/scdh'
 

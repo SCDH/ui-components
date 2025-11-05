@@ -1,6 +1,6 @@
 {
   "name": "@scdh_muenster/ui-components",
-  "version": "1.0.0",
+  "version": "0.1.1",
   "description": "SCDH UI Component Library for React applications",
   "author": "SCDH Team",
   "license": "MIT",
@@ -23,8 +23,6 @@
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
-    "src/styles.css",
-    "src/assets/fonts",
     "README.md",
     "LICENSE"
   ],
@@ -34,11 +32,11 @@
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
     },
-    "./styles.css": "./src/styles.css"
+    "./styles.css": "./dist/styles.css"
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build --mode lib",
+    "build": "vite build --mode lib && node -e \"const fs=require('fs'); const oldPath='dist/ui-components.css'; const newPath='dist/styles.css'; if(fs.existsSync(oldPath)) fs.renameSync(oldPath, newPath);\"",
     "build:app": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
