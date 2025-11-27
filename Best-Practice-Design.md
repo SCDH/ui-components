@@ -2,7 +2,7 @@
 
 # Best Practice
 
-1. Design Tokens in styles.css ablegen
+1. Design Tokens in **styles.css** ablegen
 
 ```css
 /* ...existing code... */
@@ -32,7 +32,7 @@
 }
 /* ...existing code... */
 ```
-2. Falls notwendig, neue Utility Classes definieren, ggf. mit den Variablen
+2. Falls notwendig, neue Utility Classes in **tailwind.config.js** definieren, ggf. mit den Variablen
 
 ```js
 // ...existing code...
@@ -56,7 +56,7 @@ colors: {
 }
 // ...existing code...
 ```
-3. Einsatz in Components
+3. Einsatz in Components unter **ui/components/scdh**
 
 Hier ist wichtig zu verstehen, dass Tailwind oft Präfixe verwendet, etwa "bg-" oder andere Namings hat, aus "border-radius" in CSS wird "rounded" in Tailwind. Am besten man macht sich mit der Doku gut vertraut.
 
