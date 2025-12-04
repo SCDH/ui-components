@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 import { ArrowUpIcon, PlusIcon, DownloadIcon } from 'lucide-react';
-import { Button } from '@/components/ui/scdh/button';
+import { Button } from '@/components/ui/button';
 
 const meta = {
   title: 'SCDH-UI/Button',
@@ -13,21 +13,21 @@ const meta = {
   argTypes: {
     variant: {
       control: { type: 'select' },
-      options: ['default', 'outline', 'ghost'],
-      description: 'Button variant - simplified from shadcn'
+      options: ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'],
+      description: 'Button variant from shadcn/ui'
     },
     size: {
       control: { type: 'select' },
-      options: ['default', 'small', 'icon'],
-      description: 'Button size - simplified from shadcn'
-    },
-    fullWidth: {
-      control: 'boolean',
-      description: 'Full width button'
+      options: ['default', 'sm', 'lg', 'icon'],
+      description: 'Button size from shadcn/ui'
     },
     disabled: {
       control: 'boolean',
       description: 'Disabled state'
+    },
+    asChild: {
+      control: 'boolean',
+      description: 'Use Radix Slot for composition'
     }
   },
   args: { onClick: fn() },
@@ -44,6 +44,13 @@ export const Default: Story = {
   }
 };
 
+export const Destructive: Story = {
+  args: {
+    children: 'Button',
+    variant: 'destructive'
+  }
+};
+
 export const Outline: Story = {
   args: {
     children: 'Button',
@@ -51,11 +58,39 @@ export const Outline: Story = {
   }
 };
 
+export const Secondary: Story = {
+  args: {
+    children: 'Button',
+    variant: 'secondary'
+  }
+};
+
+export const Ghost: Story = {
+  args: {
+    children: 'Button',
+    variant: 'ghost'
+  }
+};
+
+export const Link: Story = {
+  args: {
+    children: 'Button',
+    variant: 'link'
+  }
+};
+
 // Sizes
 export const Small: Story = {
   args: {
     children: 'Button',
-    size: 'small'
+    size: 'sm'
+  }
+};
+
+export const Large: Story = {
+  args: {
+    children: 'Button',
+    size: 'lg'
   }
 };
 
@@ -88,25 +123,8 @@ export const SmallWithIcon: Story = {
         Add
       </>
     ),
-    size: 'small',
+    size: 'sm',
     variant: 'outline'
-  }
-};
-
-// Full Width
-export const FullWidth: Story = {
-  args: {
-    children: (
-      <>
-        <ArrowUpIcon />
-        Full Width Button
-      </>
-    ),
-    fullWidth: true,
-    variant: 'default'
-  },
-  parameters: {
-    layout: 'padded'
   }
 };
 
