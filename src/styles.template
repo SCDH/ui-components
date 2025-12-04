@@ -76,11 +76,12 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
   
   body {
     font-family: 'Metawebpro', system-ui, Avenir, Helvetica, Arial, sans-serif;
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
