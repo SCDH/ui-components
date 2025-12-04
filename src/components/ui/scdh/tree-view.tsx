@@ -1,5 +1,5 @@
 import * as React from "react"
-import { TreeView as BaseTreeView, type TreeDataItem as BaseTreeDataItem } from "@/components/ui/imports/tree-view"
+import { TreeView as BaseTreeView, type TreeDataItem as BaseTreeDataItem } from "@/components/ui/tree-view"
 import { cn } from "@/lib/utils"
 import { ChevronRight, Folder, FolderOpen, File } from "lucide-react"
 

@@ -5,26 +5,26 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-100 whitespace-nowrap rounded-md font-metawebpro font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow hover:bg-primary/90",
+          "bg-scdh-blue-600 text-white shadow hover:bg-scdh-blue-700",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+          "bg-red-600 text-white shadow-sm hover:bg-red-700",
         outline:
-          "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
+          "border border-scdh-blue-600 bg-background shadow-sm hover:bg-scdh-blue-050 hover:text-scdh-blue-700",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+          "bg-ulb-grey-200 text-ulb-grey-900 shadow-sm hover:bg-ulb-grey-300",
+        ghost: "hover:bg-scdh-blue-050 hover:text-scdh-blue-700",
+        link: "text-scdh-blue-600 underline-offset-4 hover:underline hover:text-scdh-blue-700",
       },
       size: {
-        default: "h-9 px-4 py-2",
-        sm: "h-8 rounded-md px-3 text-xs",
-        lg: "h-10 rounded-md px-8",
-        icon: "h-9 w-9",
+        default: "h-[40px] px-200 py-100 text-md",
+        sm: "h-[32px] rounded-sm px-150 text-sm",
+        lg: "h-[48px] rounded-lg px-300 text-lg",
+        icon: "h-[40px] w-[40px]",
       },
     },
     defaultVariants: {
