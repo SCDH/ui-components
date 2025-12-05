@@ -51,20 +51,6 @@ export const Primary: Story = {
   },
 };
 
-export const Destructive: Story = {
-  args: {
-    children: "Button",
-    variant: "destructive",
-  },
-};
-
-export const Outline: Story = {
-  args: {
-    children: "Button",
-    variant: "outline",
-  },
-};
-
 export const Secondary: Story = {
   args: {
     children: "Button",
@@ -72,10 +58,17 @@ export const Secondary: Story = {
   },
 };
 
-export const Ghost: Story = {
+export const Tertiary: Story = {
   args: {
     children: "Button",
-    variant: "ghost",
+    variant: "tertiary",
+  },
+};
+
+export const TertiaryAlt: Story = {
+  args: {
+    children: "Button",
+    variant: "tertiary_alt",
   },
 };
 
@@ -118,7 +111,8 @@ export const IconWithText: Story = {
         Download
       </>
     ),
-    variant: "default",
+    size: "lg",
+    variant: "primary",
   },
 };
 
@@ -126,12 +120,12 @@ export const SmallWithIcon: Story = {
   args: {
     children: (
       <>
-        <PlusIcon />
-        Add
+        <DownloadIcon />
+        Download
       </>
     ),
     size: "sm",
-    variant: "outline",
+    variant: "secondary",
   },
 };
 

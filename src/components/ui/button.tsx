@@ -11,19 +11,19 @@ const buttonVariants = cva(
       variant: {
         primary:
           "text-black bg-scdh-blue-300 hover:bg-scdh-blue-200 active:bg-scdh-blue-400",
-        destructive: "bg-red-600 text-white shadow-sm hover:bg-red-700",
-        outline:
-          "border border-scdh-blue-600 bg-background shadow-sm hover:bg-scdh-blue-050 hover:text-scdh-blue-700",
         secondary:
-          "bg-ulb-grey-200 text-ulb-grey-900 shadow-sm hover:bg-ulb-grey-300",
-        ghost: "hover:bg-scdh-blue-050 hover:text-scdh-blue-700",
-        link: "text-scdh-blue-600 underline-offset-4 hover:underline hover:text-scdh-blue-700",
+          "bg-ulb-grey-200 text-black hover:bg-ulb-grey-100 active:bg-ulb-grey-300",
+        tertiary:
+          "bg-white text-black hover:bg-ulb-grey-100 active:bg-ulb-grey-200",
+        tertiary_alt:
+          "box-border border border-ulb-grey-900 bg-white hover:bg-ulb-grey-100 active:bg-ulb-grey-200",
+        link: "text-ulb-grey-900 underline-offset-4 underline  hover:decoration-transparent",
       },
       size: {
         default: "h-[36px] px-3 text-lg",
-        sm: "h-[28px] px-2 text-md",
+        sm: "h-[28px] px-2  font-small text-md gap-075",
         lg: "h-[36px] px-3 text-lg",
-        icon: "h-[40px] w-[40px]",
+        icon: "h-[36px] w-[36px]",
       },
     },
     defaultVariants: {
