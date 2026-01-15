@@ -1,34 +1,41 @@
-import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
-import { ArrowUpIcon, PlusIcon, DownloadIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import { fn } from "storybook/test";
+import { ArrowUpIcon, PlusIcon, DownloadIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const meta = {
-  title: 'SCDH-UI/Button',
+  title: "SCDH-UI/Button",
   component: Button,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {
     variant: {
-      control: { type: 'select' },
-      options: ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'],
-      description: 'Button variant from shadcn/ui'
+      control: { type: "select" },
+      options: [
+        "primary",
+        "destructive",
+        "outline",
+        "secondary",
+        "ghost",
+        "link",
+      ],
+      description: "Button variant from shadcn/ui",
     },
     size: {
-      control: { type: 'select' },
-      options: ['default', 'sm', 'lg', 'icon'],
-      description: 'Button size from shadcn/ui'
+      control: { type: "select" },
+      options: ["default", "sm", "lg", "icon"],
+      description: "Button size from shadcn/ui",
     },
     disabled: {
-      control: 'boolean',
-      description: 'Disabled state'
+      control: "boolean",
+      description: "Disabled state",
     },
     asChild: {
-      control: 'boolean',
-      description: 'Use Radix Slot for composition'
-    }
+      control: "boolean",
+      description: "Use Radix Slot for composition",
+    },
   },
   args: { onClick: fn() },
 } satisfies Meta<typeof Button>;
@@ -37,69 +44,62 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 // Variants
-export const Default: Story = {
+export const Primary: Story = {
   args: {
-    children: 'Button',
-    variant: 'default'
-  }
-};
-
-export const Destructive: Story = {
-  args: {
-    children: 'Button',
-    variant: 'destructive'
-  }
-};
-
-export const Outline: Story = {
-  args: {
-    children: 'Button',
-    variant: 'outline'
-  }
+    children: "Button",
+    variant: "primary",
+  },
 };
 
 export const Secondary: Story = {
   args: {
-    children: 'Button',
-    variant: 'secondary'
-  }
+    children: "Button",
+    variant: "secondary",
+  },
 };
 
-export const Ghost: Story = {
+export const Tertiary: Story = {
   args: {
-    children: 'Button',
-    variant: 'ghost'
-  }
+    children: "Button",
+    variant: "tertiary",
+  },
+};
+
+export const TertiaryAlt: Story = {
+  args: {
+    children: "Button",
+    variant: "tertiary_alt",
+  },
 };
 
 export const Link: Story = {
   args: {
-    children: 'Button',
-    variant: 'link'
-  }
+    children: "Button",
+    variant: "link",
+  },
 };
 
 // Sizes
 export const Small: Story = {
   args: {
-    children: 'Button',
-    size: 'sm'
-  }
+    children: "Button",
+    size: "sm",
+  },
 };
 
 export const Large: Story = {
   args: {
-    children: 'Button',
-    size: 'lg'
-  }
+    children: "Button",
+    size: "lg",
+  },
 };
 
 export const Icon: Story = {
   args: {
     children: <ArrowUpIcon />,
-    size: 'icon',
-    'aria-label': 'Upload'
-  }
+    size: "icon",
+    "aria-label": "Upload",
+  },
 };
 
 // Combined Examples
@@ -111,27 +111,28 @@ export const IconWithText: Story = {
         Download
       </>
     ),
-    variant: 'default'
-  }
+    size: "lg",
+    variant: "primary",
+  },
 };
 
 export const SmallWithIcon: Story = {
   args: {
     children: (
       <>
-        <PlusIcon />
-        Add
+        <DownloadIcon />
+        Download
       </>
     ),
-    size: 'sm',
-    variant: 'outline'
-  }
+    size: "sm",
+    variant: "secondary",
+  },
 };
 
 // States
 export const Disabled: Story = {
   args: {
-    children: 'Button',
-    disabled: true
-  }
+    children: "Button",
+    disabled: true,
+  },
 };
