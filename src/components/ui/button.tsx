@@ -10,10 +10,10 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary: 'text-black bg-scdh-blue-300 hover:bg-scdh-blue-200 active:bg-scdh-blue-400',
-        secondary: 'bg-ulb-grey-200 text-black hover:bg-ulb-grey-100 active:bg-ulb-grey-300',
-        tertiary: 'bg-white text-black hover:bg-ulb-grey-100 active:bg-ulb-grey-200',
-        tertiary_alt:
-          'box-border border border-ulb-grey-900 bg-white hover:bg-ulb-grey-100 active:bg-ulb-grey-200',
+        secondary:
+          'bg-white border border-scdh-blue-500 text-black hover:bg-scdh-blue-100 active:bg-scdh-blue-200',
+        tertiary:
+          'bg-white border border-ulb-grey-200 text-black hover:bg-ulb-grey-100 active:bg-ulb-grey-200',
         link: 'text-ulb-grey-900 underline-offset-4 underline  hover:decoration-transparent'
       },
       size: {
