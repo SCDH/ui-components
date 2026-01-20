@@ -3,10 +3,16 @@ import { Field, FieldLabel, FieldDescription, FieldContent } from '../../compone
 import { Input } from '../../components/ui/input'
 
 const meta = {
-  title: 'SCDH-UI/Field',
+  title: 'SCDH-UI/Text Field',
   component: Field,
   layout: 'centered',
-  tags: ['autodocs']
+  tags: ['autodocs'],
+  argTypes: {
+    disabled: {
+      control: 'boolean',
+      description: 'Disabled state'
+    }
+  }
 } satisfies Meta<typeof Field>
 
 export default meta
@@ -17,13 +23,28 @@ export const Default: Story = {
   args: {
     children: (
       <>
-        <FieldLabel htmlFor="checkout-7j9-card-name-43j">Name on Card</FieldLabel>
+        <FieldLabel htmlFor="checkout-7j9-card-name-43j">Label</FieldLabel>
         <FieldContent>
-          <Input id="checkout-7j9-card-name-43j" placeholder="Evil Rabbit" />
-          <FieldDescription>Optional helper text.</FieldDescription>
+          <Input id="checkout-7j9-card-name-43j" placeholder="Bitte geben Sie einen Namen ein" />
+          <FieldDescription>Kurze Beschreibung des Feldes</FieldDescription>
         </FieldContent>
       </>
     ),
     orientation: 'vertical'
+  }
+}
+
+export const Horizontal: Story = {
+  args: {
+    children: (
+      <>
+        <FieldLabel htmlFor="checkout-7j9-card-name-43j">Label</FieldLabel>
+        <FieldContent>
+          <Input id="checkout-7j9-card-name-43j" placeholder="Bitte geben Sie einen Namen ein" />
+          <FieldDescription>Kurze Beschreibung des Feldes</FieldDescription>
+        </FieldContent>
+      </>
+    ),
+    orientation: 'horizontal'
   }
 }
