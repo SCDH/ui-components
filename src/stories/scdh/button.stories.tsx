@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { fn } from 'storybook/test'
-import { ArrowUpIcon, PlusIcon, DownloadIcon } from 'lucide-react'
+import { ArrowUpIcon, DownloadIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const meta = {
