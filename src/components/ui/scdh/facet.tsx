@@ -118,6 +118,8 @@ export interface FacetProps {
  */
 export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
   ({ items, title, collapsible = false, defaultExpanded = true, selectionMode, onSelectionChange, onRefine, className }, ref) => {
+    // Generate unique ID for this facet instance to avoid ID collisions when multiple facets are on the same page
+    const facetId = React.useId()
     
     // Handle checkbox toggle
     const handleCheckboxChange = (itemValue: string, checked: boolean) => {
@@ -162,9 +164,9 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
             <FieldGroup className="gap-3">
               {items.map((item) => (
                 <Field key={item.id} orientation="horizontal" className="flex-row items-center gap-2">
-                  <RadioGroupItem value={item.value} id={`facet-radio-${item.id}`} />
+                  <RadioGroupItem value={item.value} id={`${facetId}-radio-${item.id}`} />
                   <Label 
-                    htmlFor={`facet-radio-${item.id}`} 
+                    htmlFor={`${facetId}-radio-${item.id}`} 
                     className="flex-1 flex items-center justify-between gap-2 text-base cursor-pointer"
                   >
                     <span className="font-medium">{item.label}</span>
@@ -184,12 +186,12 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
             {items.map((item) => (
               <Field key={item.id} orientation="horizontal" className="flex-row items-center gap-2">
                 <Checkbox 
-                  id={`facet-checkbox-${item.id}`}
+                  id={`${facetId}-checkbox-${item.id}`}
                   checked={item.isRefined}
                   onCheckedChange={(checked) => handleCheckboxChange(item.value, checked as boolean)}
                 />
                 <Label 
-                  htmlFor={`facet-checkbox-${item.id}`}
+                  htmlFor={`${facetId}-checkbox-${item.id}`}
                   className="flex-1 flex items-center justify-between gap-2 text-base cursor-pointer"
                 >
                   <span className="font-medium">{item.label}</span>
