@@ -9,20 +9,22 @@ import { Label } from '@/components/ui/label'
 
 /**
  * Single facet item data structure
- * Represents a term with its occurrence count
  */
 export interface FacetItem {
-  /** Unique identifier for the facet item */
+  /** Unique identifier for the facet item (same as value for InstantSearch compatibility) */
   id: string
   
-  /** The facet term/label (e.g., "JavaScript", "TypeScript") */
+  /** The facet value - used for filtering (InstantSearch uses this as the primary identifier) */
+  value: string
+  
+  /** The facet term/label to display (e.g., "JavaScript", "TypeScript") */
   label: string
   
   /** Number of occurrences in search results */
   count: number
   
-  /** Whether this item is currently selected */
-  selected?: boolean
+  /** Whether this item is currently selected/refined (InstantSearch uses 'isRefined') */
+  isRefined?: boolean
 }
 
 /**
@@ -44,67 +46,100 @@ export interface FacetProps {
   /** Selection mode: 'checkbox' for multiple selection, 'radio' for single selection, undefined for no selection */
   selectionMode?: 'checkbox' | 'radio'
   
-  /** Callback when selection changes */
-  onSelectionChange?: (selectedIds: string[]) => void
+  /** 
+   * Callback when selection changes
+   * For InstantSearch compatibility, also provides individual item refine callback
+   */
+  onSelectionChange?: (selectedValues: string[]) => void
+  
+  /**
+   * Callback for individual item selection (InstantSearch compatible)
+   * Called with the item value when an item is clicked
+   */
+  onRefine?: (value: string) => void
   
   /** Optional CSS class for styling */
   className?: string
 }
 
 /**
+ * SCDH Facet Component
  * 
  * Displays a list of facet items with their counts.
- * This is the foundation for a search facet component commonly used
- * in search interfaces to show term frequencies.
+ * This component is designed to be compatible with InstantSearch.js RefinementList,
+ * allowing seamless integration with search interfaces.
  * 
  * @example
  * ```tsx
+ * // Standalone usage
  * <Facet 
  *   title="Programming Languages"
  *   collapsible
  *   defaultExpanded
  *   selectionMode="checkbox"
- *   onSelectionChange={(ids) => console.log(ids)}
+ *   onSelectionChange={(values) => console.log(values)}
  *   items={[
- *     { id: '1', label: 'JavaScript', count: 42, selected: true },
- *     { id: '2', label: 'TypeScript', count: 15 }
+ *     { id: '1', value: 'js', label: 'JavaScript', count: 42, isRefined: true },
+ *     { id: '2', value: 'ts', label: 'TypeScript', count: 15, isRefined: false }
  *   ]}
+ * />
+ * 
+ * // InstantSearch.js compatible usage
+ * <Facet 
+ *   title="Categories"
+ *   selectionMode="checkbox"
+ *   onRefine={(value) => refine(value)}
+ *   items={refinementListItems}
  * />
  * ```
  */
 export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
-  ({ items, title, collapsible = false, defaultExpanded = true, selectionMode, onSelectionChange, className }, ref) => {
+  ({ items, title, collapsible = false, defaultExpanded = true, selectionMode, onSelectionChange, onRefine, className }, ref) => {
     
     // Handle checkbox toggle
-    const handleCheckboxChange = (itemId: string, checked: boolean) => {
+    const handleCheckboxChange = (itemValue: string, checked: boolean) => {
+      // Call InstantSearch-compatible onRefine if provided
+      if (onRefine) {
+        onRefine(itemValue)
+        return
+      }
+      
+      // Fallback to onSelectionChange
       if (!onSelectionChange) return
       
-      const currentSelected = items.filter(item => item.selected).map(item => item.id)
+      const currentSelected = items.filter(item => item.isRefined).map(item => item.value)
       const newSelected = checked
-        ? [...currentSelected, itemId]
-        : currentSelected.filter(id => id !== itemId)
+        ? [...currentSelected, itemValue]
+        : currentSelected.filter(val => val !== itemValue)
       
       onSelectionChange(newSelected)
     }
     
     // Handle radio selection
-    const handleRadioChange = (itemId: string) => {
+    const handleRadioChange = (itemValue: string) => {
+      // Call InstantSearch-compatible onRefine if provided
+      if (onRefine) {
+        onRefine(itemValue)
+        return
+      }
+      
+      // Fallback to onSelectionChange
       if (!onSelectionChange) return
-      onSelectionChange([itemId])
+      onSelectionChange([itemValue])
     }
     
     // Content that will be shown (either wrapped in accordion or not)
     const facetContent = (() => {
       // Radio button mode - single selection
       if (selectionMode === 'radio') {
-        const selectedId = items.find(item => item.selected)?.id
+        const selectedValue = items.find(item => item.isRefined)?.value
         
         return (
-          <RadioGroup value={selectedId} onValueChange={handleRadioChange}>
+          <RadioGroup value={selectedValue} onValueChange={handleRadioChange}>
             <FieldGroup className="gap-3">
               {items.map((item) => (
                 <Field key={item.id} orientation="horizontal" className="flex-row items-center gap-2">
-                  <RadioGroupItem value={item.id} id={`facet-radio-${item.id}`} />
+                  <RadioGroupItem value={item.value} id={`facet-radio-${item.id}`} />
                   <Label 
                     htmlFor={`facet-radio-${item.id}`} 
                     className="flex-1 flex items-center justify-between gap-4 text-sm font-medium cursor-pointer"
@@ -127,8 +162,8 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
               <Field key={item.id} orientation="horizontal" className="flex-row items-center gap-2">
                 <Checkbox 
                   id={`facet-checkbox-${item.id}`}
-                  checked={item.selected}
-                  onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
+                  checked={item.isRefined}
+                  onCheckedChange={(checked) => handleCheckboxChange(item.value, checked as boolean)}
                 />
                 <Label 
                   htmlFor={`facet-checkbox-${item.id}`}
