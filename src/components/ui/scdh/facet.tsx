@@ -14,3 +14,14 @@ export interface FacetItem {
   /** Number of occurrences in search results */
   count: number
 }
+
+/**
+ * Props for the Facet component
+ */
+export interface FacetProps {
+  /** Array of facet items to display */
+  items: FacetItem[]
+  
+  /** Optional CSS class for styling */
+  className?: string
+}
