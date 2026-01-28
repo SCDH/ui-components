@@ -229,3 +229,46 @@ export const InteractiveMultipleFilters: Story = {
   }
 }
 
+// InstantSearch compatible example (simulated)
+export const InstantSearchPattern: Story = {
+  name: 'InstantSearch.js Pattern (Instant Filtering)',
+  render: () => {
+    const [refinedItems, setRefinedItems] = useState<Set<string>>(new Set())
+
+    const handleRefine = (value: string) => {
+      setRefinedItems((prev) => {
+        const newSet = new Set(prev)
+        if (newSet.has(value)) {
+          newSet.delete(value)
+        } else {
+          newSet.add(value)
+        }
+        return newSet
+      })
+    }
+
+    return (
+      <div className="flex flex-col gap-6 max-w-sm">
+        <Facet
+          title="Categories"
+          items={bookCategories.map((item) => ({
+            ...item,
+            isRefined: refinedItems.has(item.value)
+          }))}
+          selectionMode="checkbox"
+          collapsible
+          onRefine={handleRefine}
+        />
+
+        {refinedItems.size > 0 && (
+          <div className="text-sm p-4 bg-scdh-blue-50 border border-scdh-blue-200 rounded-lg">
+            <div className="font-semibold text-scdh-blue-700 mb-2">
+              Active Filters (instant applied):
+            </div>
+            <div className="text-scdh-blue-600">{Array.from(refinedItems).join(', ')}</div>
+          </div>
+        )}
+      </div>
+    )
+  }
+}
