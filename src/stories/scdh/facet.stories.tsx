@@ -138,3 +138,94 @@ export const NoSelection: Story = {
     items: bookCategories.slice(0, 4)
   }
 }
+
+// Interactive example with state management
+export const InteractiveMultipleFilters: Story = {
+  name: 'Interactive: Deferred Filtering',
+  render: () => {
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+    const [selectedLanguages, setSelectedLanguages] = useState<string[]>([])
+    const [appliedFilters, setAppliedFilters] = useState<{ categories: string[]; languages: string[] }>({
+      categories: [],
+      languages: []
+    })
+
+    const handleApplyFilters = () => {
+      setAppliedFilters({
+        categories: selectedCategories,
+        languages: selectedLanguages
+      })
+    }
+
+    const handleResetFilters = () => {
+      setSelectedCategories([])
+      setSelectedLanguages([])
+      setAppliedFilters({ categories: [], languages: [] })
+    }
+
+    const totalSelected = selectedCategories.length + selectedLanguages.length
+    const hasChanges =
+      JSON.stringify(selectedCategories) !== JSON.stringify(appliedFilters.categories) ||
+      JSON.stringify(selectedLanguages) !== JSON.stringify(appliedFilters.languages)
+
+    return (
+      <div className="flex flex-col gap-6 max-w-sm">
+        <div className="flex flex-col gap-6">
+          <Facet
+            title="Categories"
+            items={bookCategories.map((item) => ({
+              ...item,
+              isRefined: selectedCategories.includes(item.value)
+            }))}
+            selectionMode="checkbox"
+            collapsible
+            defaultExpanded
+            onSelectionChange={setSelectedCategories}
+          />
+
+          <Facet
+            title="Languages"
+            items={bookLanguages.map((item) => ({
+              ...item,
+              isRefined: selectedLanguages.includes(item.value)
+            }))}
+            selectionMode="checkbox"
+            collapsible
+            defaultExpanded
+            onSelectionChange={setSelectedLanguages}
+          />
+        </div>
+
+        <div className="flex gap-2 pt-4 border-t">
+          <button
+            onClick={handleApplyFilters}
+            disabled={!hasChanges}
+            className="flex-1 px-4 py-2 bg-scdh-blue-500 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-scdh-blue-600 transition-colors"
+          >
+            Apply Filters {totalSelected > 0 && `(${totalSelected})`}
+          </button>
+          <button
+            onClick={handleResetFilters}
+            disabled={totalSelected === 0}
+            className="px-4 py-2 border border-ulb-grey-300 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-ulb-grey-100 transition-colors"
+          >
+            Reset
+          </button>
+        </div>
+
+        {appliedFilters.categories.length > 0 || appliedFilters.languages.length > 0 ? (
+          <div className="text-sm text-muted-foreground p-4 bg-ulb-grey-50 rounded-lg">
+            <div className="font-semibold mb-2">Applied Filters:</div>
+            {appliedFilters.categories.length > 0 && (
+              <div>Categories: {appliedFilters.categories.join(', ')}</div>
+            )}
+            {appliedFilters.languages.length > 0 && (
+              <div>Languages: {appliedFilters.languages.join(', ')}</div>
+            )}
+          </div>
+        ) : null}
+      </div>
+    )
+  }
+}
+
