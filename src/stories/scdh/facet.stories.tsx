@@ -74,3 +74,67 @@ const authors: FacetItem[] = [
   { id: 'mann', value: 'mann', label: 'Thomas Mann', count: 23 },
   { id: 'hesse', value: 'hesse', label: 'Hermann Hesse', count: 19 }
 ]
+
+// Basic Examples
+export const Default: Story = {
+  args: {
+    title: 'Categories',
+    items: bookCategories
+  }
+}
+
+export const WithCheckboxes: Story = {
+  name: 'Multiple Selection (Checkboxes)',
+  args: {
+    title: 'Languages',
+    items: bookLanguages,
+    selectionMode: 'checkbox'
+  }
+}
+
+export const WithRadioButtons: Story = {
+  name: 'Single Selection (Radio)',
+  args: {
+    title: 'Publication Period',
+    items: publicationYears,
+    selectionMode: 'radio'
+  }
+}
+
+export const Collapsible: Story = {
+  args: {
+    title: 'Categories',
+    items: bookCategories,
+    selectionMode: 'checkbox',
+    collapsible: true,
+    defaultExpanded: true
+  }
+}
+
+export const CollapsedByDefault: Story = {
+  name: 'Collapsed by Default',
+  args: {
+    title: 'Languages',
+    items: bookLanguages,
+    selectionMode: 'checkbox',
+    collapsible: true,
+    defaultExpanded: false
+  }
+}
+
+export const WithSelectedItems: Story = {
+  name: 'With Pre-selected Items',
+  args: {
+    title: 'Authors',
+    items: authors,
+    selectionMode: 'checkbox'
+  }
+}
+
+export const NoSelection: Story = {
+  name: 'Read-Only (No Selection)',
+  args: {
+    title: 'Most Popular Categories',
+    items: bookCategories.slice(0, 4)
+  }
+}
