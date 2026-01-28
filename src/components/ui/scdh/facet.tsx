@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
 
 /**
  * Single facet item data structure
@@ -164,10 +165,10 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
                   <RadioGroupItem value={item.value} id={`facet-radio-${item.id}`} />
                   <Label 
                     htmlFor={`facet-radio-${item.id}`} 
-                    className="flex-1 flex items-center justify-between gap-4 text-sm font-medium cursor-pointer"
+                    className="flex-1 flex items-center justify-between gap-2 text-base cursor-pointer"
                   >
-                    <span>{item.label}</span>
-                    <span className="text-muted-foreground">({item.count})</span>
+                    <span className="font-medium">{item.label}</span>
+                    <Badge variant="secondary" className="ml-auto bg-ulb-grey-100 border-0">{item.count}</Badge>
                   </Label>
                 </Field>
               ))}
@@ -189,10 +190,10 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
                 />
                 <Label 
                   htmlFor={`facet-checkbox-${item.id}`}
-                  className="flex-1 flex items-center justify-between gap-4 text-sm font-medium cursor-pointer"
+                  className="flex-1 flex items-center justify-between gap-2 text-base cursor-pointer"
                 >
-                  <span>{item.label}</span>
-                  <span className="text-muted-foreground">({item.count})</span>
+                  <span className="font-medium">{item.label}</span>
+                  <Badge variant="secondary" className="ml-auto bg-ulb-grey-100 border-0">{item.count}</Badge>
                 </Label>
               </Field>
             ))}
@@ -206,17 +207,15 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
           {items.map((item) => (
             <div
               key={item.id}
-              className="flex items-center justify-between gap-4 text-sm"
+              className="flex items-center justify-between gap-2 text-base"
             >
               {/* Term/Label */}
-              <span className="flex-1 font-medium text-foreground">
+              <span className="flex-1 font-medium">
                 {item.label}
               </span>
               
               {/* Count */}
-              <span className="text-muted-foreground">
-                ({item.count})
-              </span>
+              <Badge variant="secondary" className="bg-ulb-grey-100 border-0">{item.count}</Badge>
             </div>
           ))}
         </FieldGroup>
@@ -230,12 +229,12 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
           {/* Title with item count */}
           {title && (
             <>
-              <h3 className="text-base font-semibold text-foreground mb-3">
-                {title}
-                <span className="ml-2 text-sm font-normal text-muted-foreground">
-                  ({items.length})
-                </span>
-              </h3>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xl font-medium">
+                  {title}
+                </h3>
+                <Badge variant="secondary" className="bg-ulb-grey-100 border-0">{items.length}</Badge>
+              </div>
               <Separator className="mb-4" />
             </>
           )}
@@ -253,13 +252,11 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
           <AccordionItem value="facet-content" className="border-0">
             {/* Accordion Trigger with Title */}
             {title && (
-              <AccordionTrigger className="py-0 pb-3 hover:no-underline font-semibold text-base">
-                <span>
-                  {title}
-                  <span className="ml-2 text-sm font-normal text-muted-foreground">
-                    ({items.length})
-                  </span>
-                </span>
+              <AccordionTrigger className="py-0 pb-3 hover:no-underline text-xl font-medium">
+                <div className="flex items-center justify-between flex-1 pr-2">
+                  <span>{title}</span>
+                  <Badge variant="secondary" className="bg-ulb-grey-100 border-0">{items.length}</Badge>
+                </div>
               </AccordionTrigger>
             )}
             
