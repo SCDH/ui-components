@@ -47,16 +47,38 @@ export interface FacetProps {
   selectionMode?: 'checkbox' | 'radio'
   
   /** 
-   * Callback when selection changes
-   * For InstantSearch compatibility, also provides individual item refine callback
-   */
-  onSelectionChange?: (selectedValues: string[]) => void
-  
-  /**
-   * Callback for individual item selection (InstantSearch compatible)
-   * Called with the item value when an item is clicked
+   * Callback for individual item selection (InstantSearch.js compatible)
+   * Called with the item value when an item is toggled.
+   * Takes precedence over onSelectionChange if both are provided.
+   * 
+   * @param value - The value of the toggled item
+   * 
+   * @example
+   * ```tsx
+   * // InstantSearch usage
+   * const { items, refine } = useRefinementList({ attribute: 'brand' })
+   * <Facet items={items} onRefine={refine} />
+   * ```
    */
   onRefine?: (value: string) => void
+  
+  /** 
+   * Callback when selection changes (for standalone usage)
+   * Called with an array of all currently selected values.
+   * Only used if onRefine is not provided.
+   * 
+   * @param selectedValues - Array of selected item values
+   * 
+   * @example
+   * ```tsx
+   * // Standalone usage
+   * <Facet 
+   *   items={items}
+   *   onSelectionChange={(values) => setSelected(values)}
+   * />
+   * ```
+   */
+  onSelectionChange?: (selectedValues: string[]) => void
   
   /** Optional CSS class for styling */
   className?: string
