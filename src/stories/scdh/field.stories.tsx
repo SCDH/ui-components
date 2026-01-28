@@ -27,13 +27,14 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
+// Basic Field composition examples
 export const Default: Story = {
   args: {
     children: (
       <>
-        <FieldLabel htmlFor="checkout-7j9-card-name-43j">Label</FieldLabel>
+        <FieldLabel htmlFor="field-default">Label</FieldLabel>
         <FieldContent>
-          <Input id="checkout-7j9-card-name-43j" placeholder="Bitte geben Sie einen Namen ein" />
+          <Input id="field-default" placeholder="Bitte geben Sie einen Wert ein" />
           <FieldDescription>Kurze Beschreibung des Feldes</FieldDescription>
         </FieldContent>
       </>
@@ -46,9 +47,9 @@ export const Horizontal: Story = {
   args: {
     children: (
       <>
-        <FieldLabel htmlFor="checkout-7j9-card-name-43j">Label</FieldLabel>
+        <FieldLabel htmlFor="field-horizontal">Label</FieldLabel>
         <FieldContent>
-          <Input id="checkout-7j9-card-name-43j" placeholder="Bitte geben Sie einen Namen ein" />
+          <Input id="field-horizontal" placeholder="Bitte geben Sie einen Wert ein" />
           <FieldDescription>Kurze Beschreibung des Feldes</FieldDescription>
         </FieldContent>
       </>
