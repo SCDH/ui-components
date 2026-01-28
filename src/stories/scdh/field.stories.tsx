@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Field, FieldLabel, FieldDescription, FieldContent } from '../../components/ui/field'
 import { Input } from '../../components/ui/input'
+import { useId } from 'react'
 
 const meta = {
   title: 'SCDH-UI/Field',
@@ -189,3 +190,61 @@ export const ReadOnlyField: Story = {
   }
 }
 
+export const StatusField: Story = {
+  name: 'Status Display Field',
+  render: () => {
+    return (
+      <Field orientation="horizontal">
+        <FieldLabel>Account Status</FieldLabel>
+        <FieldContent>
+          <div className="flex items-center gap-2">
+            <span className="inline-flex h-2 w-2 rounded-full bg-green-500" />
+            <span className="text-base font-medium">Aktiv</span>
+          </div>
+        </FieldContent>
+      </Field>
+    )
+  }
+}
+
+export const MultiLineField: Story = {
+  name: 'Multi-Line Text Display',
+  render: () => {
+    return (
+      <Field orientation="vertical">
+        <FieldLabel>Adresse</FieldLabel>
+        <FieldContent>
+          <div className="text-base">
+            <p className="font-medium">Max Mustermann</p>
+            <p>Musterstraße 123</p>
+            <p>48149 Münster</p>
+            <p>Deutschland</p>
+          </div>
+          <FieldDescription>Ihre hinterlegte Lieferadresse</FieldDescription>
+        </FieldContent>
+      </Field>
+    )
+  }
+}
+
+export const LinkField: Story = {
+  name: 'Field with Link',
+  render: () => {
+    return (
+      <Field orientation="vertical">
+        <FieldLabel>Projektwebsite</FieldLabel>
+        <FieldContent>
+          <a
+            href="https://www.uni-muenster.de/SCDH"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-base font-medium text-scdh-blue-500 hover:text-scdh-blue-400 underline"
+          >
+            www.uni-muenster.de/SCDH
+          </a>
+          <FieldDescription>Besuchen Sie unsere Website für weitere Informationen</FieldDescription>
+        </FieldContent>
+      </Field>
+    )
+  }
+}
