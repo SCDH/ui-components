@@ -1,8 +1,11 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
-import { FieldGroup } from '@/components/ui/field'
+import { Field, FieldGroup } from '@/components/ui/field'
 import { Separator } from '@/components/ui/separator'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { Checkbox } from '@/components/ui/checkbox'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Label } from '@/components/ui/label'
 
 /**
  * Single facet item data structure
@@ -17,6 +20,9 @@ export interface FacetItem {
   
   /** Number of occurrences in search results */
   count: number
+  
+  /** Whether this item is currently selected */
+  selected?: boolean
 }
 
 /**
@@ -35,6 +41,12 @@ export interface FacetProps {
   /** Whether the facet should be expanded by default when collapsible (default: true) */
   defaultExpanded?: boolean
   
+  /** Selection mode: 'checkbox' for multiple selection, 'radio' for single selection, undefined for no selection */
+  selectionMode?: 'checkbox' | 'radio'
+  
+  /** Callback when selection changes */
+  onSelectionChange?: (selectedIds: string[]) => void
+  
   /** Optional CSS class for styling */
   className?: string
 }
@@ -51,36 +63,108 @@ export interface FacetProps {
  *   title="Programming Languages"
  *   collapsible
  *   defaultExpanded
+ *   selectionMode="checkbox"
+ *   onSelectionChange={(ids) => console.log(ids)}
  *   items={[
- *     { id: '1', label: 'JavaScript', count: 42 },
+ *     { id: '1', label: 'JavaScript', count: 42, selected: true },
  *     { id: '2', label: 'TypeScript', count: 15 }
  *   ]}
  * />
  * ```
  */
 export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
-  ({ items, title, collapsible = false, defaultExpanded = true, className }, ref) => {
+  ({ items, title, collapsible = false, defaultExpanded = true, selectionMode, onSelectionChange, className }, ref) => {
+    
+    // Handle checkbox toggle
+    const handleCheckboxChange = (itemId: string, checked: boolean) => {
+      if (!onSelectionChange) return
+      
+      const currentSelected = items.filter(item => item.selected).map(item => item.id)
+      const newSelected = checked
+        ? [...currentSelected, itemId]
+        : currentSelected.filter(id => id !== itemId)
+      
+      onSelectionChange(newSelected)
+    }
+    
+    // Handle radio selection
+    const handleRadioChange = (itemId: string) => {
+      if (!onSelectionChange) return
+      onSelectionChange([itemId])
+    }
+    
     // Content that will be shown (either wrapped in accordion or not)
-    const facetContent = (
-      <FieldGroup className="gap-3">
-        {items.map((item) => (
-          <div
-            key={item.id}
-            className="flex items-center justify-between gap-4 text-sm"
-          >
-            {/* Term/Label */}
-            <span className="flex-1 font-medium text-foreground">
-              {item.label}
-            </span>
-            
-            {/* Count */}
-            <span className="text-muted-foreground">
-              ({item.count})
-            </span>
-          </div>
-        ))}
-      </FieldGroup>
-    )
+    const facetContent = (() => {
+      // Radio button mode - single selection
+      if (selectionMode === 'radio') {
+        const selectedId = items.find(item => item.selected)?.id
+        
+        return (
+          <RadioGroup value={selectedId} onValueChange={handleRadioChange}>
+            <FieldGroup className="gap-3">
+              {items.map((item) => (
+                <Field key={item.id} orientation="horizontal" className="flex-row items-center gap-2">
+                  <RadioGroupItem value={item.id} id={`facet-radio-${item.id}`} />
+                  <Label 
+                    htmlFor={`facet-radio-${item.id}`} 
+                    className="flex-1 flex items-center justify-between gap-4 text-sm font-medium cursor-pointer"
+                  >
+                    <span>{item.label}</span>
+                    <span className="text-muted-foreground">({item.count})</span>
+                  </Label>
+                </Field>
+              ))}
+            </FieldGroup>
+          </RadioGroup>
+        )
+      }
+      
+      // Checkbox mode - multiple selection
+      if (selectionMode === 'checkbox') {
+        return (
+          <FieldGroup className="gap-3">
+            {items.map((item) => (
+              <Field key={item.id} orientation="horizontal" className="flex-row items-center gap-2">
+                <Checkbox 
+                  id={`facet-checkbox-${item.id}`}
+                  checked={item.selected}
+                  onCheckedChange={(checked) => handleCheckboxChange(item.id, checked as boolean)}
+                />
+                <Label 
+                  htmlFor={`facet-checkbox-${item.id}`}
+                  className="flex-1 flex items-center justify-between gap-4 text-sm font-medium cursor-pointer"
+                >
+                  <span>{item.label}</span>
+                  <span className="text-muted-foreground">({item.count})</span>
+                </Label>
+              </Field>
+            ))}
+          </FieldGroup>
+        )
+      }
+      
+      // No selection mode - simple list
+      return (
+        <FieldGroup className="gap-3">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-center justify-between gap-4 text-sm"
+            >
+              {/* Term/Label */}
+              <span className="flex-1 font-medium text-foreground">
+                {item.label}
+              </span>
+              
+              {/* Count */}
+              <span className="text-muted-foreground">
+                ({item.count})
+              </span>
+            </div>
+          ))}
+        </FieldGroup>
+      )
+    })()
 
     // If not collapsible, render simple version
     if (!collapsible) {
