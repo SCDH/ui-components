@@ -3,8 +3,16 @@ import { Field, FieldLabel, FieldDescription, FieldContent } from '../../compone
 import { Input } from '../../components/ui/input'
 
 const meta = {
-  title: 'SCDH-UI/Text Field',
+  title: 'SCDH-UI/Field',
   component: Field,
+  parameters: {
+    docs: {
+      description: {
+        component:
+          'A flexible layout component for form fields and labeled content. While commonly used with input elements in forms, Field supports any type of content including static text, links, and custom components.'
+      }
+    }
+  },
   tags: ['autodocs'],
   argTypes: {
     orientation: {
