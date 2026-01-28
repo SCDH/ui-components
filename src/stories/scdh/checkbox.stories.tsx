@@ -9,7 +9,21 @@ const meta = {
   parameters: {
     layout: 'centered'
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
+  argTypes: {
+    disabled: {
+      control: 'boolean',
+      description: 'Disabled state of the checkbox'
+    },
+    checked: {
+      control: 'boolean',
+      description: 'Checked state (controlled)'
+    },
+    defaultChecked: {
+      control: 'boolean',
+      description: 'Default checked state (uncontrolled)'
+    }
+  }
 } satisfies Meta<typeof Checkbox>
 
 export default meta
@@ -17,10 +31,57 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  render: () => (
+  args: {
+    id: 'example',
+    defaultChecked: false,
+    disabled: false
+  },
+  render: (args) => (
     <Field orientation="horizontal" className="flex-row items-center gap-2">
-      <Checkbox id="example" />
-      <Label htmlFor="example">Label</Label>
+      <Checkbox {...args} />
+      <Label htmlFor={args.id}>Label</Label>
+    </Field>
+  )
+}
+
+export const Checked: Story = {
+  args: {
+    id: 'checked-example',
+    defaultChecked: true,
+    disabled: false
+  },
+  render: (args) => (
+    <Field orientation="horizontal" className="flex-row items-center gap-2">
+      <Checkbox {...args} />
+      <Label htmlFor={args.id}>Ich akzeptiere die Bedingungen</Label>
+    </Field>
+  )
+}
+
+export const Disabled: Story = {
+  args: {
+    id: 'disabled-example',
+    defaultChecked: false,
+    disabled: true
+  },
+  render: (args) => (
+    <Field orientation="horizontal" className="flex-row items-center gap-2">
+      <Checkbox {...args} />
+      <Label htmlFor={args.id}>Deaktiviert</Label>
+    </Field>
+  )
+}
+
+export const DisabledChecked: Story = {
+  args: {
+    id: 'disabled-checked-example',
+    defaultChecked: true,
+    disabled: true
+  },
+  render: (args) => (
+    <Field orientation="horizontal" className="flex-row items-center gap-2">
+      <Checkbox {...args} />
+      <Label htmlFor={args.id}>Deaktiviert und ausgewählt</Label>
     </Field>
   )
 }
