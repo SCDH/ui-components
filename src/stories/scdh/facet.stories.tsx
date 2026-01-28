@@ -1,3 +1,41 @@
+import type { Meta, StoryObj } from '@storybook/react-vite'
+import { Facet, type FacetItem } from '../../components/ui/scdh/facet'
+import { useState } from 'react'
+
+const meta = {
+  title: 'SCDH-UI/Facet',
+  component: Facet,
+  parameters: {
+    layout: 'padded',
+    docs: {
+      description: {
+        component:
+          'A facet component for displaying filterable categories with counts. Compatible with InstantSearch.js RefinementList. Supports multiple selection modes (checkbox/radio) and can be collapsible.'
+      }
+    }
+  },
+  tags: ['autodocs'],
+  argTypes: {
+    selectionMode: {
+      control: 'select',
+      options: [undefined, 'checkbox', 'radio'],
+      description: 'Selection mode for facet items'
+    },
+    collapsible: {
+      control: 'boolean',
+      description: 'Whether the facet can be collapsed'
+    },
+    defaultExpanded: {
+      control: 'boolean',
+      description: 'Whether the facet is expanded by default (when collapsible)'
+    }
+  }
+} satisfies Meta<typeof Facet>
+
+export default meta
+
+type Story = StoryObj<typeof meta>
+
 // Sample library data - Book categories
 const bookCategories: FacetItem[] = [
   { id: 'fiction', value: 'fiction', label: 'Fiction', count: 1243 },
