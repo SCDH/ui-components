@@ -5,12 +5,12 @@ import { Input } from '../../components/ui/input'
 const meta = {
   title: 'SCDH-UI/Text Field',
   component: Field,
-  layout: 'centered',
   tags: ['autodocs'],
   argTypes: {
-    disabled: {
-      control: 'boolean',
-      description: 'Disabled state'
+    orientation: {
+      control: 'select',
+      options: ['vertical', 'horizontal', 'responsive'],
+      description: 'Layout orientation of the field'
     }
   }
 } satisfies Meta<typeof Field>
