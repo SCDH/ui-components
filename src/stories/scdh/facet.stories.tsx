@@ -80,7 +80,14 @@ export const Default: Story = {
   args: {
     title: 'Categories',
     items: bookCategories
-  }
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-full max-w-[400px]">
+        <Story />
+      </div>
+    )
+  ]
 }
 
 export const WithCheckboxes: Story = {
@@ -89,7 +96,14 @@ export const WithCheckboxes: Story = {
     title: 'Languages',
     items: bookLanguages,
     selectionMode: 'checkbox'
-  }
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-full max-w-[400px]">
+        <Story />
+      </div>
+    )
+  ]
 }
 
 export const WithRadioButtons: Story = {
@@ -98,7 +112,14 @@ export const WithRadioButtons: Story = {
     title: 'Publication Period',
     items: publicationYears,
     selectionMode: 'radio'
-  }
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-full max-w-[400px]">
+        <Story />
+      </div>
+    )
+  ]
 }
 
 export const Collapsible: Story = {
@@ -108,7 +129,14 @@ export const Collapsible: Story = {
     selectionMode: 'checkbox',
     collapsible: true,
     defaultExpanded: true
-  }
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-full max-w-[400px]">
+        <Story />
+      </div>
+    )
+  ]
 }
 
 export const CollapsedByDefault: Story = {
@@ -119,7 +147,14 @@ export const CollapsedByDefault: Story = {
     selectionMode: 'checkbox',
     collapsible: true,
     defaultExpanded: false
-  }
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-full max-w-[400px]">
+        <Story />
+      </div>
+    )
+  ]
 }
 
 export const WithSelectedItems: Story = {
@@ -128,7 +163,14 @@ export const WithSelectedItems: Story = {
     title: 'Authors',
     items: authors,
     selectionMode: 'checkbox'
-  }
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-full max-w-[400px]">
+        <Story />
+      </div>
+    )
+  ]
 }
 
 export const NoSelection: Story = {
@@ -136,7 +178,14 @@ export const NoSelection: Story = {
   args: {
     title: 'Most Popular Categories',
     items: bookCategories.slice(0, 4)
-  }
+  },
+  decorators: [
+    (Story) => (
+      <div className="w-full max-w-[400px]">
+        <Story />
+      </div>
+    )
+  ]
 }
 
 // Interactive example with state management
@@ -169,7 +218,7 @@ export const InteractiveMultipleFilters: Story = {
       JSON.stringify(selectedLanguages) !== JSON.stringify(appliedFilters.languages)
 
     return (
-      <div className="flex flex-col gap-6 max-w-sm">
+      <div className="flex flex-col gap-6 w-full max-w-[400px]">
         <div className="flex flex-col gap-6">
           <Facet
             title="Categories"
@@ -248,7 +297,7 @@ export const InstantSearchPattern: Story = {
     }
 
     return (
-      <div className="flex flex-col gap-6 max-w-sm">
+      <div className="flex flex-col gap-6 w-full max-w-[400px]">
         <Facet
           title="Categories"
           items={bookCategories.map((item) => ({
