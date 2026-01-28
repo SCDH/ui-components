@@ -2,11 +2,14 @@ import * as React from 'react'
 import { cn } from '@/lib/utils'
 import { Field, FieldGroup } from '@/components/ui/field'
 import { Separator } from '@/components/ui/separator'
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { Accordion, AccordionContent, AccordionItem } from '@/components/ui/accordion'
+import * as AccordionPrimitive from '@radix-ui/react-accordion'
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import { Card } from '@/components/ui/card'
+import { ChevronUp } from 'lucide-react'
 
 /**
  * Single facet item data structure
@@ -227,51 +230,61 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
     // If not collapsible, render simple version
     if (!collapsible) {
       return (
-        <div ref={ref} className={cn('flex flex-col', className)}>
+        <Card ref={ref} className={cn('', className)}>
           {/* Title with item count */}
           {title && (
             <>
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xl font-medium">
-                  {title}
-                </h3>
-                <Badge variant="secondary" className="bg-ulb-grey-100 border-0">{items.length}</Badge>
+              <div className="px-6 pt-6 pb-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-medium">
+                    {title}
+                  </h3>
+                  <Badge variant="secondary" className="bg-ulb-grey-100 border-0">{items.length}</Badge>
+                </div>
               </div>
-              <Separator className="mb-4" />
+              <Separator className="w-full bg-ulb-grey-300" />
             </>
           )}
           
           {/* Facet items list */}
-          {facetContent}
-        </div>
+          <div className={cn("px-6", title ? "pt-6 pb-6" : "p-6")}>
+            {facetContent}
+          </div>
+        </Card>
       )
     }
 
     // Collapsible version with accordion
     return (
-      <div ref={ref} className={cn('flex flex-col', className)}>
+      <Card ref={ref} className={cn('', className)}>
         <Accordion type="single" collapsible defaultValue={defaultExpanded ? 'facet-content' : undefined}>
           <AccordionItem value="facet-content" className="border-0">
-            {/* Accordion Trigger with Title */}
+            {/* Custom Header with Title and Toggle Button */}
             {title && (
-              <AccordionTrigger className="py-0 pb-3 hover:no-underline text-xl font-medium">
-                <div className="flex items-center justify-between flex-1 pr-2">
-                  <span>{title}</span>
-                  <Badge variant="secondary" className="bg-ulb-grey-100 border-0">{items.length}</Badge>
+              <>
+                <div className="px-6 pt-6 pb-4">
+                  <AccordionPrimitive.Header className="flex">
+                    <div className="flex items-center justify-between w-full">
+                      <h3 className="text-xl font-medium">{title}</h3>
+                      <AccordionPrimitive.Trigger className="rounded-full border-2 border-current p-2 hover:bg-accent transition-colors [&[data-state=open]>svg]:rotate-180">
+                        <ChevronUp className="h-5 w-5 transition-transform duration-200" />
+                      </AccordionPrimitive.Trigger>
+                    </div>
+                  </AccordionPrimitive.Header>
                 </div>
-              </AccordionTrigger>
+                
+                {/* Separator */}
+                <Separator className="w-full bg-ulb-grey-300" />
+              </>
             )}
             
-            {/* Separator */}
-            {title && <Separator className="mb-4" />}
-            
             {/* Accordion Content */}
-            <AccordionContent className="pb-0">
+            <AccordionContent className="px-6 pb-6 pt-6">
               {facetContent}
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-      </div>
+      </Card>
     )
   }
 )
