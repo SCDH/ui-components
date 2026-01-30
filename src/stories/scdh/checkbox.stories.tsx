@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Checkbox } from '../../components/ui/checkbox'
-import { Label } from '@radix-ui/react-label'
+import { Label } from '@/components/ui/label'
 import { Field } from '@/components/ui/field'
 
 const meta = {
@@ -36,7 +36,7 @@ export const Default: Story = {
     defaultChecked: false,
     disabled: false
   },
-  render: (args) => (
+  render: args => (
     <Field orientation="horizontal" className="flex-row items-center gap-2">
       <Checkbox {...args} />
       <Label htmlFor={args.id}>Label</Label>
@@ -50,7 +50,7 @@ export const Checked: Story = {
     defaultChecked: true,
     disabled: false
   },
-  render: (args) => (
+  render: args => (
     <Field orientation="horizontal" className="flex-row items-center gap-2">
       <Checkbox {...args} />
       <Label htmlFor={args.id}>Ich akzeptiere die Bedingungen</Label>
@@ -64,7 +64,7 @@ export const Disabled: Story = {
     defaultChecked: false,
     disabled: true
   },
-  render: (args) => (
+  render: args => (
     <Field orientation="horizontal" className="flex-row items-center gap-2">
       <Checkbox {...args} />
       <Label htmlFor={args.id}>Deaktiviert</Label>
@@ -78,7 +78,7 @@ export const DisabledChecked: Story = {
     defaultChecked: true,
     disabled: true
   },
-  render: (args) => (
+  render: args => (
     <Field orientation="horizontal" className="flex-row items-center gap-2">
       <Checkbox {...args} />
       <Label htmlFor={args.id}>Deaktiviert und ausgewählt</Label>
