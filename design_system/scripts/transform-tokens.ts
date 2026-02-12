@@ -71,10 +71,16 @@ interface TransformedTokens {
 /**
  * Converts hex color to HSL format for CSS variables
  * Example: #daebff -> 211 77% 93%
+ * Special cases: #fff -> 0 0% 100% (white), #000 -> 0 0% 0% (black)
  */
 function hexToHSL(hex: string): string {
   // Remove # if present
   hex = hex.replace('#', '');
+  
+  // Handle 3-digit hex codes (e.g., #fff -> #ffffff)
+  if (hex.length === 3) {
+    hex = hex.split('').map(char => char + char).join('');
+  }
   
   // Convert hex to RGB
   const r = parseInt(hex.substring(0, 2), 16) / 255;
@@ -104,6 +110,7 @@ function hexToHSL(hex: string): string {
         break;
     }
   }
+  // else: h = 0, s = 0 (grayscale: white, black, or gray)
   
   // Convert to degrees and percentages
   const hDeg = Math.round(h * 360);
