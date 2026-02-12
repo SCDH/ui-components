@@ -68,7 +68,13 @@ const publicationYears: FacetItem[] = [
 
 // Authors (with some selected)
 const authors: FacetItem[] = [
-  { id: 'goethe', value: 'goethe', label: 'Johann Wolfgang von Goethe', count: 45, isRefined: true },
+  {
+    id: 'goethe',
+    value: 'goethe',
+    label: 'Johann Wolfgang von Goethe',
+    count: 45,
+    isRefined: true
+  },
   { id: 'schiller', value: 'schiller', label: 'Friedrich Schiller', count: 32 },
   { id: 'kafka', value: 'kafka', label: 'Franz Kafka', count: 28, isRefined: true },
   { id: 'mann', value: 'mann', label: 'Thomas Mann', count: 23 },
@@ -82,8 +88,8 @@ export const Default: Story = {
     items: bookCategories
   },
   decorators: [
-    (Story) => (
-      <div className="w-full max-w-[400px]">
+    Story => (
+      <div className="w-full max-w-[300px]">
         <Story />
       </div>
     )
@@ -98,8 +104,8 @@ export const WithCheckboxes: Story = {
     selectionMode: 'checkbox'
   },
   decorators: [
-    (Story) => (
-      <div className="w-full max-w-[400px]">
+    Story => (
+      <div className="w-full max-w-[300px]">
         <Story />
       </div>
     )
@@ -114,8 +120,8 @@ export const WithRadioButtons: Story = {
     selectionMode: 'radio'
   },
   decorators: [
-    (Story) => (
-      <div className="w-full max-w-[400px]">
+    Story => (
+      <div className="w-full max-w-[300px]">
         <Story />
       </div>
     )
@@ -131,8 +137,8 @@ export const Collapsible: Story = {
     defaultExpanded: true
   },
   decorators: [
-    (Story) => (
-      <div className="w-full max-w-[400px]">
+    Story => (
+      <div className="w-full max-w-[300px]">
         <Story />
       </div>
     )
@@ -149,8 +155,8 @@ export const CollapsedByDefault: Story = {
     defaultExpanded: false
   },
   decorators: [
-    (Story) => (
-      <div className="w-full max-w-[400px]">
+    Story => (
+      <div className="w-full max-w-[300px]">
         <Story />
       </div>
     )
@@ -165,8 +171,8 @@ export const WithSelectedItems: Story = {
     selectionMode: 'checkbox'
   },
   decorators: [
-    (Story) => (
-      <div className="w-full max-w-[400px]">
+    Story => (
+      <div className="w-full max-w-[300px]">
         <Story />
       </div>
     )
@@ -180,8 +186,8 @@ export const NoSelection: Story = {
     items: bookCategories.slice(0, 4)
   },
   decorators: [
-    (Story) => (
-      <div className="w-full max-w-[400px]">
+    Story => (
+      <div className="w-full max-w-[300px]">
         <Story />
       </div>
     )
@@ -194,7 +200,10 @@ export const InteractiveMultipleFilters: Story = {
   render: () => {
     const [selectedCategories, setSelectedCategories] = useState<string[]>([])
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>([])
-    const [appliedFilters, setAppliedFilters] = useState<{ categories: string[]; languages: string[] }>({
+    const [appliedFilters, setAppliedFilters] = useState<{
+      categories: string[]
+      languages: string[]
+    }>({
       categories: [],
       languages: []
     })
@@ -222,7 +231,7 @@ export const InteractiveMultipleFilters: Story = {
         <div className="flex flex-col gap-6">
           <Facet
             title="Categories"
-            items={bookCategories.map((item) => ({
+            items={bookCategories.map(item => ({
               ...item,
               isRefined: selectedCategories.includes(item.value)
             }))}
@@ -234,7 +243,7 @@ export const InteractiveMultipleFilters: Story = {
 
           <Facet
             title="Languages"
-            items={bookLanguages.map((item) => ({
+            items={bookLanguages.map(item => ({
               ...item,
               isRefined: selectedLanguages.includes(item.value)
             }))}
@@ -285,7 +294,7 @@ export const InstantSearchPattern: Story = {
     const [refinedItems, setRefinedItems] = useState<Set<string>>(new Set())
 
     const handleRefine = (value: string) => {
-      setRefinedItems((prev) => {
+      setRefinedItems(prev => {
         const newSet = new Set(prev)
         if (newSet.has(value)) {
           newSet.delete(value)
@@ -297,10 +306,10 @@ export const InstantSearchPattern: Story = {
     }
 
     return (
-      <div className="flex flex-col gap-6 w-full max-w-[400px]">
+      <div className="flex flex-col gap-6 w-full max-w-[300px]">
         <Facet
           title="Categories"
-          items={bookCategories.map((item) => ({
+          items={bookCategories.map(item => ({
             ...item,
             isRefined: refinedItems.has(item.value)
           }))}
