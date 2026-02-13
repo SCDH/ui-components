@@ -176,28 +176,49 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
 
         return (
           <RadioGroup value={selectedValue} onValueChange={handleRadioChange}>
-            <FieldGroup className="gap-2">
+            <FieldGroup className="gap-3">
               {items.map(item => (
-                <Field
-                  key={item.id}
-                  orientation="horizontal"
-                  className="flex-row items-center gap-2"
-                >
-                  <RadioGroupItem value={item.value} id={`${facetId}-radio-${item.id}`} />
-                  <Label
-                    htmlFor={`${facetId}-radio-${item.id}`}
-                    className="flex-1 flex items-center justify-between gap-2 text-md cursor-pointer"
-                  >
-                    <span className="font-medium">{item.label}</span>
-                    <Badge variant="secondary" className="ml-auto bg-ulb-grey-100 border-0">
-                      {item.count}
-                    </Badge>
-                  </Label>
-                </Field>
+                <div key={item.id} className="flex flex-row items-center justify-between">
+                  <Field className="flex-row gap-2">
+                    <RadioGroupItem value={item.value} id={`${facetId}-radio-${item.id}`} />
+                    <Label
+                      htmlFor={`${facetId}-radio-${item.id}`}
+                      className=" flex-none text-md cursor-pointer"
+                    >
+                      {item.label}
+                    </Label>
+                  </Field>
+                  <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
+                </div>
               ))}
             </FieldGroup>
           </RadioGroup>
         )
+
+        // return (
+        //   <RadioGroup value={selectedValue} onValueChange={handleRadioChange}>
+        //     <FieldGroup className="gap-3">
+        //       {items.map(item => (
+        //         <Field
+        //           key={item.id}
+        //           orientation="horizontal"
+        //           className="flex-row items-center gap-2"
+        //         >
+        //           <RadioGroupItem value={item.value} id={`${facetId}-radio-${item.id}`} />
+        //           <Label
+        //             htmlFor={`${facetId}-radio-${item.id}`}
+        //             className="flex-1 flex items-center justify-between gap-2 text-md cursor-pointer"
+        //           >
+        //             <span className="font-medium">{item.label}</span>
+        //             <Badge variant="secondary" className="ml-auto bg-ulb-grey-100 border-0">
+        //               {item.count}
+        //             </Badge>
+        //           </Label>
+        //         </Field>
+        //       ))}
+        //     </FieldGroup>
+        //   </RadioGroup>
+        // )
       }
 
       // Checkbox mode - multiple selection
@@ -205,25 +226,49 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
         return (
           <FieldGroup className="gap-3">
             {items.map(item => (
-              <Field key={item.id} orientation="horizontal" className="flex-row items-center gap-2">
-                <Checkbox
-                  id={`${facetId}-checkbox-${item.id}`}
-                  checked={item.isRefined}
-                  onCheckedChange={checked => handleCheckboxChange(item.value, checked as boolean)}
-                />
-                <Label
-                  htmlFor={`${facetId}-checkbox-${item.id}`}
-                  className="flex-1 flex items-center justify-between gap-2 text-md cursor-pointer"
-                >
-                  <span className="font-medium">{item.label}</span>
-                  <Badge variant="secondary" className="ml-auto bg-ulb-grey-100 border-0">
-                    {item.count}
-                  </Badge>
-                </Label>
-              </Field>
+              <div key={item.id} className="flex flex-row items-center justify-between">
+                <Field orientation="horizontal" className="gap-2">
+                  <Checkbox
+                    id={`${facetId}-checkbox-${item.id}`}
+                    checked={item.isRefined}
+                    onCheckedChange={checked =>
+                      handleCheckboxChange(item.value, checked as boolean)
+                    }
+                  />
+                  <Label
+                    htmlFor={`${facetId}-checkbox-${item.id}`}
+                    className=" text-md cursor-pointer"
+                  >
+                    {item.label}
+                  </Label>
+                </Field>
+                <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
+              </div>
             ))}
           </FieldGroup>
         )
+        // return (
+        //   <FieldGroup className="gap-3">
+        //     {items.map(item => (
+        //       <Field key={item.id} orientation="horizontal" className="flex-row items-center gap-2">
+        //         <Checkbox
+        //           id={`${facetId}-checkbox-${item.id}`}
+        //           checked={item.isRefined}
+        //           onCheckedChange={checked => handleCheckboxChange(item.value, checked as boolean)}
+        //         />
+        //         <Label
+        //           htmlFor={`${facetId}-checkbox-${item.id}`}
+        //           className="flex-1 flex items-center justify-between gap-2 text-md cursor-pointer"
+        //         >
+        //           <span className="font-medium">{item.label}</span>
+        //           <Badge variant="secondary" className="ml-auto bg-ulb-grey-100 border-0">
+        //             {item.count}
+        //           </Badge>
+        //         </Label>
+        //       </Field>
+        //     ))}
+        //   </FieldGroup>
+        // )
       }
 
       // No selection mode - simple list
@@ -235,9 +280,7 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
               <span className="flex-1 font-medium">{item.label}</span>
 
               {/* Count */}
-              <Badge variant="secondary" className="bg-ulb-grey-100 border-0">
-                {item.count}
-              </Badge>
+              <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
             </div>
           ))}
         </FieldGroup>
@@ -252,11 +295,11 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
           {title && (
             <>
               <div className="px-4 pt-4 pb-3 ">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-start gap-1">
                   <h3 className="text-lg font-medium">{title}</h3>
-                  <Badge variant="secondary" className="bg-ulb-grey-100 border-0">
-                    {items.length}
-                  </Badge>
+                  <Label className="text-lg text-ulb-grey-800  cursor-pointer">
+                    ({items.length})
+                  </Label>
                 </div>
               </div>
               <Separator className="w-full bg-ulb-grey-100" />
