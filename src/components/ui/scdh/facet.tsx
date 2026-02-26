@@ -7,9 +7,9 @@ import * as AccordionPrimitive from '@radix-ui/react-accordion'
 import { Checkbox } from '@/components/ui/checkbox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
-import { ChevronUp, CircleChevronUp } from 'lucide-react'
+import { SearchBar } from '@/components/ui/scdh/search-bar'
+import { ChevronUp } from 'lucide-react'
 
 /**
  * Single facet item data structure
@@ -84,6 +84,38 @@ export interface FacetProps {
    */
   onSelectionChange?: (selectedValues: string[]) => void
 
+  /**
+   * Enable a search/filter input for long facet lists.
+   * When true, a compact SearchBar is rendered above the items list.
+   */
+  searchable?: boolean
+
+  /** Placeholder text for the search input (only used when searchable is true) */
+  searchPlaceholder?: string
+
+  /**
+   * Optional callback when the search query changes.
+   *
+   * If provided, the Facet does NOT filter locally – the consumer is
+   * responsible for providing already-filtered items (e.g. via InstantSearch's
+   * searchForItems). This enables server-side facet search.
+   *
+   * If not provided, the Facet filters items locally by label (default).
+   *
+   * @param query - The current search input value
+   *
+   * @example
+   * ```tsx
+   * // Server-side filtering (InstantSearch)
+   * const { items, searchForItems } = useRefinementList({ attribute: 'brand' })
+   * <Facet searchable onSearchChange={searchForItems} items={items} />
+   *
+   * // Local filtering (default – no onSearchChange needed)
+   * <Facet searchable items={items} />
+   * ```
+   */
+  onSearchChange?: (query: string) => void
+
   /** Optional CSS class for styling */
   className?: string
 }
@@ -129,12 +161,51 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
       selectionMode,
       onSelectionChange,
       onRefine,
+      searchable = false,
+      searchPlaceholder = 'Filter...',
+      onSearchChange,
       className
     },
     ref
   ) => {
     // Generate unique ID for this facet instance to avoid ID collisions when multiple facets are on the same page
     const facetId = React.useId()
+
+    // -----------------------------------------------------------------------
+    // Local filter state for searchable facets
+    // -----------------------------------------------------------------------
+    const [filterQuery, setFilterQuery] = React.useState('')
+
+    /**
+     * Handle search input changes.
+     * If onSearchChange is provided, delegate filtering to the consumer
+     * (server-side / InstantSearch). Otherwise, store the query locally
+     * for client-side filtering.
+     */
+    const handleSearchChange = React.useCallback(
+      (query: string) => {
+        setFilterQuery(query)
+        onSearchChange?.(query)
+      },
+      [onSearchChange]
+    )
+
+    /**
+     * Items to display after filtering.
+     *
+     * - If onSearchChange is provided → items are already filtered by the
+     *   consumer, so we pass them through unchanged.
+     * - If not → we apply a case-insensitive substring match on item labels.
+     */
+    const displayItems = React.useMemo(() => {
+      // No search active or filtering is handled externally
+      if (!searchable || !filterQuery.trim() || onSearchChange) return items
+
+      const normalizedQuery = filterQuery.toLowerCase().trim()
+      return items.filter(item =>
+        item.label.toLowerCase().includes(normalizedQuery)
+      )
+    }, [items, filterQuery, searchable, onSearchChange])
 
     // Handle checkbox toggle
     const handleCheckboxChange = (itemValue: string, checked: boolean) => {
@@ -168,16 +239,31 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
       onSelectionChange([itemValue])
     }
 
+    // Search input rendered above the items list when searchable is enabled
+    const searchInput = searchable ? (
+      <div className="mb-3">
+        <SearchBar
+          size="compact"
+          value={filterQuery}
+          onChange={handleSearchChange}
+          placeholder={searchPlaceholder}
+          aria-label={`Filter ${title ?? 'items'}`}
+        />
+      </div>
+    ) : null
+
     // Content that will be shown (either wrapped in accordion or not)
     const facetContent = (() => {
       // Radio button mode - single selection
       if (selectionMode === 'radio') {
-        const selectedValue = items.find(item => item.isRefined)?.value
+        const selectedValue = displayItems.find(item => item.isRefined)?.value
 
         return (
-          <RadioGroup value={selectedValue} onValueChange={handleRadioChange}>
-            <FieldGroup className="gap-3">
-              {items.map(item => (
+          <>
+            {searchInput}
+            <RadioGroup value={selectedValue} onValueChange={handleRadioChange}>
+              <FieldGroup className="gap-3">
+                {displayItems.map(item => (
                 <div key={item.id} className="flex flex-row items-center justify-between">
                   <Field className="flex-row gap-2">
                     <RadioGroupItem value={item.value} id={`${facetId}-radio-${item.id}`} />
@@ -191,41 +277,19 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
                   <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
                 </div>
               ))}
-            </FieldGroup>
-          </RadioGroup>
+              </FieldGroup>
+            </RadioGroup>
+          </>
         )
-
-        // return (
-        //   <RadioGroup value={selectedValue} onValueChange={handleRadioChange}>
-        //     <FieldGroup className="gap-3">
-        //       {items.map(item => (
-        //         <Field
-        //           key={item.id}
-        //           orientation="horizontal"
-        //           className="flex-row items-center gap-2"
-        //         >
-        //           <RadioGroupItem value={item.value} id={`${facetId}-radio-${item.id}`} />
-        //           <Label
-        //             htmlFor={`${facetId}-radio-${item.id}`}
-        //             className="flex-1 flex items-center justify-between gap-2 text-md cursor-pointer"
-        //           >
-        //             <span className="font-medium">{item.label}</span>
-        //             <Badge variant="secondary" className="ml-auto bg-ulb-grey-100 border-0">
-        //               {item.count}
-        //             </Badge>
-        //           </Label>
-        //         </Field>
-        //       ))}
-        //     </FieldGroup>
-        //   </RadioGroup>
-        // )
       }
 
       // Checkbox mode - multiple selection
       if (selectionMode === 'checkbox') {
         return (
-          <FieldGroup className="gap-3">
-            {items.map(item => (
+          <>
+            {searchInput}
+            <FieldGroup className="gap-3">
+              {displayItems.map(item => (
               <div key={item.id} className="flex flex-row items-center justify-between">
                 <Field orientation="horizontal" className="gap-2">
                   <Checkbox
@@ -245,45 +309,27 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
                 <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
               </div>
             ))}
-          </FieldGroup>
+            </FieldGroup>
+          </>
         )
-        // return (
-        //   <FieldGroup className="gap-3">
-        //     {items.map(item => (
-        //       <Field key={item.id} orientation="horizontal" className="flex-row items-center gap-2">
-        //         <Checkbox
-        //           id={`${facetId}-checkbox-${item.id}`}
-        //           checked={item.isRefined}
-        //           onCheckedChange={checked => handleCheckboxChange(item.value, checked as boolean)}
-        //         />
-        //         <Label
-        //           htmlFor={`${facetId}-checkbox-${item.id}`}
-        //           className="flex-1 flex items-center justify-between gap-2 text-md cursor-pointer"
-        //         >
-        //           <span className="font-medium">{item.label}</span>
-        //           <Badge variant="secondary" className="ml-auto bg-ulb-grey-100 border-0">
-        //             {item.count}
-        //           </Badge>
-        //         </Label>
-        //       </Field>
-        //     ))}
-        //   </FieldGroup>
-        // )
       }
 
       // No selection mode - simple list
       return (
-        <FieldGroup className="gap-3">
-          {items.map(item => (
-            <div key={item.id} className="flex items-center justify-between gap-2 text-md">
-              {/* Term/Label */}
-              <span className="flex-1 font-medium">{item.label}</span>
+        <>
+          {searchInput}
+          <FieldGroup className="gap-3">
+            {displayItems.map(item => (
+              <div key={item.id} className="flex items-center justify-between gap-2 text-md">
+                {/* Term/Label */}
+                <span className="flex-1 font-medium">{item.label}</span>
 
-              {/* Count */}
-              <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
-            </div>
-          ))}
-        </FieldGroup>
+                {/* Count */}
+                <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
+              </div>
+            ))}
+          </FieldGroup>
+        </>
       )
     })()
 
