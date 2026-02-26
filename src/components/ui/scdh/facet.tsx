@@ -11,6 +11,10 @@ import { Card } from '@/components/ui/card'
 import { SearchBar } from '@/components/ui/scdh/search-bar'
 import { ChevronUp } from 'lucide-react'
 
+// ---------------------------------------------------------------------------
+// Types & Interfaces
+// ---------------------------------------------------------------------------
+
 /**
  * Single facet item data structure
  */
@@ -120,36 +124,85 @@ export interface FacetProps {
   className?: string
 }
 
+// ---------------------------------------------------------------------------
+// Internal Sub-components
+// ---------------------------------------------------------------------------
+
+/**
+ * Internal component to render a single facet row (label + count)
+ */
+interface FacetRowProps {
+  id: string
+  label: string
+  count: number
+  control?: React.ReactNode
+}
+
+const FacetRow = ({ id, label, count, control }: FacetRowProps) => (
+  <div className="flex flex-row items-center justify-between">
+    <Field orientation="horizontal" className="gap-2">
+      {control}
+      <Label htmlFor={id} className="text-md cursor-pointer flex-none">
+        {label}
+      </Label>
+    </Field>
+    <Label className="text-md text-ulb-grey-800 cursor-pointer">{count}</Label>
+  </div>
+)
+
+/**
+ * Header section of the facet card
+ */
+interface FacetHeaderProps {
+  title: string
+  itemsCount: number
+  collapsible?: boolean
+  onToggleLabel?: string
+}
+
+const FacetHeader = ({ title, itemsCount, collapsible, onToggleLabel }: FacetHeaderProps) => {
+  const content = (
+    <div className="flex items-center justify-between w-full">
+      <div className="flex items-center justify-start gap-1">
+        <h3 className="text-lg font-medium">{title}</h3>
+        {!collapsible && (
+          <Label className="text-lg text-ulb-grey-800 cursor-pointer">({itemsCount})</Label>
+        )}
+      </div>
+      {collapsible && (
+        <AccordionPrimitive.Trigger
+          aria-label={onToggleLabel}
+          className="rounded-full transition-colors [&[data-state=open]>svg]:rotate-180"
+        >
+          <ChevronUp className="h-6 w-6 transition-transform duration-200" strokeWidth="1" />
+        </AccordionPrimitive.Trigger>
+      )}
+    </div>
+  )
+
+  return (
+    <>
+      <div className="px-4 pt-4 pb-3">
+        {collapsible ? (
+          <AccordionPrimitive.Header className="flex">{content}</AccordionPrimitive.Header>
+        ) : (
+          content
+        )}
+      </div>
+      <Separator className="w-full bg-ulb-grey-100" />
+    </>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Implementation
+// ---------------------------------------------------------------------------
+
 /**
  * SCDH Facet Component
  *
- * Displays a list of facet items with their counts.
- * This component is designed to be compatible with InstantSearch.js RefinementList,
- * allowing seamless integration with search interfaces.
- *
- * @example
- * ```tsx
- * // Standalone usage
- * <Facet
- *   title="Programming Languages"
- *   collapsible
- *   defaultExpanded
- *   selectionMode="checkbox"
- *   onSelectionChange={(values) => console.log(values)}
- *   items={[
- *     { id: '1', value: 'js', label: 'JavaScript', count: 42, isRefined: true },
- *     { id: '2', value: 'ts', label: 'TypeScript', count: 15, isRefined: false }
- *   ]}
- * />
- *
- * // InstantSearch.js compatible usage
- * <Facet
- *   title="Categories"
- *   selectionMode="checkbox"
- *   onRefine={(value) => refine(value)}
- *   items={refinementListItems}
- * />
- * ```
+ * Displays a list of facet items with counts and optional search/selection.
+ * Compatible with InstantSearch.js RefinementList.
  */
 export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
   (
@@ -168,20 +221,11 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
     },
     ref
   ) => {
-    // Generate unique ID for this facet instance to avoid ID collisions when multiple facets are on the same page
     const facetId = React.useId()
-
-    // -----------------------------------------------------------------------
-    // Local filter state for searchable facets
-    // -----------------------------------------------------------------------
     const [filterQuery, setFilterQuery] = React.useState('')
 
-    /**
-     * Handle search input changes.
-     * If onSearchChange is provided, delegate filtering to the consumer
-     * (server-side / InstantSearch). Otherwise, store the query locally
-     * for client-side filtering.
-     */
+    // --- Logic: Filtering ---
+
     const handleSearchChange = React.useCallback(
       (query: string) => {
         setFilterQuery(query)
@@ -190,55 +234,39 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
       [onSearchChange]
     )
 
-    /**
-     * Items to display after filtering.
-     *
-     * - If onSearchChange is provided → items are already filtered by the
-     *   consumer, so we pass them through unchanged.
-     * - If not → we apply a case-insensitive substring match on item labels.
-     */
     const displayItems = React.useMemo(() => {
-      // No search active or filtering is handled externally
       if (!searchable || !filterQuery.trim() || onSearchChange) return items
 
       const normalizedQuery = filterQuery.toLowerCase().trim()
       return items.filter(item => item.label.toLowerCase().includes(normalizedQuery))
     }, [items, filterQuery, searchable, onSearchChange])
 
-    // Handle checkbox toggle
-    const handleCheckboxChange = (itemValue: string, checked: boolean) => {
-      // Call InstantSearch-compatible onRefine if provided
+    // --- Logic: Selection ---
+
+    const handleSelectionUpdate = (itemValue: string, isChecked?: boolean) => {
+      // Priority 1: InstantSearch style (refine single value)
       if (onRefine) {
         onRefine(itemValue)
         return
       }
 
-      // Fallback to onSelectionChange
+      // Priority 2: Standalone style (emit array of all selected values)
       if (!onSelectionChange) return
 
-      const currentSelected = items.filter(item => item.isRefined).map(item => item.value)
-      const newSelected = checked
-        ? [...currentSelected, itemValue]
-        : currentSelected.filter(val => val !== itemValue)
-
-      onSelectionChange(newSelected)
-    }
-
-    // Handle radio selection
-    const handleRadioChange = (itemValue: string) => {
-      // Call InstantSearch-compatible onRefine if provided
-      if (onRefine) {
-        onRefine(itemValue)
-        return
+      if (selectionMode === 'radio') {
+        onSelectionChange([itemValue])
+      } else {
+        const currentRefined = items.filter(item => item.isRefined).map(item => item.value)
+        const next = isChecked
+          ? [...currentRefined, itemValue]
+          : currentRefined.filter(v => v !== itemValue)
+        onSelectionChange(next)
       }
-
-      // Fallback to onSelectionChange
-      if (!onSelectionChange) return
-      onSelectionChange([itemValue])
     }
 
-    // Search input rendered above the items list when searchable is enabled
-    const searchInput = searchable ? (
+    // --- Render: Content Parts ---
+
+    const searchInput = searchable && (
       <div className="mb-3">
         <SearchBar
           size="compact"
@@ -248,115 +276,87 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
           aria-label={`Filter ${title ?? 'items'}`}
         />
       </div>
-    ) : null
+    )
 
-    // Content that will be shown (either wrapped in accordion or not)
-    const facetContent = (() => {
-      // Radio button mode - single selection
-      if (selectionMode === 'radio') {
-        const selectedValue = displayItems.find(item => item.isRefined)?.value
+    const listContent = (
+      <FieldGroup className="gap-3">
+        {displayItems.map(item => {
+          const itemId = `${facetId}-${selectionMode}-${item.id}`
 
-        return (
-          <>
-            {searchInput}
-            <RadioGroup value={selectedValue} onValueChange={handleRadioChange}>
-              <FieldGroup className="gap-3">
-                {displayItems.map(item => (
-                  <div key={item.id} className="flex flex-row items-center justify-between">
-                    <Field className="flex-row gap-2">
-                      <RadioGroupItem value={item.value} id={`${facetId}-radio-${item.id}`} />
-                      <Label
-                        htmlFor={`${facetId}-radio-${item.id}`}
-                        className=" flex-none text-md cursor-pointer"
-                      >
-                        {item.label}
-                      </Label>
-                    </Field>
-                    <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
-                  </div>
-                ))}
-              </FieldGroup>
-            </RadioGroup>
-          </>
-        )
-      }
+          if (selectionMode === 'checkbox') {
+            return (
+              <FacetRow
+                key={item.id}
+                id={itemId}
+                label={item.label}
+                count={item.count}
+                control={
+                  <Checkbox
+                    id={itemId}
+                    checked={item.isRefined}
+                    onCheckedChange={checked => handleSelectionUpdate(item.value, !!checked)}
+                  />
+                }
+              />
+            )
+          }
 
-      // Checkbox mode - multiple selection
-      if (selectionMode === 'checkbox') {
-        return (
-          <>
-            {searchInput}
-            <FieldGroup className="gap-3">
-              {displayItems.map(item => (
-                <div key={item.id} className="flex flex-row items-center justify-between">
-                  <Field orientation="horizontal" className="gap-2">
-                    <Checkbox
-                      id={`${facetId}-checkbox-${item.id}`}
-                      checked={item.isRefined}
-                      onCheckedChange={checked =>
-                        handleCheckboxChange(item.value, checked as boolean)
-                      }
-                    />
-                    <Label
-                      htmlFor={`${facetId}-checkbox-${item.id}`}
-                      className=" text-md cursor-pointer"
-                    >
-                      {item.label}
-                    </Label>
-                  </Field>
-                  <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
-                </div>
-              ))}
-            </FieldGroup>
-          </>
-        )
-      }
+          if (selectionMode === 'radio') {
+            return (
+              <FacetRow
+                key={item.id}
+                id={itemId}
+                label={item.label}
+                count={item.count}
+                control={
+                  <RadioGroupItem
+                    value={item.value}
+                    id={itemId}
+                    onClick={() => handleSelectionUpdate(item.value)}
+                  />
+                }
+              />
+            )
+          }
 
-      // No selection mode - simple list
-      return (
-        <>
-          {searchInput}
-          <FieldGroup className="gap-3">
-            {displayItems.map(item => (
-              <div key={item.id} className="flex items-center justify-between gap-2 text-md">
-                {/* Term/Label */}
-                <span className="flex-1 font-medium">{item.label}</span>
+          // Default: Simple listitem
+          return (
+            <div key={item.id} className="flex items-center justify-between gap-2 text-md">
+              <span className="flex-1 font-medium">{item.label}</span>
+              <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
+            </div>
+          )
+        })}
+      </FieldGroup>
+    )
 
-                {/* Count */}
-                <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
-              </div>
-            ))}
-          </FieldGroup>
-        </>
-      )
-    })()
+    const fullFacetContent = (
+      <>
+        {searchInput}
+        {selectionMode === 'radio' ? (
+          <RadioGroup
+            value={displayItems.find(i => i.isRefined)?.value}
+            onValueChange={val => handleSelectionUpdate(val)}
+          >
+            {listContent}
+          </RadioGroup>
+        ) : (
+          listContent
+        )}
+      </>
+    )
 
-    // If not collapsible, render simple version
+    // --- Render: Main Layout ---
+
     if (!collapsible) {
       return (
         <Card ref={ref} className={cn('shadow-none border-ulb-grey-200', className)}>
-          {/* Title with item count */}
-          {title && (
-            <>
-              <div className="px-4 pt-4 pb-3 ">
-                <div className="flex items-center justify-start gap-1">
-                  <h3 className="text-lg font-medium">{title}</h3>
-                  <Label className="text-lg text-ulb-grey-800  cursor-pointer">
-                    ({items.length})
-                  </Label>
-                </div>
-              </div>
-              <Separator className="w-full bg-ulb-grey-100" />
-            </>
-          )}
-
-          {/* Facet items list */}
-          <div className={cn('px-4', title ? 'pt-4 pb-5' : 'p-4')}>{facetContent}</div>
+          {title && <FacetHeader title={title} itemsCount={items.length} />}
+          <div className={cn('px-4', title ? 'pt-4 pb-5' : 'p-4')}>{fullFacetContent}</div>
         </Card>
       )
     }
 
-    // Collapsible version with accordion
     return (
       <Card ref={ref} className={cn('shadow-none border-ulb-grey-200', className)}>
         <Accordion
@@ -365,33 +365,15 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
           defaultValue={defaultExpanded ? 'facet-content' : undefined}
         >
           <AccordionItem value="facet-content" className="border-0">
-            {/* Custom Header with Title and Toggle Button */}
             {title && (
-              <>
-                <div className="px-4 pt-4 pb-3">
-                  <AccordionPrimitive.Header className="flex">
-                    <div className="flex items-center justify-between w-full">
-                      <h3 className="text-lg font-medium">{title}</h3>
-                      <AccordionPrimitive.Trigger
-                        aria-label={`Toggle ${title} facet`}
-                        className="rounded-full  transition-colors [&[data-state=open]>svg]:rotate-180"
-                      >
-                        <ChevronUp
-                          className="h-6 w-6 transition-transform duration-200"
-                          strokeWidth="1"
-                        />
-                      </AccordionPrimitive.Trigger>
-                    </div>
-                  </AccordionPrimitive.Header>
-                </div>
-
-                {/* Separator */}
-                <Separator className="w-full bg-ulb-grey-100" />
-              </>
+              <FacetHeader
+                title={title}
+                itemsCount={items.length}
+                collapsible
+                onToggleLabel={`Toggle ${title} facet`}
+              />
             )}
-
-            {/* Accordion Content */}
-            <AccordionContent className="px-4 pb-6 pt-5">{facetContent}</AccordionContent>
+            <AccordionContent className="px-4 pb-6 pt-5">{fullFacetContent}</AccordionContent>
           </AccordionItem>
         </Accordion>
       </Card>
