@@ -1,4 +1,8 @@
 import type { Preview } from '@storybook/react-vite'
+import { initialize, mswLoader } from 'msw-storybook-addon'
+
+// Initialize MSW for Storybook (intercepts HTTP requests in the browser)
+initialize()
 
 // Import component library styles (will be in npm package)
 import '../src/styles.css'
@@ -22,6 +26,9 @@ const preview: Preview = {
       test: 'todo'
     }
   },
+
+  // MSW loader: enables per-story request handlers
+  loaders: [mswLoader],
 };
 
 export default preview;
