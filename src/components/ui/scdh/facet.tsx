@@ -16,13 +16,17 @@ import { ChevronUp } from 'lucide-react'
 // ---------------------------------------------------------------------------
 
 /**
- * Single facet item data structure
+ * Single facet item data structure.
+ * Mirrors the InstantSearch RefinementList item shape.
  */
 export interface FacetItem {
-  /** Unique identifier for the facet item (same as value for InstantSearch compatibility) */
-  id: string
+  /**
+   * Optional unique identifier. Falls back to `value` when omitted.
+   * Provide this only when the display value differs from the key.
+   */
+  id?: string
 
-  /** The facet value - used for filtering (InstantSearch uses this as the primary identifier) */
+  /** The facet value – used for filtering (InstantSearch uses this as the primary identifier) */
   value: string
 
   /** The facet term/label to display (e.g., "JavaScript", "TypeScript") */
@@ -243,14 +247,21 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
 
     // --- Logic: Selection ---
 
+    /**
+     * Handles item toggling for both InstantSearch and standalone usage.
+     *
+     * @param itemValue - The value of the toggled item
+     * @param isChecked - Only relevant in checkbox mode: whether the checkbox was checked or unchecked.
+     *                    Ignored in radio mode (radio always selects).
+     */
     const handleSelectionUpdate = (itemValue: string, isChecked?: boolean) => {
-      // Priority 1: InstantSearch style (refine single value)
+      // Priority 1: InstantSearch style – delegate to refine callback
       if (onRefine) {
         onRefine(itemValue)
         return
       }
 
-      // Priority 2: Standalone style (emit array of all selected values)
+      // Priority 2: Standalone style – emit full array of selected values
       if (!onSelectionChange) return
 
       if (selectionMode === 'radio') {
@@ -281,12 +292,13 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
     const listContent = (
       <FieldGroup className="gap-3">
         {displayItems.map(item => {
-          const itemId = `${facetId}-${selectionMode}-${item.id}`
+          const itemKey = item.id ?? item.value
+          const itemId = `${facetId}-${selectionMode}-${itemKey}`
 
           if (selectionMode === 'checkbox') {
             return (
               <FacetRow
-                key={item.id}
+                key={itemKey}
                 id={itemId}
                 label={item.label}
                 count={item.count}
@@ -304,24 +316,18 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
           if (selectionMode === 'radio') {
             return (
               <FacetRow
-                key={item.id}
+                key={itemKey}
                 id={itemId}
                 label={item.label}
                 count={item.count}
-                control={
-                  <RadioGroupItem
-                    value={item.value}
-                    id={itemId}
-                    onClick={() => handleSelectionUpdate(item.value)}
-                  />
-                }
+                control={<RadioGroupItem value={item.value} id={itemId} />}
               />
             )
           }
 
-          // Default: Simple listitem
+          // Default: Read-only listitem (no selection control)
           return (
-            <div key={item.id} className="flex items-center justify-between gap-2 text-md">
+            <div key={itemKey} className="flex items-center justify-between gap-2 text-md">
               <span className="flex-1 font-medium">{item.label}</span>
               <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
             </div>
