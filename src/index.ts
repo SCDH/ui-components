@@ -20,5 +20,6 @@ export type {
   SCDHTreeDataItem as TreeDataItem,
   PageViewProps,
   PageViewSection,
-  ButtonProps 
+  ButtonProps,
+  SearchBarProps 
 } from './components/ui/scdh'
