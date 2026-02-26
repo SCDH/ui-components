@@ -22,7 +22,8 @@ const meta = {
     size: {
       control: 'select',
       options: ['default', 'compact'],
-      description: 'Size variant – default for standalone, compact for inline usage (e.g. inside Facet)'
+      description:
+        'Size variant – default for standalone, compact for inline usage (e.g. inside Facet)'
     },
     value: {
       control: 'text',
@@ -32,6 +33,10 @@ const meta = {
       control: 'text',
       description: 'Placeholder text'
     }
+  },
+  args: {
+    value: '',
+    onChange: () => {}
   }
 } satisfies Meta<typeof SearchBar>
 
@@ -88,12 +93,7 @@ export const WithValue: Story = {
 
     return (
       <div className="w-full max-w-[400px]">
-        <SearchBar
-          value={query}
-          onChange={setQuery}
-          placeholder="Search..."
-          aria-label="Search"
-        />
+        <SearchBar value={query} onChange={setQuery} placeholder="Search..." aria-label="Search" />
       </div>
     )
   }
@@ -118,13 +118,13 @@ export const Interactive: Story = {
         <SearchBar
           value={query}
           onChange={setQuery}
-          onSubmit={(q) => setSubmitted(q)}
+          onSubmit={q => setSubmitted(q)}
           placeholder="Type and press Enter to submit..."
           aria-label="Interactive search"
         />
 
         {/* Live display of current query state */}
-        <div className="text-sm text-ulb-grey-600 space-y-1">
+        <div className="text-sm text-ulb-grey-800 space-y-1">
           <div>
             <span className="font-medium">Current value:</span>{' '}
             {query ? <code className="text-scdh-blue-700">{query}</code> : <em>empty</em>}
@@ -152,7 +152,7 @@ export const SizeComparison: Story = {
       <div className="flex flex-col gap-6 w-full max-w-[400px]">
         {/* Default size */}
         <div>
-          <p className="text-sm font-medium text-ulb-grey-600 mb-2">Default (standalone)</p>
+          <p className="text-sm font-medium text-ulb-grey-800 mb-2">Default (standalone)</p>
           <SearchBar
             value={defaultQuery}
             onChange={setDefaultQuery}
@@ -163,7 +163,7 @@ export const SizeComparison: Story = {
 
         {/* Compact size */}
         <div>
-          <p className="text-sm font-medium text-ulb-grey-600 mb-2">Compact (for inline use)</p>
+          <p className="text-sm font-medium text-ulb-grey-800 mb-2">Compact (for inline use)</p>
           <SearchBar
             size="compact"
             value={compactQuery}

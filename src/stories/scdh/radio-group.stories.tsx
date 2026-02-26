@@ -19,6 +19,9 @@ const meta = {
       options: ['option-one', 'option-two', 'option-three'],
       description: 'Default selected value (uncontrolled)'
     }
+  },
+  args: {
+    disabled: false
   }
 } satisfies Meta<typeof RadioGroup>
 

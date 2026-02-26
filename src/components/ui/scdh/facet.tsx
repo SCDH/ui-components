@@ -202,9 +202,7 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
       if (!searchable || !filterQuery.trim() || onSearchChange) return items
 
       const normalizedQuery = filterQuery.toLowerCase().trim()
-      return items.filter(item =>
-        item.label.toLowerCase().includes(normalizedQuery)
-      )
+      return items.filter(item => item.label.toLowerCase().includes(normalizedQuery))
     }, [items, filterQuery, searchable, onSearchChange])
 
     // Handle checkbox toggle
@@ -264,19 +262,19 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
             <RadioGroup value={selectedValue} onValueChange={handleRadioChange}>
               <FieldGroup className="gap-3">
                 {displayItems.map(item => (
-                <div key={item.id} className="flex flex-row items-center justify-between">
-                  <Field className="flex-row gap-2">
-                    <RadioGroupItem value={item.value} id={`${facetId}-radio-${item.id}`} />
-                    <Label
-                      htmlFor={`${facetId}-radio-${item.id}`}
-                      className=" flex-none text-md cursor-pointer"
-                    >
-                      {item.label}
-                    </Label>
-                  </Field>
-                  <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
-                </div>
-              ))}
+                  <div key={item.id} className="flex flex-row items-center justify-between">
+                    <Field className="flex-row gap-2">
+                      <RadioGroupItem value={item.value} id={`${facetId}-radio-${item.id}`} />
+                      <Label
+                        htmlFor={`${facetId}-radio-${item.id}`}
+                        className=" flex-none text-md cursor-pointer"
+                      >
+                        {item.label}
+                      </Label>
+                    </Field>
+                    <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
+                  </div>
+                ))}
               </FieldGroup>
             </RadioGroup>
           </>
@@ -290,25 +288,25 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
             {searchInput}
             <FieldGroup className="gap-3">
               {displayItems.map(item => (
-              <div key={item.id} className="flex flex-row items-center justify-between">
-                <Field orientation="horizontal" className="gap-2">
-                  <Checkbox
-                    id={`${facetId}-checkbox-${item.id}`}
-                    checked={item.isRefined}
-                    onCheckedChange={checked =>
-                      handleCheckboxChange(item.value, checked as boolean)
-                    }
-                  />
-                  <Label
-                    htmlFor={`${facetId}-checkbox-${item.id}`}
-                    className=" text-md cursor-pointer"
-                  >
-                    {item.label}
-                  </Label>
-                </Field>
-                <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
-              </div>
-            ))}
+                <div key={item.id} className="flex flex-row items-center justify-between">
+                  <Field orientation="horizontal" className="gap-2">
+                    <Checkbox
+                      id={`${facetId}-checkbox-${item.id}`}
+                      checked={item.isRefined}
+                      onCheckedChange={checked =>
+                        handleCheckboxChange(item.value, checked as boolean)
+                      }
+                    />
+                    <Label
+                      htmlFor={`${facetId}-checkbox-${item.id}`}
+                      className=" text-md cursor-pointer"
+                    >
+                      {item.label}
+                    </Label>
+                  </Field>
+                  <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
+                </div>
+              ))}
             </FieldGroup>
           </>
         )
@@ -374,7 +372,10 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
                   <AccordionPrimitive.Header className="flex">
                     <div className="flex items-center justify-between w-full">
                       <h3 className="text-lg font-medium">{title}</h3>
-                      <AccordionPrimitive.Trigger className="rounded-full  transition-colors [&[data-state=open]>svg]:rotate-180">
+                      <AccordionPrimitive.Trigger
+                        aria-label={`Toggle ${title} facet`}
+                        className="rounded-full  transition-colors [&[data-state=open]>svg]:rotate-180"
+                      >
                         <ChevronUp
                           className="h-6 w-6 transition-transform duration-200"
                           strokeWidth="1"

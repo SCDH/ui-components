@@ -41,6 +41,7 @@ const meta = {
     }
   },
   args: {
+    data: [],
     onSelectChange: fn(),
     onDocumentDrag: fn()
   }

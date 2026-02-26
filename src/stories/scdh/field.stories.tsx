@@ -31,6 +31,9 @@ const meta = {
         defaultValue: { summary: 'vertical' }
       }
     }
+  },
+  args: {
+    orientation: 'vertical'
   }
 } satisfies Meta<typeof Field>
 
@@ -91,7 +94,9 @@ export const Disabled: Story = {
         <FieldLabel htmlFor="field-disabled">Disabled Field</FieldLabel>
         <FieldContent>
           <Input id="field-disabled" disabled placeholder="Cannot type here" />
-          <FieldDescription>Opactiy is reduced automatically when input is disabled.</FieldDescription>
+          <FieldDescription>
+            Opactiy is reduced automatically when input is disabled.
+          </FieldDescription>
         </FieldContent>
       </Field>
     )
@@ -122,9 +127,7 @@ export const WithDescription: Story = {
         <FieldLabel>API Key</FieldLabel>
         <FieldContent>
           <Input readOnly value="sk_test_51Mz..." />
-          <FieldDescription>
-            Your secret API key. Do not share this with anyone.
-          </FieldDescription>
+          <FieldDescription>Your secret API key. Do not share this with anyone.</FieldDescription>
         </FieldContent>
       </Field>
     )
@@ -168,7 +171,7 @@ export const InteractiveValidation: Story = {
             {error && <FieldError>{error}</FieldError>}
           </FieldContent>
         </Field>
-        
+
         <button
           type="submit"
           data-testid="submit-button"
@@ -186,7 +189,7 @@ export const InteractiveValidation: Story = {
 
     // 1. Type invalid input
     await userEvent.type(emailInput, 'ungueltige-email', { delay: 50 })
-    
+
     // 2. Submit form
     await userEvent.click(submitBtn)
 
@@ -194,7 +197,7 @@ export const InteractiveValidation: Story = {
     // Using regex for flexible matching and case insensitivity
     const errorMessage = await canvas.findByText(/Bitte geben Sie eine gültige E-Mail-Adresse ein/i)
     expect(errorMessage).toBeInTheDocument()
-    
+
     // 4. Check if field is marked invalid in DOM
     const field = emailInput.closest('[data-slot="field"]')
     expect(field).toHaveAttribute('data-invalid', 'true')

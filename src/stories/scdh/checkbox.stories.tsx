@@ -23,6 +23,10 @@ const meta = {
       control: 'boolean',
       description: 'Default checked state (uncontrolled)'
     }
+  },
+  args: {
+    checked: false,
+    disabled: false
   }
 } satisfies Meta<typeof Checkbox>
 

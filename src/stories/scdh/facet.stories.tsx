@@ -29,6 +29,10 @@ const meta = {
       control: 'boolean',
       description: 'Whether the facet is expanded by default (when collapsible)'
     }
+  },
+  args: {
+    items: [],
+    title: 'Facet'
   }
 } satisfies Meta<typeof Facet>
 
@@ -352,19 +356,17 @@ export const SearchableServerSide: Story = {
           onRefine={handleRefine}
         />
 
-        <div className="text-xs text-ulb-grey-500 p-3 bg-ulb-grey-50 rounded-lg">
+        <div className="text-xs text-ulb-grey-800 p-3 bg-ulb-grey-50 rounded-lg">
           <p className="font-semibold mb-1">ℹ Server-side mode</p>
           <p>
-            The Facet delegates filtering to the consumer via <code>onSearchChange</code>.
-            In production, this would call <code>searchForItems()</code> from InstantSearch.
+            The Facet delegates filtering to the consumer via <code>onSearchChange</code>. In
+            production, this would call <code>searchForItems()</code> from InstantSearch.
           </p>
         </div>
 
         {refinedItems.size > 0 && (
           <div className="text-sm p-4 bg-scdh-blue-50 border border-scdh-blue-200 rounded-lg">
-            <div className="font-semibold text-scdh-blue-700 mb-1">
-              Active filters (instant):
-            </div>
+            <div className="font-semibold text-scdh-blue-700 mb-1">Active filters (instant):</div>
             <div className="text-scdh-blue-600">{Array.from(refinedItems).join(', ')}</div>
           </div>
         )}
