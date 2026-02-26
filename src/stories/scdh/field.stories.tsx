@@ -1,7 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { Field, FieldLabel, FieldDescription, FieldContent } from '../../components/ui/field'
+import {
+  Field,
+  FieldLabel,
+  FieldDescription,
+  FieldContent,
+  FieldError
+} from '../../components/ui/field'
 import { Input } from '../../components/ui/input'
-import { useId } from 'react'
+import { useId, useState } from 'react'
+import { userEvent, within, expect } from '@storybook/test'
 
 const meta = {
   title: 'SCDH-UI/Field',
@@ -10,7 +17,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'A flexible layout component for form fields and labeled content. While commonly used with input elements in forms, Field supports any type of content including static text, links, and custom components.'
+          'A structural component that handles layout, labeling, descriptions, and error states for form inputs. It provides consistent spacing and alignment across different form elements.'
       }
     }
   },
@@ -19,7 +26,10 @@ const meta = {
     orientation: {
       control: 'select',
       options: ['vertical', 'horizontal', 'responsive'],
-      description: 'Layout orientation of the field'
+      description: 'Controls the layout direction of label and content',
+      table: {
+        defaultValue: { summary: 'vertical' }
+      }
     }
   }
 } satisfies Meta<typeof Field>
@@ -28,223 +38,165 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-// Basic Field composition examples
-export const Default: Story = {
+export const Vertical: Story = {
   args: {
+    orientation: 'vertical',
     children: (
       <>
-        <FieldLabel htmlFor="field-default">Label</FieldLabel>
+        <FieldLabel htmlFor="field-vertical">Vertical Layout</FieldLabel>
         <FieldContent>
-          <Input id="field-default" placeholder="Bitte geben Sie einen Wert ein" />
-          <FieldDescription>Kurze Beschreibung des Feldes</FieldDescription>
+          <Input id="field-vertical" placeholder="Label is above the input" />
+          <FieldDescription>Standard layout for most forms</FieldDescription>
         </FieldContent>
       </>
-    ),
-    orientation: 'vertical'
+    )
   }
 }
 
 export const Horizontal: Story = {
   args: {
+    orientation: 'horizontal',
     children: (
       <>
-        <FieldLabel htmlFor="field-horizontal">Label</FieldLabel>
+        <FieldLabel htmlFor="field-horizontal">Horizontal Layout</FieldLabel>
         <FieldContent>
-          <Input id="field-horizontal" placeholder="Bitte geben Sie einen Wert ein" />
-          <FieldDescription>Kurze Beschreibung des Feldes</FieldDescription>
+          <Input id="field-horizontal" placeholder="Label is beside the input" />
+          <FieldDescription>Useful for settings pages or dense forms</FieldDescription>
         </FieldContent>
       </>
-    ),
-    orientation: 'horizontal'
+    )
   }
 }
 
-// Real-world composition examples showing common use cases
-export const InputField: Story = {
-  name: 'Text Input Field',
+export const ValidatedError: Story = {
+  name: 'Error State (Static)',
   render: () => {
-    const id = useId()
     return (
-      <Field orientation="vertical">
-        <FieldLabel htmlFor={id}>Vollständiger Name</FieldLabel>
+      <Field orientation="vertical" data-invalid={true}>
+        <FieldLabel>Username</FieldLabel>
         <FieldContent>
-          <Input id={id} type="text" placeholder="Max Mustermann" />
-          <FieldDescription>Geben Sie Ihren Vor- und Nachnamen ein</FieldDescription>
+          <Input defaultValue="invalid-user" />
+          <FieldError errors={[{ message: 'This username is already taken.' }]} />
         </FieldContent>
       </Field>
     )
   }
 }
 
-export const EmailField: Story = {
-  name: 'Email Input Field',
+export const Disabled: Story = {
+  name: 'Disabled State',
   render: () => {
-    const id = useId()
     return (
-      <Field orientation="vertical">
-        <FieldLabel htmlFor={id}>E-Mail Adresse</FieldLabel>
+      <Field orientation="vertical" data-disabled={true}>
+        <FieldLabel htmlFor="field-disabled">Disabled Field</FieldLabel>
         <FieldContent>
-          <Input id={id} type="email" placeholder="beispiel@uni-muenster.de" />
-          <FieldDescription>Wir werden Ihre E-Mail-Adresse nicht weitergeben</FieldDescription>
+          <Input id="field-disabled" disabled placeholder="Cannot type here" />
+          <FieldDescription>Opactiy is reduced automatically when input is disabled.</FieldDescription>
         </FieldContent>
       </Field>
     )
   }
 }
 
-export const PasswordField: Story = {
-  name: 'Password Input Field',
+export const Required: Story = {
+  name: 'Required Indicator',
   render: () => {
-    const id = useId()
     return (
       <Field orientation="vertical">
-        <FieldLabel htmlFor={id}>Passwort</FieldLabel>
-        <FieldContent>
-          <Input id={id} type="password" placeholder="••••••••" />
-          <FieldDescription>Mindestens 8 Zeichen mit Buchstaben und Zahlen</FieldDescription>
-        </FieldContent>
-      </Field>
-    )
-  }
-}
-
-export const NumberField: Story = {
-  name: 'Number Input Field',
-  render: () => {
-    const id = useId()
-    return (
-      <Field orientation="vertical">
-        <FieldLabel htmlFor={id}>Alter</FieldLabel>
-        <FieldContent>
-          <Input id={id} type="number" min="0" max="120" placeholder="25" />
-          <FieldDescription>Geben Sie Ihr Alter in Jahren ein</FieldDescription>
-        </FieldContent>
-      </Field>
-    )
-  }
-}
-
-export const DateField: Story = {
-  name: 'Date Input Field',
-  render: () => {
-    const id = useId()
-    return (
-      <Field orientation="vertical">
-        <FieldLabel htmlFor={id}>Geburtsdatum</FieldLabel>
-        <FieldContent>
-          <Input id={id} type="date" />
-          <FieldDescription>Wählen Sie Ihr Geburtsdatum aus</FieldDescription>
-        </FieldContent>
-      </Field>
-    )
-  }
-}
-
-export const DisabledField: Story = {
-  name: 'Disabled Input Field',
-  render: () => {
-    const id = useId()
-    return (
-      <Field orientation="vertical">
-        <FieldLabel htmlFor={id}>Benutzername</FieldLabel>
-        <FieldContent>
-          <Input id={id} type="text" value="max.mustermann" disabled />
-          <FieldDescription>Dieser Wert kann nicht geändert werden</FieldDescription>
-        </FieldContent>
-      </Field>
-    )
-  }
-}
-
-export const RequiredField: Story = {
-  name: 'Required Input Field',
-  render: () => {
-    const id = useId()
-    return (
-      <Field orientation="vertical">
-        <FieldLabel htmlFor={id}>
-          Name <span className="text-destructive">*</span>
+        <FieldLabel htmlFor="field-required">
+          Mandatory Field <span className="text-destructive">*</span>
         </FieldLabel>
         <FieldContent>
-          <Input id={id} type="text" placeholder="Pflichtfeld" required />
-          <FieldDescription>Dieses Feld ist erforderlich</FieldDescription>
+          <Input id="field-required" required placeholder="Must be filled" />
         </FieldContent>
       </Field>
     )
   }
 }
 
-// Fields with non-input content
-export const ReadOnlyField: Story = {
-  name: 'Read-Only Text Field',
+export const WithDescription: Story = {
+  name: 'With Helper Text',
   render: () => {
     return (
-      <Field orientation="vertical">
-        <FieldLabel>Registrierungsdatum</FieldLabel>
+      <Field>
+        <FieldLabel>API Key</FieldLabel>
         <FieldContent>
-          <p className="text-base font-medium">15. Januar 2026</p>
-          <FieldDescription>Dieses Datum kann nicht geändert werden</FieldDescription>
+          <Input readOnly value="sk_test_51Mz..." />
+          <FieldDescription>
+            Your secret API key. Do not share this with anyone.
+          </FieldDescription>
         </FieldContent>
       </Field>
     )
   }
 }
 
-export const StatusField: Story = {
-  name: 'Status Display Field',
+export const InteractiveValidation: Story = {
+  name: 'Interaction: Form Validation',
   render: () => {
-    return (
-      <Field orientation="horizontal">
-        <FieldLabel>Account Status</FieldLabel>
-        <FieldContent>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex h-2 w-2 rounded-full bg-green-500" />
-            <span className="text-base font-medium">Aktiv</span>
-          </div>
-        </FieldContent>
-      </Field>
-    )
-  }
-}
+    const id = useId()
+    const [error, setError] = useState<string | null>(null)
 
-export const MultiLineField: Story = {
-  name: 'Multi-Line Text Display',
-  render: () => {
-    return (
-      <Field orientation="vertical">
-        <FieldLabel>Adresse</FieldLabel>
-        <FieldContent>
-          <div className="text-base">
-            <p className="font-medium">Max Mustermann</p>
-            <p>Musterstraße 123</p>
-            <p>48149 Münster</p>
-            <p>Deutschland</p>
-          </div>
-          <FieldDescription>Ihre hinterlegte Lieferadresse</FieldDescription>
-        </FieldContent>
-      </Field>
-    )
-  }
-}
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      const formData = new FormData(e.currentTarget)
+      // Use "email" as the name for FormData retrieval
+      const emailValue = formData.get('email') as string
 
-export const LinkField: Story = {
-  name: 'Field with Link',
-  render: () => {
+      // Validation simulation: Check if '@' is missing or empty
+      if (!emailValue || !emailValue.includes('@')) {
+        setError('Bitte geben Sie eine gültige E-Mail-Adresse ein')
+      } else {
+        setError(null)
+        alert('Form submitted successfully!')
+      }
+    }
+
     return (
-      <Field orientation="vertical">
-        <FieldLabel>Projektwebsite</FieldLabel>
-        <FieldContent>
-          <a
-            href="https://www.uni-muenster.de/SCDH"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-base font-medium text-scdh-blue-500 hover:text-scdh-blue-400 underline"
-          >
-            www.uni-muenster.de/SCDH
-          </a>
-          <FieldDescription>Besuchen Sie unsere Website für weitere Informationen</FieldDescription>
-        </FieldContent>
-      </Field>
+      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+        <Field orientation="vertical" data-invalid={!!error}>
+          <FieldLabel htmlFor={id}>E-Mail Adresse</FieldLabel>
+          <FieldContent>
+            <Input
+              id={id}
+              name="email"
+              placeholder="tippen sie 'ungueltige-email'..."
+              // Clear error when user types again
+              onChange={() => error && setError(null)}
+            />
+            <FieldDescription>Wir validieren beim Submit.</FieldDescription>
+            {error && <FieldError>{error}</FieldError>}
+          </FieldContent>
+        </Field>
+        
+        <button
+          type="submit"
+          data-testid="submit-button"
+          className="w-fit rounded bg-primary px-4 py-2 text-primary-foreground text-sm font-medium hover:bg-primary/90"
+        >
+          Validate
+        </button>
+      </form>
     )
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const emailInput = canvas.getByLabelText('E-Mail Adresse')
+    const submitBtn = canvas.getByTestId('submit-button')
+
+    // 1. Type invalid input
+    await userEvent.type(emailInput, 'ungueltige-email', { delay: 50 })
+    
+    // 2. Submit form
+    await userEvent.click(submitBtn)
+
+    // 3. Expect error message
+    // Using regex for flexible matching and case insensitivity
+    const errorMessage = await canvas.findByText(/Bitte geben Sie eine gültige E-Mail-Adresse ein/i)
+    expect(errorMessage).toBeInTheDocument()
+    
+    // 4. Check if field is marked invalid in DOM
+    const field = emailInput.closest('[data-slot="field"]')
+    expect(field).toHaveAttribute('data-invalid', 'true')
   }
 }

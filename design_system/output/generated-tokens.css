@@ -1,7 +1,7 @@
 /* ============================================
    Design Tokens - CSS Custom Properties
    Generated from Penpot design tokens
-   Last updated: 2025-12-04
+   Last updated: 2026-02-12
    ============================================ */
 
 @layer base {
@@ -18,7 +18,7 @@
     --blue-900: 222 67% 33%;
     --blue-950: 225 59% 21%;
     --blue-050: 210 100% 97%;
-    --white: 0 NaN% NaN%;
+    --white: 0 0% 100%;
     --rose-100: 339 63% 95%;
     --rose-200: 338 73% 90%;
     --rose-300: 340 74% 82%;
@@ -140,7 +140,7 @@
     --tan-900: 11 58% 28%;
     --tan-950: 9 62% 15%;
     --tan-050: 30 78% 96%;
-    --black: 0 NaN% NaN%;
+    --black: 0 0% 0%;
     --space-linear-100: 8px;
     --space-linear-125: 10px;
     --space-linear-150: 12px;
