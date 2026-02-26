@@ -45,50 +45,58 @@ type Story = StoryObj<typeof meta>
 
 /** Default size – for standalone search bars (e.g. main search) */
 export const Default: Story = {
-  args: {
-    placeholder: 'Search the catalogue...',
-    'aria-label': 'Search the catalogue'
-  },
-  decorators: [
-    Story => (
+  render: () => {
+    const [query, setQuery] = useState('')
+
+    return (
       <div className="w-full max-w-[400px]">
-        <Story />
+        <SearchBar
+          value={query}
+          onChange={setQuery}
+          placeholder="Search the catalogue..."
+          aria-label="Search the catalogue"
+        />
       </div>
     )
-  ]
+  }
 }
 
 /** Compact size – for inline usage inside Facets or sidebars */
 export const Compact: Story = {
-  args: {
-    size: 'compact',
-    placeholder: 'Filter...',
-    'aria-label': 'Filter items'
-  },
-  decorators: [
-    Story => (
+  render: () => {
+    const [query, setQuery] = useState('')
+
+    return (
       <div className="w-full max-w-[280px]">
-        <Story />
+        <SearchBar
+          size="compact"
+          value={query}
+          onChange={setQuery}
+          placeholder="Filter..."
+          aria-label="Filter items"
+        />
       </div>
     )
-  ]
+  }
 }
 
 /** Shows the clear button when there is text in the input */
 export const WithValue: Story = {
   name: 'With Value (Clear Button Visible)',
-  args: {
-    value: 'Goethe',
-    placeholder: 'Search...',
-    'aria-label': 'Search'
-  },
-  decorators: [
-    Story => (
+  render: () => {
+    const [query, setQuery] = useState('Goethe')
+
+    return (
       <div className="w-full max-w-[400px]">
-        <Story />
+        <SearchBar
+          value={query}
+          onChange={setQuery}
+          placeholder="Search..."
+          aria-label="Search"
+        />
       </div>
     )
-  ]
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -132,73 +140,6 @@ export const Interactive: Story = {
     )
   }
 }
-
-/**
- * Compact interactive variant showing live filtering – simulates
- * how the SearchBar behaves inside a Facet component.
- */
-export const InteractiveCompact: Story = {
-  name: 'Interactive Compact (Facet Filter Simulation)',
-  render: () => {
-    const [filterQuery, setFilterQuery] = useState('')
-
-    // Sample facet items to filter
-    const allItems = [
-      'Johann Wolfgang von Goethe',
-      'Friedrich Schiller',
-      'Franz Kafka',
-      'Thomas Mann',
-      'Hermann Hesse',
-      'Gotthold Ephraim Lessing',
-      'Heinrich Heine',
-      'Rainer Maria Rilke',
-      'Bertolt Brecht',
-      'Georg Büchner'
-    ]
-
-    // Client-side filtering by label – same logic the Facet uses internally
-    const filteredItems = filterQuery.trim()
-      ? allItems.filter(item =>
-          item.toLowerCase().includes(filterQuery.toLowerCase().trim())
-        )
-      : allItems
-
-    return (
-      <div className="w-full max-w-[280px] rounded-lg border border-ulb-grey-200 p-4">
-        <h3 className="text-lg font-medium mb-3">Authors</h3>
-
-        {/* Compact SearchBar like it appears inside a Facet */}
-        <SearchBar
-          size="compact"
-          value={filterQuery}
-          onChange={setFilterQuery}
-          placeholder="Filter authors..."
-          aria-label="Filter authors"
-          className="mb-3"
-        />
-
-        {/* Simulated facet items list */}
-        <ul className="space-y-2">
-          {filteredItems.map(item => (
-            <li key={item} className="flex items-center justify-between text-md">
-              <span className="font-medium font-metawebpro">{item}</span>
-              <span className="text-ulb-grey-600 text-md">
-                {Math.floor(Math.random() * 50 + 1)}
-              </span>
-            </li>
-          ))}
-          {filteredItems.length === 0 && (
-            <li className="text-sm text-ulb-grey-400 italic">No matching items</li>
-          )}
-        </ul>
-      </div>
-    )
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Size comparison
-// ---------------------------------------------------------------------------
 
 /** Side-by-side comparison of default and compact size variants */
 export const SizeComparison: Story = {
