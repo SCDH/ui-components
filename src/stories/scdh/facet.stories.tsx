@@ -194,6 +194,185 @@ export const NoSelection: Story = {
   ]
 }
 
+// ---------------------------------------------------------------------------
+// Searchable facet examples
+// ---------------------------------------------------------------------------
+
+// Extended author list for searchable demos – long enough to justify a filter input
+const manyAuthors: FacetItem[] = [
+  { id: 'goethe', value: 'goethe', label: 'Johann Wolfgang von Goethe', count: 45 },
+  { id: 'schiller', value: 'schiller', label: 'Friedrich Schiller', count: 32 },
+  { id: 'kafka', value: 'kafka', label: 'Franz Kafka', count: 28 },
+  { id: 'mann', value: 'mann', label: 'Thomas Mann', count: 23 },
+  { id: 'hesse', value: 'hesse', label: 'Hermann Hesse', count: 19 },
+  { id: 'lessing', value: 'lessing', label: 'Gotthold Ephraim Lessing', count: 17 },
+  { id: 'heine', value: 'heine', label: 'Heinrich Heine', count: 15 },
+  { id: 'rilke', value: 'rilke', label: 'Rainer Maria Rilke', count: 14 },
+  { id: 'brecht', value: 'brecht', label: 'Bertolt Brecht', count: 12 },
+  { id: 'buechner', value: 'buechner', label: 'Georg Büchner', count: 11 },
+  { id: 'fontane', value: 'fontane', label: 'Theodor Fontane', count: 9 },
+  { id: 'kleist', value: 'kleist', label: 'Heinrich von Kleist', count: 8 },
+  { id: 'droste', value: 'droste', label: 'Annette von Droste-Hülshoff', count: 7 },
+  { id: 'storm', value: 'storm', label: 'Theodor Storm', count: 6 },
+  { id: 'hoffmann', value: 'hoffmann', label: 'E.T.A. Hoffmann', count: 5 }
+]
+
+/** Searchable facet with local filtering – type to filter the list client-side */
+export const SearchableCheckbox: Story = {
+  name: 'Searchable (Checkboxes)',
+  args: {
+    title: 'Authors',
+    items: manyAuthors,
+    selectionMode: 'checkbox',
+    searchable: true,
+    searchPlaceholder: 'Filter authors...',
+    collapsible: true,
+    defaultExpanded: true
+  },
+  decorators: [
+    Story => (
+      <div className="w-full max-w-[300px]">
+        <Story />
+      </div>
+    )
+  ]
+}
+
+/** Searchable facet with radio selection */
+export const SearchableRadio: Story = {
+  name: 'Searchable (Radio)',
+  args: {
+    title: 'Authors',
+    items: manyAuthors,
+    selectionMode: 'radio',
+    searchable: true,
+    searchPlaceholder: 'Filter authors...'
+  },
+  decorators: [
+    Story => (
+      <div className="w-full max-w-[300px]">
+        <Story />
+      </div>
+    )
+  ]
+}
+
+/**
+ * Interactive searchable facet showing the interplay between filtering
+ * and selection – selected items remain selected even when filtered out of view.
+ */
+export const SearchableInteractive: Story = {
+  name: 'Searchable: Interactive with Selection',
+  render: () => {
+    const [selected, setSelected] = useState<string[]>([])
+
+    return (
+      <div className="flex flex-col gap-4 w-full max-w-[300px]">
+        <Facet
+          title="Authors"
+          items={manyAuthors.map(item => ({
+            ...item,
+            isRefined: selected.includes(item.value)
+          }))}
+          selectionMode="checkbox"
+          searchable
+          searchPlaceholder="Filter authors..."
+          collapsible
+          defaultExpanded
+          onSelectionChange={setSelected}
+        />
+
+        {selected.length > 0 && (
+          <div className="text-sm p-4 bg-scdh-blue-50 border border-scdh-blue-200 rounded-lg">
+            <div className="font-semibold text-scdh-blue-700 mb-1">
+              Selected ({selected.length}):
+            </div>
+            <div className="text-scdh-blue-600">
+              {selected.map(v => manyAuthors.find(a => a.value === v)?.label ?? v).join(', ')}
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+}
+
+/**
+ * Demonstrates server-side filtering via onSearchChange.
+ * The Facet does NOT filter locally – instead the consumer provides
+ * already-filtered items (simulating InstantSearch's searchForItems).
+ */
+export const SearchableServerSide: Story = {
+  name: 'Searchable: Server-Side Filtering (Simulated)',
+  render: () => {
+    const [items, setItems] = useState<FacetItem[]>(manyAuthors)
+    const [refinedItems, setRefinedItems] = useState<Set<string>>(new Set())
+
+    // Simulates server-side facet search (e.g. InstantSearch searchForItems)
+    const handleSearchChange = (query: string) => {
+      if (!query.trim()) {
+        setItems(manyAuthors)
+        return
+      }
+
+      // Simulate server response with a slight transformation
+      const normalizedQuery = query.toLowerCase().trim()
+      const filtered = manyAuthors.filter(item =>
+        item.label.toLowerCase().includes(normalizedQuery)
+      )
+      setItems(filtered)
+    }
+
+    const handleRefine = (value: string) => {
+      setRefinedItems(prev => {
+        const next = new Set(prev)
+        if (next.has(value)) {
+          next.delete(value)
+        } else {
+          next.add(value)
+        }
+        return next
+      })
+    }
+
+    return (
+      <div className="flex flex-col gap-4 w-full max-w-[300px]">
+        <Facet
+          title="Authors"
+          items={items.map(item => ({
+            ...item,
+            isRefined: refinedItems.has(item.value)
+          }))}
+          selectionMode="checkbox"
+          searchable
+          searchPlaceholder="Search authors (server)..."
+          collapsible
+          defaultExpanded
+          onSearchChange={handleSearchChange}
+          onRefine={handleRefine}
+        />
+
+        <div className="text-xs text-ulb-grey-500 p-3 bg-ulb-grey-50 rounded-lg">
+          <p className="font-semibold mb-1">ℹ Server-side mode</p>
+          <p>
+            The Facet delegates filtering to the consumer via <code>onSearchChange</code>.
+            In production, this would call <code>searchForItems()</code> from InstantSearch.
+          </p>
+        </div>
+
+        {refinedItems.size > 0 && (
+          <div className="text-sm p-4 bg-scdh-blue-50 border border-scdh-blue-200 rounded-lg">
+            <div className="font-semibold text-scdh-blue-700 mb-1">
+              Active filters (instant):
+            </div>
+            <div className="text-scdh-blue-600">{Array.from(refinedItems).join(', ')}</div>
+          </div>
+        )}
+      </div>
+    )
+  }
+}
+
 // Interactive example with state management
 export const InteractiveMultipleFilters: Story = {
   name: 'Interactive: Deferred Filtering',
