@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { ListItem } from '../../components/ui/scdh/list-item'
-import { SmilePlus } from 'lucide-react'
 
 const meta = {
   title: 'SCDH-UI/ListItem',
@@ -25,8 +24,15 @@ const meta = {
     thumbnail: { control: 'text', description: 'Thumbnail image URL' }
   },
   args: {
-    title: 'Titel des Werkes'
-  }
+    title: 'Title'
+  },
+  decorators: [
+    Story => (
+      <div className="max-w-[900px]">
+        <Story />
+      </div>
+    )
+  ]
 } satisfies Meta<typeof ListItem>
 
 export default meta
@@ -34,100 +40,85 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 // ---------------------------------------------------------------------------
-// Default – matches the designer screenshot
+// 1) Title only
 // ---------------------------------------------------------------------------
 
-/** Full list item matching the designer mockup with thumbnail, metadata, tags, and actions. */
-export const Default: Story = {
-  args: { title: 'Titel des Werkes' },
-  render: () => (
-    <div className="max-w-[900px]">
-      <ListItem
-        thumbnail={undefined}
-        meta="hinzugefügt am 12.04.2025"
-        title="Titel des Werkes"
-        subtitle="Nachname, Vorname"
-        description="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor."
-        tags={[
-          { label: 'Tag', className: 'bg-green-100 text-green-700 border-green-300' },
-          { label: 'Weiterer Tag', className: 'bg-rose-100 text-rose-600 border-rose-300' },
-          { label: 'Bioinformatik', className: 'bg-violet-100 text-violet-600 border-violet-300' }
-        ]}
-        actions={[
-          { label: 'Bearbeiten', variant: 'secondary' },
-          {
-            label: 'Optionen',
-            icon: <SmilePlus className="size-4" />,
-            variant: 'tertiary',
-            size: 'icon'
-          }
-        ]}
-      />
-    </div>
-  )
+/** Minimal list item – only the required title prop is set. */
+export const TitleOnly: Story = {
+  args: {
+    title: 'Title of the item'
+  }
 }
 
 // ---------------------------------------------------------------------------
-// With thumbnail image
+// 2) Title, subtitle, description, meta
 // ---------------------------------------------------------------------------
 
-/** List item with a thumbnail image loaded from an external source. */
+/** List item with all text content but no thumbnail, tags, or actions. */
+export const WithTextContent: Story = {
+  args: {
+    meta: 'added on 2025-12-04',
+    title: 'Title of the item',
+    subtitle: 'Lastname, Firstname',
+    description:
+      'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.'
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 3) Title, subtitle, description, meta + thumbnail
+// ---------------------------------------------------------------------------
+
+/** List item with a thumbnail image on the left. */
 export const WithThumbnail: Story = {
-  args: { title: 'Ein Werk mit Bild' },
-  render: () => (
-    <div className="max-w-[900px]">
-      <ListItem
-        thumbnail="https://picsum.photos/seed/random-pic/200/200"
-        thumbnailAlt="Vorschaubild des Werkes"
-        meta="hinzugefügt am 05.01.2026"
-        title="Ein Werk mit Bild"
-        subtitle="Musterfrau, Erika"
-        description="Dieses Suchergebnis zeigt ein Werk mit einem tatsächlichen Vorschaubild an."
-        tags={[
-          {
-            label: 'Philosophie',
-            className: 'bg-scdh-blue-100 text-scdh-blue-700 border-scdh-blue-300'
-          },
-          { label: 'Open Access', className: 'bg-green-100 text-green-700 border-green-300' }
-        ]}
-        actions={[{ label: 'Bearbeiten', variant: 'secondary' }]}
-      />
-    </div>
-  )
+  args: {
+    thumbnail: 'https://picsum.photos/seed/scdh-list/200/200',
+    thumbnailAlt: 'Preview image of the item',
+    meta: 'added on 2025-12-04',
+    title: 'Title of the item',
+    subtitle: 'Lastname, Firstname',
+    description:
+      'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.'
+  }
 }
 
 // ---------------------------------------------------------------------------
-// Minimal – only required props
+// 4) Title, subtitle, description, meta + tags
 // ---------------------------------------------------------------------------
 
-/** Minimal list item with only a title – no thumbnail, tags, or actions. */
-export const Minimal: Story = {
-  args: { title: 'Nur ein Titel' },
-  render: () => (
-    <div className="max-w-[900px]">
-      <ListItem title="Nur ein Titel" />
-    </div>
-  )
+/** List item with coloured tag badges below the description. */
+export const WithTags: Story = {
+  args: {
+    meta: 'added on 2025-12-04',
+    title: 'Title of the item',
+    subtitle: 'Lastname, Firstname',
+    description:
+      'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.',
+    tags: [
+      { label: 'Literature', className: 'bg-green-100 text-green-700 border-green-300' },
+      { label: 'History', className: 'bg-rose-100 text-rose-600 border-rose-300' },
+      { label: 'Medieval', className: 'bg-violet-100 text-violet-600 border-violet-300' }
+    ]
+  }
 }
 
 // ---------------------------------------------------------------------------
-// Without actions
+// 5) Title, subtitle, description, meta + tags + action button
 // ---------------------------------------------------------------------------
 
-/** List item without any action buttons – read-only display. */
-export const WithoutActions: Story = {
-  args: { title: 'Forschungsergebnis ohne Aktionen' },
-  render: () => (
-    <div className="max-w-[900px]">
-      <ListItem
-        meta="veröffentlicht am 01.06.2025"
-        title="Forschungsergebnis ohne Aktionen"
-        subtitle="Doe, John"
-        description="Ein Suchergebnis das keine Bearbeitungsoptionen bietet und nur zur Anzeige dient."
-        tags={[
-          { label: 'Geschichte', className: 'bg-yellow-100 text-yellow-700 border-yellow-300' }
-        ]}
-      />
-    </div>
-  )
+/** Complete list item with tags and a single action button. */
+export const WithTagsAndAction: Story = {
+  args: {
+    meta: 'added on 2025-12-04',
+    title: 'Title of the item',
+    subtitle: 'Lastname, Firstname',
+    description:
+      'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.',
+    tags: [
+      { label: 'Literature', className: 'bg-green-100 text-green-700 border-green-300' },
+      { label: 'History', className: 'bg-rose-100 text-rose-600 border-rose-300' },
+      { label: 'Medieval', className: 'bg-violet-100 text-violet-600 border-violet-300' }
+    ],
+    actions: [{ label: 'Bearbeiten', variant: 'secondary' }]
+  }
 }
