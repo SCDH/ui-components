@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { RadioGroup, RadioGroupItem } from './radio-group'
-import { Field, FieldLabel } from './field'
+import { RadioGroup, RadioGroupItem } from '../../components/ui/radio-group'
+import { Field, FieldLabel } from '../../components/ui/field'
 
 const meta = {
   title: 'SCDH-UI/RadioGroup',
