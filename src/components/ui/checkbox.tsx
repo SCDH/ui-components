@@ -4,23 +4,25 @@ import { Check } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
-const Checkbox = React.forwardRef<
-  React.ComponentRef<typeof CheckboxPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
->(({ className, ...props }, ref) => (
-  <CheckboxPrimitive.Root
-    ref={ref}
-    className={cn(
-      'grid place-content-center peer h-4 w-4 shrink-0 rounded-sm border border-ulb-grey-200 hover:bg-ulb-grey-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-scdh-blue-700 focus-visible:border-0 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-scdh-blue-500 data-[state=checked]:hover:bg-scdh-blue-400 data-[state=checked]:border-scdh-blue-500 data-[state=checked]:hover:border-scdh-blue-400 data-[state=checked]:text-primary-foreground',
-      className
-    )}
-    {...props}
-  >
-    <CheckboxPrimitive.Indicator className={cn('grid place-content-center text-current')}>
-      <Check color="white" className="h-3 w-3" />
-    </CheckboxPrimitive.Indicator>
-  </CheckboxPrimitive.Root>
-))
+type CheckboxElement = React.ComponentRef<typeof CheckboxPrimitive.Root>
+type CheckboxProps = React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>
+
+const Checkbox = React.forwardRef<CheckboxElement, CheckboxProps>(
+  ({ className, ...props }, ref) => (
+    <CheckboxPrimitive.Root
+      ref={ref}
+      className={cn(
+        'grid place-content-center peer h-4 w-4 shrink-0 rounded-sm border border-ulb-grey-200 hover:bg-ulb-grey-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-scdh-blue-700 focus-visible:border-0 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-scdh-blue-500 data-[state=checked]:hover:bg-scdh-blue-400 data-[state=checked]:border-scdh-blue-500 data-[state=checked]:hover:border-scdh-blue-400 data-[state=checked]:text-primary-foreground',
+        className
+      )}
+      {...props}
+    >
+      <CheckboxPrimitive.Indicator className={cn('grid place-content-center text-current')}>
+        <Check color="white" className="h-3 w-3" />
+      </CheckboxPrimitive.Indicator>
+    </CheckboxPrimitive.Root>
+  )
+)
 Checkbox.displayName = CheckboxPrimitive.Root.displayName
 
 export { Checkbox }
