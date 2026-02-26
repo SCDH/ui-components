@@ -95,9 +95,9 @@ export const WithTags: Story = {
     description:
       'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.',
     tags: [
-      { label: 'Literature', className: 'bg-green-100 text-green-700 border-green-300' },
-      { label: 'History', className: 'bg-rose-100 text-rose-600 border-rose-300' },
-      { label: 'Medieval', className: 'bg-violet-100 text-violet-600 border-violet-300' }
+      { label: 'Literature', className: 'bg-green-100 text-green-800 border-green-300' },
+      { label: 'History', className: 'bg-rose-100 text-rose-800 border-rose-300' },
+      { label: 'Medieval', className: 'bg-violet-100 text-violet-800 border-violet-300' }
     ]
   }
 }
@@ -115,9 +115,9 @@ export const WithTagsAndAction: Story = {
     description:
       'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.',
     tags: [
-      { label: 'Literature', className: 'bg-green-100 text-green-700 border-green-300' },
-      { label: 'History', className: 'bg-rose-100 text-rose-600 border-rose-300' },
-      { label: 'Medieval', className: 'bg-violet-100 text-violet-600 border-violet-300' }
+      { label: 'Literature', className: 'bg-green-100 text-green-800 border-green-300' },
+      { label: 'History', className: 'bg-rose-100 text-rose-800 border-rose-300' },
+      { label: 'Medieval', className: 'bg-violet-100 text-violet-800 border-violet-300' }
     ],
     actions: [{ label: 'Bearbeiten', variant: 'secondary' }]
   }

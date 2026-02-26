@@ -146,9 +146,9 @@ const ListItem = React.forwardRef<HTMLDivElement, ListItemProps>(
           <div className="flex items-start justify-between gap-[var(--space-linear-200)]">
             <div className="flex flex-col gap-[var(--space-linear-050)] min-w-0">
               {meta && (
-                <span className="text-[length:var(--font-size-sm)] text-ulb-grey-500">{meta}</span>
+                <span className="text-[length:var(--font-size-sm)] text-ulb-grey-800">{meta}</span>
               )}
-              <h3 className="text-[length:var(--font-size-xl)] font-bold leading-tight truncate">
+              <h3 className="text-[length:var(--font-size-xl)] font-bold leading-tight truncate text-foreground">
                 {title}
               </h3>
             </div>
@@ -158,12 +158,12 @@ const ListItem = React.forwardRef<HTMLDivElement, ListItemProps>(
 
           {/* Subtitle / author */}
           {subtitle && (
-            <span className="text-[length:var(--font-size-md)] text-ulb-grey-600">{subtitle}</span>
+            <span className="text-[length:var(--font-size-md)] text-ulb-grey-800">{subtitle}</span>
           )}
 
           {/* Description */}
           {description && (
-            <p className="text-[length:var(--font-size-md)] text-ulb-grey-800 line-clamp-2">
+            <p className="text-[length:var(--font-size-md)] text-ulb-grey-900 line-clamp-2">
               {description}
             </p>
           )}
@@ -175,7 +175,7 @@ const ListItem = React.forwardRef<HTMLDivElement, ListItemProps>(
                 <Badge
                   key={tag.label}
                   className={cn(
-                    'rounded-full px-3 py-0.5 text-[length:var(--font-size-sm)] font-medium border',
+                    'rounded-full px-3 py-0.5 text-[length:var(--font-size-sm)] font-medium border shadow-none',
                     tag.className
                   )}
                 >
