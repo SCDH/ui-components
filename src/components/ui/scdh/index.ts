@@ -6,3 +6,6 @@ export type { PageViewProps, PageViewSection } from './page-view'
 
 export { SearchBar } from './search-bar'
 export type { SearchBarProps } from './search-bar'
+
+export { Facet } from './facet'
+export type { FacetProps, FacetItem } from './facet'

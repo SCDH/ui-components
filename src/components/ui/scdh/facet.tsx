@@ -16,8 +16,10 @@ import { ChevronUp } from 'lucide-react'
 // ---------------------------------------------------------------------------
 
 /**
- * Single facet item data structure.
- * Mirrors the InstantSearch RefinementList item shape.
+ * Represents a single item inside a Facet list.
+ *
+ * The only required fields are `value`, `label` and `count`.
+ * `id` defaults to `value` when omitted.
  */
 export interface FacetItem {
   /**
@@ -26,21 +28,33 @@ export interface FacetItem {
    */
   id?: string
 
-  /** The facet value – used for filtering (InstantSearch uses this as the primary identifier) */
+  /** The facet value – used as the primary identifier when toggling or filtering */
   value: string
 
-  /** The facet term/label to display (e.g., "JavaScript", "TypeScript") */
+  /** Human-readable label to display (e.g. "JavaScript", "TypeScript") */
   label: string
 
-  /** Number of occurrences in search results */
+  /** Number of matching results for this facet value */
   count: number
 
-  /** Whether this item is currently selected/refined (InstantSearch uses 'isRefined') */
-  isRefined?: boolean
+  /** Whether this item is currently selected */
+  isSelected?: boolean
 }
 
 /**
- * Props for the Facet component
+ * Props for the Facet component.
+ *
+ * The Facet supports two callback styles for selection changes:
+ *
+ * - **Instant mode (`onToggle`)** – fires once per click with the toggled value.
+ *   Ideal when every selection should trigger an immediate action (e.g. a new
+ *   search request).
+ *
+ * - **Deferred mode (`onSelectionChange`)** – fires with the full array of
+ *   currently selected values. Useful when the consumer collects selections
+ *   and applies them later (e.g. via an "Apply" button).
+ *
+ * If both callbacks are provided, `onToggle` takes precedence.
  */
 export interface FacetProps {
   /** Array of facet items to display */
@@ -59,64 +73,59 @@ export interface FacetProps {
   selectionMode?: 'checkbox' | 'radio'
 
   /**
-   * Callback for individual item selection (InstantSearch.js compatible)
-   * Called with the item value when an item is toggled.
-   * Takes precedence over onSelectionChange if both are provided.
+   * Instant-mode callback – fired once per click with the toggled value.
+   * Takes precedence over `onSelectionChange` if both are provided.
    *
    * @param value - The value of the toggled item
    *
    * @example
    * ```tsx
-   * // InstantSearch usage
-   * const { items, refine } = useRefinementList({ attribute: 'brand' })
-   * <Facet items={items} onRefine={refine} />
+   * <Facet items={items} onToggle={(value) => toggleFilter(value)} />
    * ```
    */
-  onRefine?: (value: string) => void
+  onToggle?: (value: string) => void
 
   /**
-   * Callback when selection changes (for standalone usage)
-   * Called with an array of all currently selected values.
-   * Only used if onRefine is not provided.
+   * Deferred-mode callback – fired with the complete array of selected values.
+   * Only used when `onToggle` is not provided.
    *
-   * @param selectedValues - Array of selected item values
+   * @param selectedValues - Array of currently selected item values
    *
    * @example
    * ```tsx
-   * // Standalone usage
    * <Facet
    *   items={items}
-   *   onSelectionChange={(values) => setSelected(values)}
+   *   onSelectionChange={(values) => setPendingFilters(values)}
    * />
    * ```
    */
   onSelectionChange?: (selectedValues: string[]) => void
 
   /**
-   * Enable a search/filter input for long facet lists.
-   * When true, a compact SearchBar is rendered above the items list.
+   * Enable a search/filter input above the item list.
+   * When true, a compact SearchBar is rendered at the top.
    */
   searchable?: boolean
 
-  /** Placeholder text for the search input (only used when searchable is true) */
+  /** Placeholder text for the search input (only used when `searchable` is true) */
   searchPlaceholder?: string
 
   /**
    * Optional callback when the search query changes.
    *
-   * If provided, the Facet does NOT filter locally – the consumer is
-   * responsible for providing already-filtered items (e.g. via InstantSearch's
-   * searchForItems). This enables server-side facet search.
+   * **With `onSearchChange`** (external / server-side filtering):
+   * The Facet does NOT filter locally – the consumer is responsible for
+   * providing already-filtered `items`. The Facet only forwards the query.
    *
-   * If not provided, the Facet filters items locally by label (default).
+   * **Without `onSearchChange`** (local filtering, default):
+   * The Facet filters items client-side by matching labels against the query.
    *
    * @param query - The current search input value
    *
    * @example
    * ```tsx
-   * // Server-side filtering (InstantSearch)
-   * const { items, searchForItems } = useRefinementList({ attribute: 'brand' })
-   * <Facet searchable onSearchChange={searchForItems} items={items} />
+   * // Server-side filtering
+   * <Facet searchable onSearchChange={searchOnServer} items={filteredItems} />
    *
    * // Local filtering (default – no onSearchChange needed)
    * <Facet searchable items={items} />
@@ -199,6 +208,48 @@ const FacetHeader = ({ title, itemsCount, collapsible, onToggleLabel }: FacetHea
 }
 
 // ---------------------------------------------------------------------------
+// Hooks
+// ---------------------------------------------------------------------------
+
+/**
+ * Encapsulates the facet filter/search logic.
+ *
+ * Implements a strategy pattern:
+ * - When `onSearchChange` is provided, the consumer handles filtering externally
+ *   (server-side mode). The hook only forwards the query.
+ * - When `onSearchChange` is absent, the hook filters `items` locally by label.
+ *
+ * This keeps the filtering concern out of the Facet render body.
+ */
+function useFacetFilter(
+  items: FacetItem[],
+  searchable: boolean,
+  onSearchChange?: (query: string) => void
+) {
+  const [filterQuery, setFilterQuery] = React.useState('')
+
+  /** Update internal query state and optionally notify the consumer */
+  const handleSearchChange = React.useCallback(
+    (query: string) => {
+      setFilterQuery(query)
+      onSearchChange?.(query)
+    },
+    [onSearchChange]
+  )
+
+  /** Items to render – either the original list or locally filtered */
+  const displayItems = React.useMemo(() => {
+    // Skip filtering when disabled, query is empty, or consumer filters externally
+    if (!searchable || !filterQuery.trim() || onSearchChange) return items
+
+    const normalizedQuery = filterQuery.toLowerCase().trim()
+    return items.filter(item => item.label.toLowerCase().includes(normalizedQuery))
+  }, [items, filterQuery, searchable, onSearchChange])
+
+  return { filterQuery, displayItems, handleSearchChange } as const
+}
+
+// ---------------------------------------------------------------------------
 // Implementation
 // ---------------------------------------------------------------------------
 
@@ -206,7 +257,9 @@ const FacetHeader = ({ title, itemsCount, collapsible, onToggleLabel }: FacetHea
  * SCDH Facet Component
  *
  * Displays a list of facet items with counts and optional search/selection.
- * Compatible with InstantSearch.js RefinementList.
+ * Supports two interaction styles:
+ * - **Instant mode** (`onToggle`): each click immediately notifies the consumer
+ * - **Deferred mode** (`onSelectionChange`): emits the full selection array
  */
 export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
   (
@@ -217,7 +270,7 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
       defaultExpanded = true,
       selectionMode,
       onSelectionChange,
-      onRefine,
+      onToggle,
       searchable = false,
       searchPlaceholder = 'Filter...',
       onSearchChange,
@@ -226,51 +279,38 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
     ref
   ) => {
     const facetId = React.useId()
-    const [filterQuery, setFilterQuery] = React.useState('')
-
-    // --- Logic: Filtering ---
-
-    const handleSearchChange = React.useCallback(
-      (query: string) => {
-        setFilterQuery(query)
-        onSearchChange?.(query)
-      },
-      [onSearchChange]
+    const { filterQuery, displayItems, handleSearchChange } = useFacetFilter(
+      items,
+      searchable,
+      onSearchChange
     )
-
-    const displayItems = React.useMemo(() => {
-      if (!searchable || !filterQuery.trim() || onSearchChange) return items
-
-      const normalizedQuery = filterQuery.toLowerCase().trim()
-      return items.filter(item => item.label.toLowerCase().includes(normalizedQuery))
-    }, [items, filterQuery, searchable, onSearchChange])
 
     // --- Logic: Selection ---
 
     /**
-     * Handles item toggling for both InstantSearch and standalone usage.
+     * Handles item toggling for both instant and deferred mode.
      *
      * @param itemValue - The value of the toggled item
-     * @param isChecked - Only relevant in checkbox mode: whether the checkbox was checked or unchecked.
+     * @param isChecked - Only relevant in checkbox mode: whether the checkbox was checked.
      *                    Ignored in radio mode (radio always selects).
      */
     const handleSelectionUpdate = (itemValue: string, isChecked?: boolean) => {
-      // Priority 1: InstantSearch style – delegate to refine callback
-      if (onRefine) {
-        onRefine(itemValue)
+      // Instant mode – delegate single value to consumer
+      if (onToggle) {
+        onToggle(itemValue)
         return
       }
 
-      // Priority 2: Standalone style – emit full array of selected values
+      // Deferred mode – emit full selection array
       if (!onSelectionChange) return
 
       if (selectionMode === 'radio') {
         onSelectionChange([itemValue])
       } else {
-        const currentRefined = items.filter(item => item.isRefined).map(item => item.value)
+        const currentSelected = items.filter(item => item.isSelected).map(item => item.value)
         const next = isChecked
-          ? [...currentRefined, itemValue]
-          : currentRefined.filter(v => v !== itemValue)
+          ? [...currentSelected, itemValue]
+          : currentSelected.filter(v => v !== itemValue)
         onSelectionChange(next)
       }
     }
@@ -305,7 +345,7 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
                 control={
                   <Checkbox
                     id={itemId}
-                    checked={item.isRefined}
+                    checked={item.isSelected}
                     onCheckedChange={checked => handleSelectionUpdate(item.value, !!checked)}
                   />
                 }
@@ -341,7 +381,7 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
         {searchInput}
         {selectionMode === 'radio' ? (
           <RadioGroup
-            value={displayItems.find(i => i.isRefined)?.value}
+            value={displayItems.find(i => i.isSelected)?.value}
             onValueChange={val => handleSelectionUpdate(val)}
           >
             {listContent}

@@ -10,7 +10,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'A facet component for displaying filterable categories with counts. Compatible with InstantSearch.js RefinementList. Supports multiple selection modes (checkbox/radio) and can be collapsible.'
+          'A facet component for displaying filterable categories with counts. Supports instant mode (onToggle) and deferred mode (onSelectionChange), multiple selection modes (checkbox/radio) and can be collapsible.'
       }
     }
   },
@@ -77,10 +77,10 @@ const authors: FacetItem[] = [
     value: 'goethe',
     label: 'Johann Wolfgang von Goethe',
     count: 45,
-    isRefined: true
+    isSelected: true
   },
   { id: 'schiller', value: 'schiller', label: 'Friedrich Schiller', count: 32 },
-  { id: 'kafka', value: 'kafka', label: 'Franz Kafka', count: 28, isRefined: true },
+  { id: 'kafka', value: 'kafka', label: 'Franz Kafka', count: 28, isSelected: true },
   { id: 'mann', value: 'mann', label: 'Thomas Mann', count: 23 },
   { id: 'hesse', value: 'hesse', label: 'Hermann Hesse', count: 19 }
 ]
@@ -276,7 +276,7 @@ export const SearchableInteractive: Story = {
           title="Authors"
           items={manyAuthors.map(item => ({
             ...item,
-            isRefined: selected.includes(item.value)
+            isSelected: selected.includes(item.value)
           }))}
           selectionMode="checkbox"
           searchable
@@ -304,15 +304,15 @@ export const SearchableInteractive: Story = {
 /**
  * Demonstrates server-side filtering via onSearchChange.
  * The Facet does NOT filter locally – instead the consumer provides
- * already-filtered items (simulating InstantSearch's searchForItems).
+ * already-filtered items (simulating a backend facet search).
  */
 export const SearchableServerSide: Story = {
   name: 'Searchable: Server-Side Filtering (Simulated)',
   render: () => {
     const [items, setItems] = useState<FacetItem[]>(manyAuthors)
-    const [refinedItems, setRefinedItems] = useState<Set<string>>(new Set())
+    const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
 
-    // Simulates server-side facet search (e.g. InstantSearch searchForItems)
+    // Simulates server-side facet search
     const handleSearchChange = (query: string) => {
       if (!query.trim()) {
         setItems(manyAuthors)
@@ -327,8 +327,8 @@ export const SearchableServerSide: Story = {
       setItems(filtered)
     }
 
-    const handleRefine = (value: string) => {
-      setRefinedItems(prev => {
+    const handleToggle = (value: string) => {
+      setSelectedItems(prev => {
         const next = new Set(prev)
         if (next.has(value)) {
           next.delete(value)
@@ -345,7 +345,7 @@ export const SearchableServerSide: Story = {
           title="Authors"
           items={items.map(item => ({
             ...item,
-            isRefined: refinedItems.has(item.value)
+            isSelected: selectedItems.has(item.value)
           }))}
           selectionMode="checkbox"
           searchable
@@ -353,21 +353,21 @@ export const SearchableServerSide: Story = {
           collapsible
           defaultExpanded
           onSearchChange={handleSearchChange}
-          onRefine={handleRefine}
+          onToggle={handleToggle}
         />
 
         <div className="text-xs text-ulb-grey-800 p-3 bg-ulb-grey-50 rounded-lg">
           <p className="font-semibold mb-1">ℹ Server-side mode</p>
           <p>
-            The Facet delegates filtering to the consumer via <code>onSearchChange</code>. In
-            production, this would call <code>searchForItems()</code> from InstantSearch.
+            The Facet delegates filtering to the consumer via <code>onSearchChange</code>. It does
+            not know which backend or search engine is used.
           </p>
         </div>
 
-        {refinedItems.size > 0 && (
+        {selectedItems.size > 0 && (
           <div className="text-sm p-4 bg-scdh-blue-50 border border-scdh-blue-200 rounded-lg">
             <div className="font-semibold text-scdh-blue-700 mb-1">Active filters (instant):</div>
-            <div className="text-scdh-blue-600">{Array.from(refinedItems).join(', ')}</div>
+            <div className="text-scdh-blue-600">{Array.from(selectedItems).join(', ')}</div>
           </div>
         )}
       </div>
@@ -414,7 +414,7 @@ export const InteractiveMultipleFilters: Story = {
             title="Categories"
             items={bookCategories.map(item => ({
               ...item,
-              isRefined: selectedCategories.includes(item.value)
+              isSelected: selectedCategories.includes(item.value)
             }))}
             selectionMode="checkbox"
             collapsible
@@ -426,7 +426,7 @@ export const InteractiveMultipleFilters: Story = {
             title="Languages"
             items={bookLanguages.map(item => ({
               ...item,
-              isRefined: selectedLanguages.includes(item.value)
+              isSelected: selectedLanguages.includes(item.value)
             }))}
             selectionMode="checkbox"
             collapsible
@@ -468,14 +468,14 @@ export const InteractiveMultipleFilters: Story = {
   }
 }
 
-// InstantSearch compatible example (simulated)
-export const InstantSearchPattern: Story = {
-  name: 'InstantSearch.js Pattern (Instant Filtering)',
+// Instant toggle example
+export const InstantTogglePattern: Story = {
+  name: 'Instant Toggle Pattern',
   render: () => {
-    const [refinedItems, setRefinedItems] = useState<Set<string>>(new Set())
+    const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
 
-    const handleRefine = (value: string) => {
-      setRefinedItems(prev => {
+    const handleToggle = (value: string) => {
+      setSelectedItems(prev => {
         const newSet = new Set(prev)
         if (newSet.has(value)) {
           newSet.delete(value)
@@ -492,19 +492,19 @@ export const InstantSearchPattern: Story = {
           title="Categories"
           items={bookCategories.map(item => ({
             ...item,
-            isRefined: refinedItems.has(item.value)
+            isSelected: selectedItems.has(item.value)
           }))}
           selectionMode="checkbox"
           collapsible
-          onRefine={handleRefine}
+          onToggle={handleToggle}
         />
 
-        {refinedItems.size > 0 && (
+        {selectedItems.size > 0 && (
           <div className="text-sm p-4 bg-scdh-blue-50 border border-scdh-blue-200 rounded-lg">
             <div className="font-semibold text-scdh-blue-700 mb-2">
               Active Filters (instant applied):
             </div>
-            <div className="text-scdh-blue-600">{Array.from(refinedItems).join(', ')}</div>
+            <div className="text-scdh-blue-600">{Array.from(selectedItems).join(', ')}</div>
           </div>
         )}
       </div>
