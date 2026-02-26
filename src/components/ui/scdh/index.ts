@@ -9,3 +9,6 @@ export type { SearchBarProps } from './search-bar'
 
 export { Facet } from './facet'
 export type { FacetProps, FacetItem } from './facet'
+
+export { ListItem } from './list-item'
+export type { ListItemProps, ListItemTag, ListItemAction } from './list-item'
