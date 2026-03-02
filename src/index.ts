@@ -23,5 +23,11 @@ export type {
   SearchBarProps,
   ListItemProps,
   ListItemTag,
-  ListItemAction
+  ListItemAction,
+  FacetSearchProps,
+  SearchService,
+  SearchRequest,
+  SearchResponse,
+  FacetDefinition,
+  UseSearchFacetsReturn,
 } from './components/ui/scdh'

@@ -12,3 +12,13 @@ export type { FacetProps, FacetItem } from './facet'
 
 export { ListItem } from './list-item'
 export type { ListItemProps, ListItemTag, ListItemAction } from './list-item'
+
+export { FacetSearch, SearchServiceProvider, useSearchService, useSearchFacets } from './facet-search'
+export type {
+  FacetSearchProps,
+  SearchService,
+  SearchRequest,
+  SearchResponse,
+  FacetDefinition,
+  UseSearchFacetsReturn,
+} from './facet-search'
