@@ -419,7 +419,7 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
                 onToggleLabel={`Toggle ${title} facet`}
               />
             )}
-            <AccordionContent className="px-4 pb-6 pt-5">{fullFacetContent}</AccordionContent>
+            <AccordionContent className="px-4 pb-5 pt-4">{fullFacetContent}</AccordionContent>
           </AccordionItem>
         </Accordion>
       </Card>
