@@ -155,11 +155,13 @@ const FacetRow = ({ id, label, count, control }: FacetRowProps) => (
   <div className="flex flex-row items-center justify-between">
     <Field orientation="horizontal" className="gap-2">
       {control}
-      <Label htmlFor={id} className="text-md cursor-pointer flex-none">
+      <Label htmlFor={id} className="cursor-pointer flex-none" size="medium">
         {label}
       </Label>
     </Field>
-    <Label className="text-md text-ulb-grey-800 cursor-pointer">{count}</Label>
+    <Label className="text-ulb-grey-800 cursor-pointer" size="medium">
+      {count}
+    </Label>
   </div>
 )
 
@@ -179,7 +181,9 @@ const FacetHeader = ({ title, itemsCount, collapsible, onToggleLabel }: FacetHea
       <div className="flex items-center justify-start gap-1">
         <h3 className="text-lg font-medium">{title}</h3>
         {!collapsible && (
-          <Label className="text-lg text-ulb-grey-800 cursor-pointer">({itemsCount})</Label>
+          <Label className="text-ulb-grey-800 cursor-pointer" size="large">
+            ({itemsCount})
+          </Label>
         )}
       </div>
       {collapsible && (
@@ -369,7 +373,9 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
           return (
             <div key={itemKey} className="flex items-center justify-between gap-2 text-md">
               <span className="flex-1 font-medium">{item.label}</span>
-              <Label className="text-md text-ulb-grey-800 cursor-pointer">{item.count}</Label>
+              <Label className="text-ulb-grey-800 cursor-pointer" size="medium">
+                {item.count}
+              </Label>
             </div>
           )
         })}
