@@ -48,6 +48,22 @@ export const Default: Story = {
   )
 }
 
+export const Compact: Story = {
+  args: {
+    id: 'compact-example',
+    defaultChecked: false,
+    disabled: false
+  },
+  render: args => (
+    <Field orientation="horizontal" className="flex-row items-center gap-2">
+      <Checkbox {...args} />
+      <Label htmlFor={args.id} size="medium">
+        Ich akzeptiere die Bedingungen
+      </Label>
+    </Field>
+  )
+}
+
 export const Checked: Story = {
   args: {
     id: 'checked-example',
