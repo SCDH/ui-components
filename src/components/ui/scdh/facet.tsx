@@ -111,23 +111,29 @@ export interface FacetProps {
   searchPlaceholder?: string
 
   /**
-   * Optional callback when the search query changes.
+   * Optional callback for the filter input **inside the facet** (only relevant when `searchable` is true).
    *
-   * **With `onSearchChange`** (external / server-side filtering):
-   * The Facet does NOT filter locally – the consumer is responsible for
-   * providing already-filtered `items`. The Facet only forwards the query.
+   * This has nothing to do with the main full-text search – it only controls how the
+   * list of facet items itself is filtered when the user types into the compact search
+   * field at the top of the facet (e.g. searching for "Deutsch" within a 150-item
+   * "Language" facet).
    *
-   * **Without `onSearchChange`** (local filtering, default):
-   * The Facet filters items client-side by matching labels against the query.
+   * **With `onSearchChange`** (server-side facet-item filtering):
+   * The Facet does NOT filter locally. The consumer fetches matching facet items
+   * from the server and passes them back via `items`. The Facet only forwards the query.
    *
-   * @param query - The current search input value
+   * **Without `onSearchChange`** (local facet-item filtering, default):
+   * The Facet filters the `items` array client-side by matching labels against the query.
+   * Suitable when all facet items are already loaded.
+   *
+   * @param query - The current value of the facet's internal filter input
    *
    * @example
    * ```tsx
-   * // Server-side filtering
-   * <Facet searchable onSearchChange={searchOnServer} items={filteredItems} />
+   * // Server-side facet-item filtering (e.g. 150+ values, loaded on demand)
+   * <Facet searchable onSearchChange={fetchFacetItems} items={serverFilteredItems} />
    *
-   * // Local filtering (default – no onSearchChange needed)
+   * // Local facet-item filtering (default – no onSearchChange needed)
    * <Facet searchable items={items} />
    * ```
    */
@@ -212,11 +218,16 @@ const FacetHeader = ({ title, itemsCount, collapsible, onToggleLabel }: FacetHea
 // ---------------------------------------------------------------------------
 
 /**
- * Encapsulates the facet filter/search logic.
+ * Encapsulates the filter logic for the search input inside the facet.
  *
- * Implements a strategy pattern:
- * - When `onSearchChange` is provided, the consumer handles filtering externally
- *   (server-side mode). The hook only forwards the query.
+ * Note: this is unrelated to the main full-text search. It only filters the
+ * list of facet items when the user types into the compact filter field within
+ * the facet itself (e.g. narrowing down a long list of languages or categories).
+ *
+ * Implements a strategy pattern for where the filtering happens:
+ * - When `onSearchChange` is provided, the consumer fetches filtered items
+ *   from the server and passes them back via `items` (server-side mode).
+ *   The hook only forwards the query and skips local filtering.
  * - When `onSearchChange` is absent, the hook filters `items` locally by label.
  *
  * This keeps the filtering concern out of the Facet render body.
