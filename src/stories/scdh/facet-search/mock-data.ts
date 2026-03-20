@@ -151,7 +151,7 @@ export const mockFacetDefinitions: FacetDefinition[] = [
   {
     key: 'century',
     title: 'Century',
-    selectionMode: 'radio',
+    selectionMode: 'checkbox',
     items: [
       { id: '18th', value: '18th', label: '18th century', count: 3 },
       { id: '19th', value: '19th', label: '19th century', count: 5 },

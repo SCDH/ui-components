@@ -277,7 +277,7 @@ export const ExploreModeFlow: Story = {
 
     // Click "19th century" – introducing a second dimension unfreezes the facets
     await step('Select "19th century" in Century facet (second dimension)', async () => {
-      const centuryCheckbox = canvas.getByRole('radio', { name: /19th century/ })
+      const centuryCheckbox = canvas.getByRole('checkbox', { name: /19th century/ })
       await userEvent.click(centuryCheckbox)
     })
 
