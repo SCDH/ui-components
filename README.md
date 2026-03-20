@@ -1,6 +1,8 @@
 # UI Components for SCDH
 
-## Getting Started as a Designer
+---
+
+## Getting Started
 
 ### Prerequirements
 
@@ -19,9 +21,23 @@ On Linux/Mac, use `curl -fsSL https://get.pnpm.io/install.sh | sh -`
 2. Start Storybook: `pnpm run storybook`
 3. Open <http://localhost:6006> to see components
 
-### Styling the Button Exmample Component
+### Testing from the CLI
 
-#### Where to make design changes
+We use **Vitest** to run tests and validate our Storybook interaction tests (Play functions) from the command line.
+
+- **Run all tests**: `pnpm test`
+- **Watch mode** (re-runs on changes): `pnpm vitest`
+- **Run specific file**: `pnpm test path/to/file.stories.tsx`
+
+This ensures that all interactive components (like `FacetSearch`) still work correctly after data or logic changes.
+
+---
+
+## Brief overview for designers
+
+### Designing
+
+#### Where to make design changes?
 
 - **Main Button Component**: [`src/components/ui/scdh/button.tsx`](src/components/ui/scdh/button.tsx)
 - **Global Fonts & Colors**: [`src/styles.css`](src/styles.css)
@@ -61,6 +77,8 @@ variant === 'default' && [
 | Link/heading styles | ❌ | ✅ |
 | Body layout | ❌ | ✅ |
 | Dark mode (preview) | ❌ | ✅ |
+
+---
 
 ## For npm Package Consumers (WIP)
 
