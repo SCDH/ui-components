@@ -180,34 +180,13 @@ export const FacetSearch = React.forwardRef<HTMLDivElement, FacetSearchProps>(
 
     return (
       <div ref={ref} className={cn('flex flex-col gap-6 w-full', className)}>
-        {/* Global search bar – top center */}
-        <header className="flex justify-center w-full">
-          <div className="w-full max-w-[640px]">
-            <SearchBar
-              value={query}
-              onChange={setQuery}
-              onSubmit={submitQuery}
-              placeholder={searchPlaceholder}
-              aria-label={searchAriaLabel}
-            />
-          </div>
-        </header>
-
-        {/* Error display */}
-        {error && (
-          <div
-            className="rounded-md bg-red-50 border border-red-200 p-3 text-red-700 text-md"
-            role="alert"
-          >
-            {error}
-          </div>
-        )}
-
-        {/* Main content area: facets left, results right */}
         <div className="flex gap-6 w-full">
-          {/* Left: Facet sidebar */}
+          {/* Side: Facet sidebar */}
           {facetsWithSelection.length > 0 && (
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 min-w-[280px]">
+              {/* Spacer for alignment with the items list (SearchBar + gap-6 + CountHeader + gap-4) */}
+              <div className="h-[89px]" aria-hidden="true" />
+
               <FacetSidebar
                 facets={facetsWithSelection}
                 mode={mode}
@@ -234,8 +213,38 @@ export const FacetSearch = React.forwardRef<HTMLDivElement, FacetSearchProps>(
             </div>
           )}
 
-          {/* Right: Result list */}
-          <ResultList items={response?.items ?? []} totalCount={totalCount} isLoading={isLoading} />
+          {/* Main content area: SearchBar top, results below */}
+          <div className="flex flex-col gap-6 flex-1 min-w-0">
+            {/* Global search bar – top center */}
+            <header className="flex w-full">
+              <div className="w-full">
+                <SearchBar
+                  value={query}
+                  onChange={setQuery}
+                  onSubmit={submitQuery}
+                  placeholder={searchPlaceholder}
+                  aria-label={searchAriaLabel}
+                />
+              </div>
+            </header>
+
+            {/* Error display */}
+            {error && (
+              <div
+                className="rounded-md bg-red-50 border border-red-200 p-3 text-red-700 text-md"
+                role="alert"
+              >
+                {error}
+              </div>
+            )}
+
+            {/* Right: Result list */}
+            <ResultList
+              items={response?.items ?? []}
+              totalCount={totalCount}
+              isLoading={isLoading}
+            />
+          </div>
         </div>
       </div>
     )
