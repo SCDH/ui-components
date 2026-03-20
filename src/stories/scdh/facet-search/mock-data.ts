@@ -116,6 +116,28 @@ export const mockResultItems: ListItemProps[] = [
       { label: 'Philosophy', className: 'bg-amber-100 text-amber-800 border-amber-300' },
     ],
   },
+  {
+    meta: 'added on 2024-02-15',
+    title: 'Moby-Dick; or, The Whale',
+    subtitle: 'Melville, Herman',
+    description:
+      'Electronic edition of the 1851 classic. Includes a comprehensive glossary of whaling terms and historical context.',
+    tags: [
+      { label: 'Literature', className: 'bg-green-100 text-green-800 border-green-300' },
+      { label: 'Novel', className: 'bg-blue-100 text-blue-800 border-blue-300' },
+    ],
+  },
+  {
+    meta: 'added on 2024-01-10',
+    title: 'Les Misérables',
+    subtitle: 'Hugo, Victor',
+    description:
+      'Édition numérique critique. Contient des notes historiques sur le Paris du XIXe siècle et les événements de 1832.',
+    tags: [
+      { label: 'Literature', className: 'bg-green-100 text-green-800 border-green-300' },
+      { label: 'Novel', className: 'bg-blue-100 text-blue-800 border-blue-300' },
+    ],
+  },
 ]
 
 // ---------------------------------------------------------------------------
@@ -143,9 +165,8 @@ export const mockFacetDefinitions: FacetDefinition[] = [
     selectionMode: 'checkbox',
     items: [
       { id: 'de', value: 'de', label: 'German', count: 10 },
-      { id: 'en', value: 'en', label: 'English', count: 0 },
-      { id: 'fr', value: 'fr', label: 'French', count: 0 },
-      { id: 'la', value: 'la', label: 'Latin', count: 0 },
+      { id: 'en', value: 'en', label: 'English', count: 1 },
+      { id: 'fr', value: 'fr', label: 'French', count: 1 },
     ],
   },
   {
@@ -182,7 +203,15 @@ const authorToCentury: Record<string, string> = {
   'Hegel, Georg Wilhelm Friedrich': '19th',
   'Nietzsche, Friedrich': '19th',
   'Mann, Thomas': '19th',
+  'Melville, Herman': '19th',
+  'Hugo, Victor': '19th',
   'Kafka, Franz': '20th',
+}
+
+/** Maps titles to their language */
+const titleToLanguage: Record<string, string> = {
+  'Moby-Dick; or, The Whale': 'en',
+  'Les Misérables': 'fr',
 }
 
 // ---------------------------------------------------------------------------
@@ -225,6 +254,15 @@ export function performMockSearch(
     )
   }
 
+  // Apply language filter
+  const languageFilter = filters['language'] ?? []
+  if (languageFilter.length > 0) {
+    filtered = filtered.filter(item => {
+      const lang = titleToLanguage[item.title] || 'de'
+      return languageFilter.includes(lang)
+    })
+  }
+
   // Apply century filter
   const centuryFilter = filters['century'] ?? []
   if (centuryFilter.length > 0) {
@@ -248,6 +286,19 @@ export function performMockSearch(
       }
     }
 
+    if (facet.key === 'language') {
+      return {
+        ...facet,
+        items: facet.items.map(fi => ({
+          ...fi,
+          count: filtered.filter(item => {
+            const lang = titleToLanguage[item.title] || 'de'
+            return lang === fi.value
+          }).length,
+        })),
+      }
+    }
+
     if (facet.key === 'century') {
       return {
         ...facet,
@@ -261,14 +312,7 @@ export function performMockSearch(
       }
     }
 
-    // Language facet: all items are German in our mock data
-    return {
-      ...facet,
-      items: facet.items.map(fi => ({
-        ...fi,
-        count: fi.value === 'de' ? filtered.length : 0,
-      })),
-    }
+    return facet
   })
 
   return {
