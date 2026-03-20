@@ -89,18 +89,21 @@ state management, and UI composition work together.
   </tbody>
 </table>
 
-## Data Flow
+## Interaction Modes
 
-1. **User types** in the SearchBar → `setQuery()` is called
-2. **Hook debounces** (300ms) → calls `SearchService.search()`
-3. **Service sends** HTTP GET → `/api/search?q=...&filters[key]=value`
-4. **MSW intercepts** the request → runs mock filtering logic
-5. **Response returns** → hook caches result & updates state
-6. **UI re-renders** → facets show updated counts, results list changes
+The `FacetSearch` component supports three different interaction modes:
 
-## Default View
+### Instant Mode (Default)
+Every facet click immediately triggers a new search.
+<Canvas of={FacetSearchStories.InstantMode} />
 
-<Canvas of={FacetSearchStories.Default} />
+### Explore Mode
+The facet sidebar "freezes" upon selection, allowing users to select multiple items from the same dimension without losing context.
+<Canvas of={FacetSearchStories.ExploreMode} />
+
+### Deferred Mode
+Selections are collected and only applied when the user clicks the "Apply Filters" button.
+<Canvas of={FacetSearchStories.DeferredMode} />
 
 ## Interactive Demos
 
@@ -166,7 +169,7 @@ export const searchHandlers = [
 ]
 
 // In Storybook story:
-export const Default: Story = {
+export const InstantMode: Story = {
   parameters: {
     msw: { handlers: searchHandlers }
   }

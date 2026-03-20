@@ -122,8 +122,8 @@ export const SearchFlow: Story = {
     })
 
     // Verify initial state shows all results
-    await step('Verify initial state (10 results)', async () => {
-      await waitFor(() => expect(canvas.getByText('10 results')).toBeInTheDocument(), {
+    await step('Verify initial state (12 results)', async () => {
+      await waitFor(() => expect(canvas.getByText('12 results')).toBeInTheDocument(), {
         timeout: 3000
       })
     })
@@ -168,7 +168,7 @@ export const FacetFilterFlow: Story = {
 
     // Wait for initial load
     await step('Wait for initial results', async () => {
-      await waitFor(() => expect(canvas.getByText('10 results')).toBeInTheDocument(), {
+      await waitFor(() => expect(canvas.getByText('12 results')).toBeInTheDocument(), {
         timeout: 5000
       })
     })
@@ -213,7 +213,7 @@ export const CombinedFlow: Story = {
 
     // Wait for initial load
     await step('Wait for initial results', async () => {
-      await waitFor(() => expect(canvas.getByText('10 results')).toBeInTheDocument(), {
+      await waitFor(() => expect(canvas.getByText('12 results')).toBeInTheDocument(), {
         timeout: 5000
       })
     })
@@ -274,8 +274,8 @@ export const ExploreModeFlow: Story = {
     const canvas = within(canvasElement)
 
     // Wait for initial load
-    await step('Wait for initial results (10)', async () => {
-      await waitFor(() => expect(canvas.getByText('10 results')).toBeInTheDocument(), {
+    await step('Wait for initial results (12)', async () => {
+      await waitFor(() => expect(canvas.getByText('12 results')).toBeInTheDocument(), {
         timeout: 5000
       })
     })
@@ -342,8 +342,8 @@ export const DeferredModeFlow: Story = {
     const canvas = within(canvasElement)
 
     // Wait for initial load
-    await step('Wait for initial results (10)', async () => {
-      await waitFor(() => expect(canvas.getByText('10 results')).toBeInTheDocument(), {
+    await step('Wait for initial results (12)', async () => {
+      await waitFor(() => expect(canvas.getByText('12 results')).toBeInTheDocument(), {
         timeout: 5000
       })
     })
@@ -354,9 +354,9 @@ export const DeferredModeFlow: Story = {
       await userEvent.click(philosophyCheckbox)
     })
 
-    await step('Result count stays at 10; "Apply Filters" button is now enabled', async () => {
+    await step('Result count stays at 12; "Apply Filters" button is now enabled', async () => {
       // Results must not change yet
-      expect(canvas.getByText('10 results')).toBeInTheDocument()
+      expect(canvas.getByText('12 results')).toBeInTheDocument()
       // Apply button must have appeared and be enabled
       const applyButton = canvas.getByRole('button', { name: /Apply Filters/ })
       expect(applyButton).not.toBeDisabled()
