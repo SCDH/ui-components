@@ -53,21 +53,44 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 // ---------------------------------------------------------------------------
-// 1) Default – Full search interface with all facets and results
+// 1) Modes – Different interaction behaviours
 // ---------------------------------------------------------------------------
 
 /**
- * The default story shows the complete FacetSearch interface.
- *
- * MSW intercepts the `/api/search` endpoint and returns mock data
- * from a simulated scholarly catalogue (German literary works).
- *
- * The SearchService is injected via the `SearchServiceProvider` decorator.
+ * **Instant Mode (Default)**
+ * Every facet click immediately triggers a new search.
+ * Facet counts reflect the current filter state after each interaction.
  */
-export const Default: Story = {
+export const InstantMode: Story = {
   args: {
-    searchPlaceholder: 'Volltextsuche im Katalog...',
+    mode: 'instant',
+    searchPlaceholder: 'Volltextsuche im Katalog (Instant)...',
     searchAriaLabel: 'Search the scholarly catalogue'
+  }
+}
+
+/**
+ * **Explore Mode**
+ * Selecting a facet updates only the result list; the facet sidebar freezes
+ * so users can orient themselves. Facets refresh only when the user
+ * introduces a second filter dimension.
+ */
+export const ExploreMode: Story = {
+  args: {
+    mode: 'explore',
+    searchPlaceholder: 'Volltextsuche im Katalog (Explore)...'
+  }
+}
+
+/**
+ * **Deferred Mode**
+ * Checkboxes give instant visual feedback but no search is triggered.
+ * An "Apply Filters" button appears once selections diverge from the last applied state.
+ */
+export const DeferredMode: Story = {
+  args: {
+    mode: 'deferred',
+    searchPlaceholder: 'Volltextsuche im Katalog (Deferred)...'
   }
 }
 
@@ -352,63 +375,5 @@ export const DeferredModeFlow: Story = {
       })
       expect(canvas.getByText('Kritik der reinen Vernunft')).toBeInTheDocument()
     })
-  }
-}
-
-// ---------------------------------------------------------------------------
-// 7) All three modes side by side
-// ---------------------------------------------------------------------------
-
-/**
- * Shows **instant**, **explore**, and **deferred** modes rendered simultaneously
- * so the differences in UX behaviour are immediately visible.
- *
- * Each instance maintains its own independent state via `useSearchFacets`.
- * All three share the same MSW-backed `SearchService`.
- */
-export const AllModesComparison: Story = {
-  name: 'Modes: Instant vs Explore vs Deferred',
-  // Override the meta decorator to render three labelled instances
-  decorators: [
-    () => (
-      <SearchServiceProvider service={searchService}>
-        <div className="flex flex-col gap-12 max-w-[1200px] mx-auto">
-          <section>
-            <h2 className="text-lg font-semibold mb-4 text-ulb-grey-900">Instant Mode (default)</h2>
-            <p className="text-sm text-ulb-grey-600 mb-4">
-              Every facet click immediately triggers a new search. Facet counts reflect the current
-              filter state after each interaction.
-            </p>
-            <FacetSearch mode="instant" searchPlaceholder="Volltextsuche im Katalog..." />
-          </section>
-
-          <hr className="border-ulb-grey-200" />
-
-          <section>
-            <h2 className="text-lg font-semibold mb-4 text-ulb-grey-900">Explore Mode</h2>
-            <p className="text-sm text-ulb-grey-600 mb-4">
-              Selecting a facet updates only the result list; the facet sidebar freezes so users can
-              orient themselves. Facets refresh only when the user introduces a second filter
-              dimension.
-            </p>
-            <FacetSearch mode="explore" searchPlaceholder="Volltextsuche im Katalog..." />
-          </section>
-
-          <hr className="border-ulb-grey-200" />
-
-          <section>
-            <h2 className="text-lg font-semibold mb-4 text-ulb-grey-900">Deferred Mode</h2>
-            <p className="text-sm text-ulb-grey-600 mb-4">
-              Checkboxes give instant visual feedback but no search is triggered. An "Apply Filters"
-              button appears once selections diverge from the last applied state.
-            </p>
-            <FacetSearch mode="deferred" searchPlaceholder="Volltextsuche im Katalog..." />
-          </section>
-        </div>
-      </SearchServiceProvider>
-    )
-  ],
-  parameters: {
-    msw: { handlers: searchHandlers }
   }
 }
