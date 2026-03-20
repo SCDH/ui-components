@@ -223,3 +223,192 @@ export const CombinedFlow: Story = {
     })
   }
 }
+
+// ---------------------------------------------------------------------------
+// 5) Explore mode – Facets stay frozen until a second dimension is selected
+// ---------------------------------------------------------------------------
+
+/**
+ * Demonstrates the **explore** interaction mode.
+ *
+ * In explore mode a facet's own counts never change based on its own selection.
+ * Selecting within a single dimension only updates the result list; the facet
+ * sidebar stays frozen. Only when the user picks a value from a *different*
+ * facet dimension do the facets refresh.
+ *
+ * Flow demonstrated:
+ * 1. Load – 10 results, all facet counts visible
+ * 2. Click "Philosophy" (Category facet) – 4 results, facets UNCHANGED
+ * 3. Click "19th century" (Century facet) – 3 results, facets UPDATE
+ */
+export const ExploreModeFlow: Story = {
+  name: 'Interactive: Explore Mode',
+  args: {
+    searchPlaceholder: 'Volltextsuche im Katalog...',
+    mode: 'explore'
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+
+    // Wait for initial load
+    await step('Wait for initial results (10)', async () => {
+      await waitFor(() => expect(canvas.getByText('10 results')).toBeInTheDocument(), {
+        timeout: 5000
+      })
+    })
+
+    // Click "Philosophy" – only item list should change, facets stay frozen
+    await step('Select "Philosophy" in Category facet', async () => {
+      const philosophyCheckbox = canvas.getByRole('checkbox', { name: /Philosophy/ })
+      await userEvent.click(philosophyCheckbox)
+    })
+
+    await step(
+      'Item list shows 4 results; facet counts still reflect the full unfiltered set',
+      async () => {
+        await waitFor(() => expect(canvas.getByText('4 results')).toBeInTheDocument(), {
+          timeout: 5000
+        })
+        // Literature count 6 must still be present – it would be 0 in instant mode
+        const countElements = canvas.getAllByText('6')
+        expect(countElements.length).toBeGreaterThan(0)
+      }
+    )
+
+    // Click "19th century" – introducing a second dimension unfreezes the facets
+    await step('Select "19th century" in Century facet (second dimension)', async () => {
+      const centuryCheckbox = canvas.getByRole('radio', { name: /19th century/ })
+      await userEvent.click(centuryCheckbox)
+    })
+
+    await step('Item list narrows; facets now update to the combined filter state', async () => {
+      // Philosophy + 19th century: Nietzsche, Hegel, Schopenhauer = 3 items
+      await waitFor(() => expect(canvas.getByText('3 results')).toBeInTheDocument(), {
+        timeout: 5000
+      })
+      // Literature count 6 is gone – facets unfroze and now reflect actual counts
+      expect(canvas.queryByText('6')).toBeNull()
+    })
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 6) Deferred mode – Collect selections, then submit
+// ---------------------------------------------------------------------------
+
+/**
+ * Demonstrates the **deferred** interaction mode.
+ *
+ * In deferred mode facet checkboxes are ticked immediately for visual feedback,
+ * but no search is triggered. An "Apply Filters" button appears as soon as
+ * selections diverge from the last applied state. The search fires only when
+ * that button is clicked.
+ *
+ * Flow demonstrated:
+ * 1. Load – 10 results
+ * 2. Tick "Philosophy" – results still 10, button appears
+ * 3. Click "Apply Filters" – results update to 4
+ */
+export const DeferredModeFlow: Story = {
+  name: 'Interactive: Deferred Mode',
+  args: {
+    searchPlaceholder: 'Volltextsuche im Katalog...',
+    mode: 'deferred'
+  },
+  play: async ({ canvasElement, step }) => {
+    const canvas = within(canvasElement)
+
+    // Wait for initial load
+    await step('Wait for initial results (10)', async () => {
+      await waitFor(() => expect(canvas.getByText('10 results')).toBeInTheDocument(), {
+        timeout: 5000
+      })
+    })
+
+    // Tick the checkbox – no immediate search
+    await step('Tick "Philosophy" checkbox (no search yet)', async () => {
+      const philosophyCheckbox = canvas.getByRole('checkbox', { name: /Philosophy/ })
+      await userEvent.click(philosophyCheckbox)
+    })
+
+    await step('Result count stays at 10; "Apply Filters" button is now enabled', async () => {
+      // Results must not change yet
+      expect(canvas.getByText('10 results')).toBeInTheDocument()
+      // Apply button must have appeared and be enabled
+      const applyButton = canvas.getByRole('button', { name: /Apply Filters/ })
+      expect(applyButton).not.toBeDisabled()
+    })
+
+    // Submit the pending selection
+    await step('Click "Apply Filters"', async () => {
+      const applyButton = canvas.getByRole('button', { name: /Apply Filters/ })
+      await userEvent.click(applyButton)
+    })
+
+    // Now the search fires
+    await step('Results update to 4 philosophy items', async () => {
+      await waitFor(() => expect(canvas.getByText('4 results')).toBeInTheDocument(), {
+        timeout: 5000
+      })
+      expect(canvas.getByText('Kritik der reinen Vernunft')).toBeInTheDocument()
+    })
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 7) All three modes side by side
+// ---------------------------------------------------------------------------
+
+/**
+ * Shows **instant**, **explore**, and **deferred** modes rendered simultaneously
+ * so the differences in UX behaviour are immediately visible.
+ *
+ * Each instance maintains its own independent state via `useSearchFacets`.
+ * All three share the same MSW-backed `SearchService`.
+ */
+export const AllModesComparison: Story = {
+  name: 'Modes: Instant vs Explore vs Deferred',
+  // Override the meta decorator to render three labelled instances
+  decorators: [
+    () => (
+      <SearchServiceProvider service={searchService}>
+        <div className="flex flex-col gap-12 max-w-[1200px] mx-auto">
+          <section>
+            <h2 className="text-lg font-semibold mb-4 text-ulb-grey-900">Instant Mode (default)</h2>
+            <p className="text-sm text-ulb-grey-600 mb-4">
+              Every facet click immediately triggers a new search. Facet counts reflect the current
+              filter state after each interaction.
+            </p>
+            <FacetSearch mode="instant" searchPlaceholder="Volltextsuche im Katalog..." />
+          </section>
+
+          <hr className="border-ulb-grey-200" />
+
+          <section>
+            <h2 className="text-lg font-semibold mb-4 text-ulb-grey-900">Explore Mode</h2>
+            <p className="text-sm text-ulb-grey-600 mb-4">
+              Selecting a facet updates only the result list; the facet sidebar freezes so users can
+              orient themselves. Facets refresh only when the user introduces a second filter
+              dimension.
+            </p>
+            <FacetSearch mode="explore" searchPlaceholder="Volltextsuche im Katalog..." />
+          </section>
+
+          <hr className="border-ulb-grey-200" />
+
+          <section>
+            <h2 className="text-lg font-semibold mb-4 text-ulb-grey-900">Deferred Mode</h2>
+            <p className="text-sm text-ulb-grey-600 mb-4">
+              Checkboxes give instant visual feedback but no search is triggered. An "Apply Filters"
+              button appears once selections diverge from the last applied state.
+            </p>
+            <FacetSearch mode="deferred" searchPlaceholder="Volltextsuche im Katalog..." />
+          </section>
+        </div>
+      </SearchServiceProvider>
+    )
+  ],
+  parameters: {
+    msw: { handlers: searchHandlers }
+  }
+}
