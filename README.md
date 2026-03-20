@@ -7,27 +7,30 @@
 1. NodeJS
 2. Either npm (comes with node) or pnpm
 
-Why we recommend using pnpm? See: https://pnpm.io/motivation  
+Why we recommend using pnpm? See: <https://pnpm.io/motivation>  
 
 On Windows, use PowerShell `Invoke-WebRequest https://get.pnpm.io/install.ps1 -UseBasicParsing | Invoke-Expression`  
 
 On Linux/Mac, use `curl -fsSL https://get.pnpm.io/install.sh | sh -`  
 
 ### Quick Setup
+
 1. Install dependencies: `pnpm install`
 2. Start Storybook: `pnpm run storybook`
-3. Open http://localhost:6006 to see components
+3. Open <http://localhost:6006> to see components
 
 ### Styling the Button Exmample Component
 
-#### Where to make design changes:
+#### Where to make design changes
+
 - **Main Button Component**: [`src/components/ui/scdh/button.tsx`](src/components/ui/scdh/button.tsx)
 - **Global Fonts & Colors**: [`src/styles.css`](src/styles.css)
 - **Tailwind Config**: [`tailwind.config.js`](tailwind.config.js)
 
-#### How to customize:
+#### How to customize
 
 **Colors**: Add custom colors in [`tailwind.config.js`](tailwind.config.js):
+
 ```js
 colors: {
   'scdh-blue': 'rgba(159, 210, 237, 1)',
@@ -36,6 +39,7 @@ colors: {
 ```
 
 **Button Styling**: Modify classes in [`button.tsx`](src/components/ui/scdh/button.tsx):
+
 ```tsx
 // SCDH brand colors for default variant
 variant === 'default' && [
@@ -57,7 +61,6 @@ variant === 'default' && [
 | Link/heading styles | ❌ | ✅ |
 | Body layout | ❌ | ✅ |
 | Dark mode (preview) | ❌ | ✅ |
-
 
 ## For npm Package Consumers (WIP)
 
