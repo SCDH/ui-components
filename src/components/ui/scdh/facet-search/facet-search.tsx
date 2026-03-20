@@ -4,7 +4,7 @@ import { SearchBar } from '@/components/ui/scdh/search-bar'
 import { Facet } from '@/components/ui/scdh/facet'
 import { ListItem } from '@/components/ui/scdh/list-item'
 import { useSearchFacets } from './use-search-facets'
-import type { FacetDefinition } from './types'
+import type { FacetDefinition, FacetInteractionMode } from './types'
 import type { ListItemProps } from '@/components/ui/scdh/list-item'
 
 // ---------------------------------------------------------------------------
@@ -18,6 +18,14 @@ export interface FacetSearchProps {
   readonly searchPlaceholder?: string
   /** Accessible label for the search bar */
   readonly searchAriaLabel?: string
+  /**
+   * Controls when facet selections trigger a search update.
+   * - **instant** (default): every click fires immediately
+   * - **deferred**: selections are collected; an "Apply" button submits them
+   * - **explore**: item list updates on every click; facets stay frozen until
+   *   the user selects from a different facet dimension
+   */
+  readonly mode?: FacetInteractionMode
 }
 
 // ---------------------------------------------------------------------------
@@ -27,11 +35,21 @@ export interface FacetSearchProps {
 /** Sidebar containing all facets */
 interface FacetSidebarProps {
   readonly facets: readonly FacetDefinition[]
+  readonly mode: FacetInteractionMode
   readonly onToggle: (facetKey: string, value: string) => void
   readonly onRadioChange: (facetKey: string, value: string) => void
+  readonly onSelectionChange: (facetKey: string, values: string[]) => void
 }
 
-function FacetSidebar({ facets, onToggle, onRadioChange }: FacetSidebarProps) {
+function FacetSidebar({
+  facets,
+  mode,
+  onToggle,
+  onRadioChange,
+  onSelectionChange
+}: FacetSidebarProps) {
+  const isDeferred = mode === 'deferred'
+
   return (
     <aside
       className="flex flex-col gap-4 w-[280px] flex-shrink-0"
@@ -47,15 +65,22 @@ function FacetSidebar({ facets, onToggle, onRadioChange }: FacetSidebarProps) {
           searchable={facet.searchable}
           collapsible
           defaultExpanded
+          // In deferred mode the Facet uses its own internal deferred callback;
+          // in instant/explore mode we use the instant onToggle per click.
           onToggle={
-            facet.selectionMode === 'checkbox' ? value => onToggle(facet.key, value) : undefined
+            !isDeferred && facet.selectionMode === 'checkbox'
+              ? value => onToggle(facet.key, value)
+              : undefined
           }
           onSelectionChange={
-            facet.selectionMode === 'radio'
-              ? values => {
-                  if (values[0]) onRadioChange(facet.key, values[0])
-                }
-              : undefined
+            isDeferred
+              ? // Both checkbox and radio facets emit their full selection array
+                values => onSelectionChange(facet.key, values)
+              : facet.selectionMode === 'radio'
+                ? values => {
+                    if (values[0]) onRadioChange(facet.key, values[0])
+                  }
+                : undefined
           }
         />
       ))}
@@ -114,16 +139,27 @@ function ResultList({ items, totalCount, isLoading }: ResultListProps) {
  * an injected `SearchService` (via `SearchServiceProvider` context).
  * The `useSearchFacets` hook handles debouncing, caching, and state management.
  *
+ * Three interaction modes are available via the `mode` prop:
+ * - **instant** (default) – every facet click immediately triggers a search
+ * - **deferred** – selections are staged and applied via an "Apply" button
+ * - **explore** – item list updates instantly; facet counts stay frozen until
+ *   the user chooses a value from a second, different facet dimension
+ *
  * @example
  * ```tsx
  * <SearchServiceProvider service={mySearchService}>
- *   <FacetSearch />
+ *   <FacetSearch mode="explore" />
  * </SearchServiceProvider>
  * ```
  */
 export const FacetSearch = React.forwardRef<HTMLDivElement, FacetSearchProps>(
   (
-    { className, searchPlaceholder = 'Volltextsuche...', searchAriaLabel = 'Full-text search' },
+    {
+      className,
+      searchPlaceholder = 'Volltextsuche...',
+      searchAriaLabel = 'Full-text search',
+      mode = 'instant'
+    },
     ref
   ) => {
     const {
@@ -132,12 +168,15 @@ export const FacetSearch = React.forwardRef<HTMLDivElement, FacetSearchProps>(
       submitQuery,
       toggleFacetValue,
       setRadioFacetValue,
+      setPendingFacetValues,
+      applyPendingFilters,
+      hasPendingChanges,
       isLoading,
       response,
       facetsWithSelection,
       error,
       totalCount
-    } = useSearchFacets()
+    } = useSearchFacets(mode)
 
     return (
       <div ref={ref} className={cn('flex flex-col gap-6 w-full', className)}>
@@ -168,11 +207,31 @@ export const FacetSearch = React.forwardRef<HTMLDivElement, FacetSearchProps>(
         <div className="flex gap-6 w-full">
           {/* Left: Facet sidebar */}
           {facetsWithSelection.length > 0 && (
-            <FacetSidebar
-              facets={facetsWithSelection}
-              onToggle={toggleFacetValue}
-              onRadioChange={setRadioFacetValue}
-            />
+            <div className="flex flex-col gap-3">
+              <FacetSidebar
+                facets={facetsWithSelection}
+                mode={mode}
+                onToggle={toggleFacetValue}
+                onRadioChange={setRadioFacetValue}
+                onSelectionChange={setPendingFacetValues}
+              />
+
+              {/* Deferred mode: "Apply Filters" button */}
+              {mode === 'deferred' && (
+                <button
+                  onClick={applyPendingFilters}
+                  disabled={!hasPendingChanges}
+                  className={cn(
+                    'w-full rounded-md px-4 py-2 text-sm font-medium transition-colors',
+                    'bg-ulb-primary text-white',
+                    'disabled:opacity-40 disabled:cursor-not-allowed',
+                    'hover:enabled:bg-ulb-primary/90'
+                  )}
+                >
+                  Apply Filters
+                </button>
+              )}
+            </div>
           )}
 
           {/* Right: Result list */}
