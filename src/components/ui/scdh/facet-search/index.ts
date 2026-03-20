@@ -11,4 +11,5 @@ export type {
   SearchRequest,
   SearchResponse,
   FacetDefinition,
+  FacetInteractionMode,
 } from './types'

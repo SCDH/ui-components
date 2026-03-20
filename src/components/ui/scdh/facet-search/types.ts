@@ -2,6 +2,20 @@ import type { FacetItem } from '../facet'
 import type { ListItemProps } from '../list-item'
 
 // ---------------------------------------------------------------------------
+// Interaction mode
+// ---------------------------------------------------------------------------
+
+/**
+ * Controls how facet filter selections trigger search updates.
+ *
+ * - **instant**: Every click immediately triggers a new search (default).
+ * - **deferred**: Selections are collected; search fires only on explicit submit.
+ * - **explore**: Item list updates on every click; facets stay frozen until
+ *   a selection is made in a different facet dimension (disjunctive UX).
+ */
+export type FacetInteractionMode = 'instant' | 'deferred' | 'explore'
+
+// ---------------------------------------------------------------------------
 // Search Request / Response types
 // ---------------------------------------------------------------------------
 
