@@ -35,7 +35,8 @@ const searchBarVariants = cva('group/search-bar relative flex w-full items-cente
 // ---------------------------------------------------------------------------
 
 export interface SearchBarProps
-  extends VariantProps<typeof searchBarVariants>,
+  extends
+    VariantProps<typeof searchBarVariants>,
     Omit<React.ComponentProps<'input'>, 'size' | 'onChange' | 'onSubmit' | 'type'> {
   /**
    * Current search/filter value (controlled component).
@@ -76,8 +77,8 @@ export interface SearchBarProps
 
 /** Returns icon dimensions based on the current size variant */
 const iconSizeClasses = {
-  default: 'h-4 w-4',
-  compact: 'h-3.5 w-3.5'
+  default: 'left-3 h-4 w-4',
+  compact: 'left-2 h-4 w-4'
 } as const
 
 // ---------------------------------------------------------------------------
@@ -164,10 +165,7 @@ export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
       >
         {/* Leading search icon – purely decorative, not interactive */}
         <Search
-          className={cn(
-            'pointer-events-none absolute left-3 text-ulb-grey-400',
-            iconSize
-          )}
+          className={cn('pointer-events-none absolute text-black', iconSize)}
           strokeWidth={1.5}
           aria-hidden="true"
         />
@@ -179,14 +177,12 @@ export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
           role="searchbox"
           aria-label={ariaLabel}
           value={value}
-          onChange={(e) => onChange?.(e.target.value)}
+          onChange={e => onChange?.(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           className={cn(
             // Padding to accommodate search icon (left) and clear button (right)
-            isCompact
-              ? 'h-8 pl-8 pr-8 text-md'
-              : 'h-10 pl-10 pr-9 text-lg',
+            isCompact ? 'h-7 pl-7 pr-7 text-md' : 'h-9 pl-9 pr-9 text-lg',
             // Hide the native browser clear button – we provide our own
             '[&::-webkit-search-cancel-button]:hidden',
             '[&::-webkit-search-decoration]:hidden'
@@ -201,9 +197,9 @@ export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>(
             onClick={handleClear}
             aria-label="Clear search"
             className={cn(
-              'absolute right-2 rounded-full p-0.5',
-              'text-ulb-grey-400 transition-colors',
-              'hover:bg-ulb-grey-100 hover:text-ulb-grey-700',
+              'absolute right-1.5 rounded-sm p-1',
+              'text-black transition-colors',
+              'hover:bg-ulb-grey-100 ',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-scdh-blue-700'
             )}
           >
