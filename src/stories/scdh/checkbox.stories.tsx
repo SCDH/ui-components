@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Checkbox } from '../../components/ui/checkbox'
-import { Label } from '../../components/ui/label'
+import { Label } from '@/components/ui/label'
 import { Field } from '@/components/ui/field'
 
 const meta = {
@@ -23,6 +23,10 @@ const meta = {
       control: 'boolean',
       description: 'Default checked state (uncontrolled)'
     }
+  },
+  args: {
+    checked: false,
+    disabled: false
   }
 } satisfies Meta<typeof Checkbox>
 
@@ -40,6 +44,22 @@ export const Default: Story = {
     <Field orientation="horizontal" className="flex-row items-center gap-2">
       <Checkbox {...args} />
       <Label htmlFor={args.id}>Label</Label>
+    </Field>
+  )
+}
+
+export const Compact: Story = {
+  args: {
+    id: 'compact-example',
+    defaultChecked: false,
+    disabled: false
+  },
+  render: args => (
+    <Field orientation="horizontal" className="flex-row items-center gap-2">
+      <Checkbox {...args} />
+      <Label htmlFor={args.id} size="medium">
+        Ich akzeptiere die Bedingungen
+      </Label>
     </Field>
   )
 }

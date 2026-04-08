@@ -1,0 +1,181 @@
+import { Meta, Canvas, Story, Source, Controls } from '@storybook/addon-docs/blocks'
+import * as FacetSearchStories from './facet-search.stories'
+
+<Meta of={FacetSearchStories} />
+
+# FacetSearch – Composite Search Interface
+
+The **FacetSearch** component combines `SearchBar`, `Facet`, and `ListItem` into a
+complete search interface with faceted filtering. It demonstrates how data flow,
+state management, and UI composition work together.
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    SearchServiceProvider                    │
+│  (Dependency Injection via React Context)                   │
+│                                                             │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │                    FacetSearch                        │  │
+│  │                                                       │  │
+│  │  ┌─────────────────────────────────────────────────┐  │  │
+│  │  │          useSearchFacets (Hook)                 │  │  │
+│  │  │  • Debounced query handling                     │  │  │
+│  │  │  • Filter state management                      │  │  │
+│  │  │  • Response caching                             │  │  │
+│  │  │  • Selection state merging                      │  │  │
+│  │  └───────────────┬─────────────────────────────────┘  │  │
+│  │                  │                                    │  │
+│  │                  ▼                                    │  │
+│  │  ┌─────────────────────────────────────────────────┐  │  │
+│  │  │           SearchService (Interface)             │  │  │
+│  │  │  • search(request) → Promise<SearchResponse>    │  │  │
+│  │  └───────────────┬─────────────────────────────────┘  │  │
+│  │                  │                                    │  │
+│  └──────────────────┼────────────────────────────────────┘  │
+│                     │                                       │
+│                     ▼                                       │
+│         ┌─────────────────────┐                             │
+│         │  HttpSearchService  │  ← Concrete implementation  │
+│         │   (or MockService)  │                             │
+│         └─────────┬───────────┘                             │
+│                   │                                         │
+└───────────────────┼─────────────────────────────────────────┘
+                    │
+                    ▼
+          ┌─────────────────┐
+          │   MSW Handler   │  ← Intercepts fetch() in Storybook
+          │  /api/search    │
+          └─────────────────┘
+```
+
+## Design Patterns Used
+
+<table>
+  <thead>
+    <tr>
+      <th>Pattern</th>
+      <th>Where</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Strategy</strong></td>
+      <td><code>SearchService</code> interface</td>
+      <td>Decouple component from backend</td>
+    </tr>
+    <tr>
+      <td><strong>Dependency Injection</strong></td>
+      <td><code>SearchServiceProvider</code></td>
+      <td>Inject service via React Context</td>
+    </tr>
+    <tr>
+      <td><strong>Repository / Service Layer</strong></td>
+      <td><code>HttpSearchService</code></td>
+      <td>Abstract data access</td>
+    </tr>
+    <tr>
+      <td><strong>Custom Hook</strong></td>
+      <td><code>useSearchFacets</code></td>
+      <td>Encapsulate business logic</td>
+    </tr>
+    <tr>
+      <td><strong>Decorator</strong></td>
+      <td>Storybook decorator</td>
+      <td>Wrap stories with providers</td>
+    </tr>
+  </tbody>
+</table>
+
+## Interaction Modes
+
+The `FacetSearch` component supports three different interaction modes:
+
+### Instant Mode (Default)
+Every facet click immediately triggers a new search.
+<Canvas of={FacetSearchStories.InstantMode} />
+
+### Explore Mode
+The facet sidebar "freezes" upon selection, allowing users to select multiple items from the same dimension without losing context.
+<Canvas of={FacetSearchStories.ExploreMode} />
+
+### Deferred Mode
+Selections are collected and only applied when the user clicks the "Apply Filters" button.
+<Canvas of={FacetSearchStories.DeferredMode} />
+
+## Interactive Demos
+
+### Search Flow
+
+Type a query and watch the results update with debouncing:
+
+<Canvas of={FacetSearchStories.SearchFlow} />
+
+### Facet Filter Flow
+
+Click a facet checkbox and see the results + counts update:
+
+<Canvas of={FacetSearchStories.FacetFilterFlow} />
+
+### Combined Search + Facet
+
+Full flow: text search then facet refinement:
+
+<Canvas of={FacetSearchStories.CombinedFlow} />
+
+## Usage
+
+```tsx
+import { FacetSearch, SearchServiceProvider } from '@scdh_muenster/ui-components'
+
+// 1. Implement the SearchService interface for your backend
+class SolrSearchService implements SearchService {
+  async search(request: SearchRequest): Promise<SearchResponse> {
+    const response = await fetch(`/solr/query?q=${request.query}`)
+    return response.json()
+  }
+}
+
+// 2. Wrap FacetSearch with the provider
+function App() {
+  const service = useMemo(() => new SolrSearchService(), [])
+
+  return (
+    <SearchServiceProvider service={service}>
+      <FacetSearch searchPlaceholder="Search the catalogue..." searchAriaLabel="Full-text search" />
+    </SearchServiceProvider>
+  )
+}
+```
+
+## MSW Setup (for testing)
+
+The Storybook stories use MSW to intercept HTTP requests:
+
+```ts
+// handlers.ts
+import { http, HttpResponse, delay } from 'msw'
+
+export const searchHandlers = [
+  http.get('/api/search', async ({ request }) => {
+    const url = new URL(request.url)
+    const query = url.searchParams.get('q') ?? ''
+    // ... filtering logic ...
+    await delay(200)
+    return HttpResponse.json(result)
+  })
+]
+
+// In Storybook story:
+export const InstantMode: Story = {
+  parameters: {
+    msw: { handlers: searchHandlers }
+  }
+}
+```
+
+## Props
+
+<Controls />

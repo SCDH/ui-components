@@ -20,5 +20,14 @@ export type {
   SCDHTreeDataItem as TreeDataItem,
   PageViewProps,
   PageViewSection,
-  ButtonProps 
+  SearchBarProps,
+  ListItemProps,
+  ListItemTag,
+  ListItemAction,
+  FacetSearchProps,
+  SearchService,
+  SearchRequest,
+  SearchResponse,
+  FacetDefinition,
+  UseSearchFacetsReturn,
 } from './components/ui/scdh'

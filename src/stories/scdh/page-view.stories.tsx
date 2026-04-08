@@ -6,53 +6,53 @@ import { PageView, type PageViewSection } from '@/components/ui/scdh/page-view'
  * This demonstrates how PageView can consume JSON data from external sources
  */
 const sampleData = [
-    {
-        context: "https://distributed-text-services.github.io/specifications/context/1.0rc1.json",
-        dtsVersion: "1.0rc1",
-        collection: {
-            id: "root",
-            type: "Collection",
-            title: "Klassische Texte",
-            description: "Eine kleine Sammlung klassischer Werke.",
-            members: [
-                {
-                    id: "faust",
-                    type: "Resource",
-                    title: "Goethe: Faust I",
-                    description: "Drei Szenen aus Faust I.",
-                    scenes: [
-                        {
-                            identifier: "scene1",
-                            title: "Nacht",
-                            content: [
-                                "Habe nun, ach! Philosophie, Juristerei und Medizin und leider auch Theologie studiert, mit heißem Bemühn.",
-                                "Da steh ich nun, ich armer Tor, und bin so klug als wie zuvor.",
-                                "Heiße Magister, heiße Doktor gar und ziehe schon an die zehen Jahr herauf, herab und quer und krumm meine Schüler an der Nase herum."
-                            ]
-                        },
-                        {
-                            identifier: "scene2",
-                            title: "Vor dem Tor",
-                            content: [
-                                "Vom Eise befreit sind Strom und Bäche durch des Frühlings holden, belebenden Blick.",
-                                "Im Tale grünet Hoffnungsglück; der alte Winter, in seiner Schwäche, zog sich in rauhe Berge zurück.",
-                                "Von dorther sendet er, fliehend, nur ohnmächtige Schauer körnigen Eises in Streifen über die grünende Flur."
-                            ]
-                        },
-                        {
-                            identifier: "scene3",
-                            title: "Studierzimmer",
-                            content: [
-                                "Mein schöner Abendstern, wohl grüß ich dich! Du Freundlicher, wie gerne sah ich dich!",
-                                "O bleib, mein Licht, mein Hoffnungsschein, o bleib, und führe mich heim!",
-                                "Wie schwinden mir der Erde Schranken, wie drängt sich alles in Gefühl!"
-                            ]
-                        }
-                    ]
-                }
-            ]
+  {
+    context: 'https://distributed-text-services.github.io/specifications/context/1.0rc1.json',
+    dtsVersion: '1.0rc1',
+    collection: {
+      id: 'root',
+      type: 'Collection',
+      title: 'Klassische Texte',
+      description: 'Eine kleine Sammlung klassischer Werke.',
+      members: [
+        {
+          id: 'faust',
+          type: 'Resource',
+          title: 'Goethe: Faust I',
+          description: 'Drei Szenen aus Faust I.',
+          scenes: [
+            {
+              identifier: 'scene1',
+              title: 'Nacht',
+              content: [
+                'Habe nun, ach! Philosophie, Juristerei und Medizin und leider auch Theologie studiert, mit heißem Bemühn.',
+                'Da steh ich nun, ich armer Tor, und bin so klug als wie zuvor.',
+                'Heiße Magister, heiße Doktor gar und ziehe schon an die zehen Jahr herauf, herab und quer und krumm meine Schüler an der Nase herum.'
+              ]
+            },
+            {
+              identifier: 'scene2',
+              title: 'Vor dem Tor',
+              content: [
+                'Vom Eise befreit sind Strom und Bäche durch des Frühlings holden, belebenden Blick.',
+                'Im Tale grünet Hoffnungsglück; der alte Winter, in seiner Schwäche, zog sich in rauhe Berge zurück.',
+                'Von dorther sendet er, fliehend, nur ohnmächtige Schauer körnigen Eises in Streifen über die grünende Flur.'
+              ]
+            },
+            {
+              identifier: 'scene3',
+              title: 'Studierzimmer',
+              content: [
+                'Mein schöner Abendstern, wohl grüß ich dich! Du Freundlicher, wie gerne sah ich dich!',
+                'O bleib, mein Licht, mein Hoffnungsschein, o bleib, und führe mich heim!',
+                'Wie schwinden mir der Erde Schranken, wie drängt sich alles in Gefühl!'
+              ]
+            }
+          ]
         }
+      ]
     }
+  }
 ]
 
 /**
@@ -65,7 +65,7 @@ function transformDTStoSections(dtsData: typeof sampleData): {
   sections: PageViewSection[]
 } {
   const resource = dtsData[0].collection.members[0]
-  
+
   return {
     title: resource.title,
     description: resource.description,
@@ -84,7 +84,7 @@ const meta = {
   title: 'SCDH-UI/PageView',
   component: PageView,
   parameters: {
-    layout: 'fullscreen',
+    layout: 'fullscreen'
   },
   tags: ['autodocs'],
   argTypes: {
@@ -105,6 +105,9 @@ const meta = {
       description: 'Callback when a section is clicked'
     }
   },
+  args: {
+    sections: []
+  }
 } satisfies Meta<typeof PageView>
 
 export default meta
@@ -117,8 +120,8 @@ export const Default: Story = {
   args: {
     title,
     description,
-    sections,
-  },
+    sections
+  }
 }
 
 /**
@@ -127,8 +130,8 @@ export const Default: Story = {
  */
 export const SectionsOnly: Story = {
   args: {
-    sections,
-  },
+    sections
+  }
 }
 
 /**
@@ -142,8 +145,8 @@ export const CustomStyling: Story = {
     sections,
     className: 'bg-gray-50 dark:bg-gray-900',
     sectionTitleClassName: 'text-scdh-blue font-bold',
-    paragraphClassName: 'text-justify',
-  },
+    paragraphClassName: 'text-justify'
+  }
 }
 
 /**
@@ -157,8 +160,8 @@ export const Interactive: Story = {
     sections,
     onSectionClick: (section: PageViewSection) => {
       alert(`You clicked on section: ${section.title}`)
-    },
-  },
+    }
+  }
 }
 
 /**
@@ -186,8 +189,8 @@ export const SimpleExample: Story = {
         title: 'Fazit',
         content: 'Die Komponente ist flexibel und einfach zu verwenden!'
       }
-    ],
-  },
+    ]
+  }
 }
 
 /**
@@ -202,9 +205,9 @@ export const SingleSection: Story = {
         title: 'Der einzige Abschnitt',
         content: [
           'Manchmal braucht man nur einen einzigen Abschnitt.',
-          'Die Komponente funktioniert auch in diesem Fall perfekt.',
+          'Die Komponente funktioniert auch in diesem Fall perfekt.'
         ]
       }
-    ],
-  },
+    ]
+  }
 }
