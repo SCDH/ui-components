@@ -32,7 +32,8 @@
 }
 /* ...existing code... */
 ```
-2. Falls notwendig, neue Utility Classes in **tailwind.config.js** definieren, ggf. mit den Variablen
+
+1. Falls notwendig, neue Utility Classes in **tailwind.config.js** definieren, ggf. mit den Variablen
 
 ```js
 // ...existing code...
@@ -56,7 +57,8 @@ colors: {
 }
 // ...existing code...
 ```
-3. Einsatz in Components unter **ui/components/scdh**
+
+1. Einsatz in Components unter **ui/components/scdh**
 
 Hier ist wichtig zu verstehen, dass Tailwind oft Präfixe verwendet, etwa "bg-" oder andere Namings hat, aus "border-radius" in CSS wird "rounded" in Tailwind. Am besten man macht sich mit der Doku gut vertraut.
 
@@ -99,3 +101,18 @@ Die letzte Ebene sind sehr spezifische Styles (haben für das Element immer höc
 /* 4. Your custom CSS (highest priority) */
 .my-custom-class { /* ... */ }
 ```
+
+## What Goes Where?
+
+| Type | `styles.css` | `preview.css` |
+|------|--------------|---------------|
+| Tailwind directives | ✅ | ❌ |
+| Font definitions | ✅ | ❌ |
+| CSS custom properties | ✅ | ❌ |
+| Component base styles | ✅ | ❌ |
+| Storybook canvas styling | ❌ | ✅ |
+| Link/heading styles | ❌ | ✅ |
+| Body layout | ❌ | ✅ |
+| Dark mode (preview) | ❌ | ✅ |
+
+---
