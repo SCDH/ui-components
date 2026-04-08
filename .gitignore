@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+.npmrc
 
 # Editor directories and files
 .vscode/*
@@ -28,3 +29,4 @@ dist-ssr
 storybook-static
 
 .concepts
+.npmrc
