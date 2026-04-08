@@ -1,120 +1,65 @@
-# UI Components for Library Frontends
+# SCDH UI Components
 
-Developed at the Service Center for Digital Humanities at the University of Muenster
+A modern, accessible UI component library for library contexts and web applications. Developed at the **Service Center for Digital Humanities (SCDH)** at the University of Münster.
 
----
+With the integration of **Design Tokens** (compatible with Penpot) and **Tailwind CSS**, this library provides a highly flexible foundation for consistent user interfaces.
 
-## Getting Started as a Developer
+## 🚀 Why this library?
 
-### Prerequirements
+This suite was specifically developed for the requirements of digital humanities and library systems:
 
-1. NodeJS
-2. Either npm (comes with node) or pnpm
+- **Library Focus**: Includes specialized components such as `FacetSearch`, `TreeView`, and `SearchBar`, optimized for exploring large amounts of data.
+- **Modern Tech Stack**: Based on **React**, **TypeScript**, and **Tailwind CSS**.
+- **Accessibility**: Uses proven patterns (including those based on Radix UI) to ensure inclusive interfaces.
+- **Themability**: Full support for design system tokens. Colors, spacing, and typography can be controlled centrally.
+- **Quality Assurance**: Extensive documentation and testing via **Storybook** and **Interaction Testing**.
 
-Why we recommend using pnpm? See: <https://pnpm.io/motivation>  
+## 📦 Component Overview
 
-On Windows, use PowerShell `Invoke-WebRequest https://get.pnpm.io/install.ps1 -UseBasicParsing | Invoke-Expression`  
+The library offers a mix of basic primitives and complex domain components:
 
-On Linux/Mac, use `curl -fsSL https://get.pnpm.io/install.sh | sh -`  
+### Basic Components
 
-### Quick Setup
+`Button`, `Badge`, `Checkbox`, `Input`, `Label`, `Radio Group`, `Accordion`, `Card`, `Separator`.
 
-1. Install dependencies: `pnpm install`
-2. Start Storybook: `pnpm run storybook`
-3. Open <http://localhost:6006> to see components
+### SCDH Special Components
 
-### Working with Storybook
+- **FacetSearch**: Powerful filter interfaces for search results.
+- **TreeView**: Hierarchical representation of collections or classifications.
+- **SearchBar**: Optimized search inputs for library portals.
+- **PageView**: Standardized layouts for detail and list views.
 
-Storybook serves as an interactive development environment and documentation for our UI components. It allows us to view components in isolation, visualize different states (stories), and test them interactively in the browser without needing to start the full application.
+## 🛠 Integration
 
-Each component has a corresponding `.stories.tsx` file located in the `src/stories/` directory. These files define the various configurations (props) of the component. Changes made to these stories are instantly reflected in the Storybook interface at `http://localhost:6006` via Hot Module Replacement.
+### Installation
 
-Additionally, we utilize **Play functions** within stories to automatically simulate complex user interactions. These interaction tests ensure that functional workflows, such as form inputs or button clicks, remain stable even after code changes.
-
-### Testing from the CLI
-
-We use **Vitest** to run tests and validate our Storybook interaction tests (Play functions) from the command line.
-
-- **Run all tests**: `pnpm test`
-- **Watch mode** (re-runs on changes): `pnpm vitest`
-- **Run specific file**: `pnpm test path/to/file.stories.tsx`
-
-This ensures that all interactive components (like `FacetSearch`) still work correctly after data or logic changes.
-
----
-
-## Manual for Designers
-
-Guidelines for customizing the library UI components.
-
-### 1. Where to Start?
-
-Manage the global design system through these files:
-
-- **Design Tokens (CSS Variables)**: [`src/styles.css`](src/styles.css) - *Single Source of Truth*.
-- **Tailwind Configuration**: [`tailwind.config.js`](tailwind.config.js) - *Mapping tokens to utility classes*.
-- **Individual Components**: [`src/components/ui/scdh/`](src/components/ui/scdh/) - *Specific logic and layout*.
-
-### 2. The Styling Workflow
-
-#### Step A: Define Tokens (CSS)
-
-Add or update brand colors and variables in [`src/styles.css`](src/styles.css):
-
-```css
-@layer base {
-  :root {
-    --scdh-blue: 201 68% 78%; /* HSL values without 'hsl()' */
-  }
-}
+```bash
+pnpm add @scdh/ui-components
 ```
 
-#### Step B: Register in Tailwind
+### Configuration
 
-Map your CSS variables to Tailwind utility classes in [`tailwind.config.js`](tailwind.config.js):
+To ensure styles are loaded correctly, the Tailwind presets from the package must be included:
 
 ```js
-colors: {
-  'scdh-blue': 'hsl(var(--scdh-blue))',
+// tailwind.config.ts / .js
+export default {
+  content: [
+    // ... your files
+    './node_modules/@scdh/ui-components/dist/**/*.js',
+  ],
+  // ... further configuration
 }
 ```
 
-#### Step C: Apply to Components
+## 📖 Documentation
 
-Use the generated utility classes (e.g., `bg-scdh-blue`) in your component's TSX files:
+Full interactive documentation, including code examples, can be found in our **Storybook**.
 
-```tsx
-<button className="bg-scdh-blue text-white rounded-lg px-4 py-2">
-  Action
-</button>
-```
+👉 COMING SOON...
 
-### 3. Syncing with Penpot (Design Tokens)
+---
 
-We use automated scripts to transform Design Tokens from Penpot into our CSS and Tailwind configuration.
+## 🤝 Contributing & Development
 
-#### Workflow
-
-1. **Export Tokens**: Export your design tokens from Penpot as a JSON file.
-2. **Place JSON**: Save the exported file as `tokens.json` in [`design_system/input/`](design_system/input/).
-3. **Run Build Script**: Execute the following command in your terminal:
-
-   ```bash
-   pnpm tokens:build
-   ```
-
-   *This runs three sub-scripts: `transform`, `integrate` (CSS), and `integrate-config` (Tailwind).*
-4. **Output**:
-   - The generated CSS variables will appear in `design_system/output/generated-tokens.css`.
-   - The Tailwind configuration is updated in `design_system/output/generated-tailwind-config.json`.
-5. **Final Step**: Verify the changes in Storybook. The scripts are designed to automatically update the project's styling source files.
-
-### 4. File Responsibility
-
-| File | Purpose |
-|------|---------|
-| [`styles.css`](src/styles.css) | Global tokens, font definitions, and base layer styles. |
-| [`tailwind.config.js`](tailwind.config.js) | Theme extension and utility class generation. |
-| `preview.css` | Storybook-specific canvas and layout styling. |
-| `*.tsx` | Component-specific styling via Tailwind classes. |
-| [`design_system/`](design_system/) | Source and scripts for syncing with Penpot. |
+Want to contribute to the library? You can find all information about local setup, build scripts, and the design token workflow in [CONTRIBUTING.md](CONTRIBUTING.md).
