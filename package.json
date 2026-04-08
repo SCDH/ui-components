@@ -1,8 +1,8 @@
 {
   "name": "@scdh_muenster/ui-components",
-  "version": "0.1.1",
-  "description": "SCDH UI Component Library for React applications",
-  "author": "SCDH Team",
+  "version": "0.2.0",
+  "description": "UI Component Library for React applications",
+  "author": "Service Center for Digital Humanities (SCDH) at the University of Münster",
   "license": "MIT",
   "repository": {
     "type": "git",
