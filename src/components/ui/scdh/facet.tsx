@@ -212,7 +212,10 @@ const FacetHeader = ({ title, itemsCount, collapsible, onToggleLabel }: FacetHea
           content
         )}
       </div>
-      <Separator className="w-full bg-ulb-grey-100" />
+      {/* Hide separator when the accordion is collapsed to avoid a floating line */}
+      <Separator
+        className={cn('w-full bg-ulb-grey-100', collapsible && 'group-data-[state=closed]:hidden')}
+      />
     </>
   )
 }
@@ -427,7 +430,7 @@ export const Facet = React.forwardRef<HTMLDivElement, FacetProps>(
           collapsible
           defaultValue={defaultExpanded ? 'facet-content' : undefined}
         >
-          <AccordionItem value="facet-content" className="border-0">
+          <AccordionItem value="facet-content" className="border-0 group">
             {title && (
               <FacetHeader
                 title={title}
