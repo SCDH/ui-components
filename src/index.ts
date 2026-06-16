@@ -1,6 +1,6 @@
 /**
  * SCDH UI Components Library
- * 
+ *
  * Main entry point for the SCDH UI Components library.
  * This file exports all components, utilities, and types for external use.
  */
@@ -15,8 +15,8 @@ export * from './components/ui/scdh'
 export { cn } from './lib/utils'
 
 // Re-export commonly used types for convenience
-export type { 
-  TreeViewProps, 
+export type {
+  TreeViewProps,
   SCDHTreeDataItem as TreeDataItem,
   PageViewProps,
   PageViewSection,
@@ -29,5 +29,5 @@ export type {
   SearchRequest,
   SearchResponse,
   FacetDefinition,
-  UseSearchFacetsReturn,
+  UseSearchFacetsReturn
 } from './components/ui/scdh'
