@@ -29,3 +29,14 @@ export type {
 } from './facet-search'
 
 export { Header, HeaderLogo, HeaderTitle } from '../header'
+
+export {
+  NavMenu,
+  NavMenuItems,
+  NavMenuItem,
+  NavMenuActions,
+  NavMenuMobile,
+  NavMenuMobileTrigger,
+  NavMenuMobileContent
+} from '../nav-menu'
+export type { NavMenuItemProps } from '../nav-menu'
