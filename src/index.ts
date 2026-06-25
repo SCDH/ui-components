@@ -30,5 +30,7 @@ export type {
   SearchResponse,
   FacetDefinition,
   UseSearchFacetsReturn,
-  MenubarItemProps
+  MenubarItemProps,
+  AppLayoutProps,
+  TopNavItem
 } from './components/ui/scdh'
