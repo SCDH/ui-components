@@ -32,5 +32,3 @@ export { Header, HeaderLogo, HeaderTitle } from '../header'
 
 export { Menubar, MenubarItems, MenubarItem, MenubarActions } from '../menubar'
 export type { MenubarItemProps } from '../menubar'
-
-export { NavHeader, NavHeaderMobileTrigger, NavHeaderMobileContent } from '../nav-header'

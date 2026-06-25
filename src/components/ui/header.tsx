@@ -11,11 +11,12 @@ import { cn } from '@/lib/utils'
  * - Bottom border using design token ulb-grey-200
  */
 const Header = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
-  ({ className, children, ...props }, ref) => (
+  ({ className, children, style, ...props }, ref) => (
     <header
       ref={ref}
+      style={{ '--header-height': '75px', ...style } as React.CSSProperties}
       className={cn(
-        'sticky top-0 z-10 flex h-[75px] items-center justify-between bg-white border-b border-ulb-grey-200 px-[var(--space-linear-300)]',
+        'sticky top-0 z-10 flex h-[var(--header-height,75px)] items-center justify-between bg-white border-b border-ulb-grey-200 px-[var(--space-linear-300)]',
         className
       )}
       {...props}
