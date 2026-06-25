@@ -1,12 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { BookOpenIcon, FolderIcon, SettingsIcon, UsersIcon } from 'lucide-react'
 import { Sidebar, SidebarToggle, SidebarContent } from '@/components/ui/scdh/sidebar'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger
-} from '@/components/ui/accordion'
+import { TreeView } from '@/components/ui/scdh/tree-view'
+import type { TreeDataItem } from '@/components/ui/scdh/tree-view'
 
 const meta = {
   title: 'SCDH-UI/Sidebar',
@@ -69,9 +65,64 @@ export const Default: Story = {
   )
 }
 
+// Sample file system data (hoisted per rerender-no-inline-components)
+const sampleFileSystem: TreeDataItem[] = [
+  {
+    id: 'src',
+    name: 'src',
+    children: [
+      {
+        id: 'components',
+        name: 'components',
+        children: [
+          {
+            id: 'ui',
+            name: 'ui',
+            children: [
+              { id: 'button.tsx', name: 'button.tsx' },
+              { id: 'tree-view.tsx', name: 'tree-view.tsx' },
+              { id: 'input.tsx', name: 'input.tsx' }
+            ]
+          },
+          {
+            id: 'forms',
+            name: 'forms',
+            children: [
+              { id: 'login-form.tsx', name: 'login-form.tsx' },
+              { id: 'contact-form.tsx', name: 'contact-form.tsx' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'pages',
+        name: 'pages',
+        children: [
+          { id: 'home.tsx', name: 'home.tsx' },
+          { id: 'about.tsx', name: 'about.tsx' },
+          { id: 'contact.tsx', name: 'contact.tsx' }
+        ]
+      },
+      { id: 'app.tsx', name: 'App.tsx' },
+      { id: 'main.tsx', name: 'main.tsx' }
+    ]
+  },
+  {
+    id: 'public',
+    name: 'public',
+    children: [
+      { id: 'index.html', name: 'index.html' },
+      { id: 'favicon.ico', name: 'favicon.ico' }
+    ]
+  },
+  { id: 'package.json', name: 'package.json' },
+  { id: 'vite.config.ts', name: 'vite.config.ts' },
+  { id: 'README.md', name: 'README.md' }
+]
+
 /**
- * Sidebar with a TreeView-like structure using Accordion components.
- * Each section can be expanded/collapsed independently.
+ * Sidebar with an integrated TreeView component showing a file system.
+ * Uses the same `sampleFileSystem` data as the TreeView Default story.
  */
 export const WithTreeView: Story = {
   render: () => (
@@ -82,80 +133,7 @@ export const WithTreeView: Story = {
       <Sidebar>
         <SidebarToggle />
         <SidebarContent>
-          <Accordion type="multiple" className="w-full">
-            <AccordionItem value="facet-1">
-              <AccordionTrigger className="text-md text-ulb-grey-800 py-2">
-                <FolderIcon className="size-4 mr-2" />
-                Epoche
-              </AccordionTrigger>
-              <AccordionContent>
-                <nav className="flex flex-col gap-0.5 pl-2">
-                  <a
-                    href="#"
-                    className="px-3 py-1.5 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100"
-                  >
-                    Antike (42)
-                  </a>
-                  <a
-                    href="#"
-                    className="px-3 py-1.5 rounded-md text-sm text-scdh-blue-700 bg-scdh-blue-050"
-                  >
-                    Mittelalter (128)
-                  </a>
-                  <a
-                    href="#"
-                    className="px-3 py-1.5 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100"
-                  >
-                    Neuzeit (67)
-                  </a>
-                </nav>
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="facet-2">
-              <AccordionTrigger className="text-md text-ulb-grey-800 py-2">
-                <UsersIcon className="size-4 mr-2" />
-                Autor:in
-              </AccordionTrigger>
-              <AccordionContent>
-                <nav className="flex flex-col gap-0.5 pl-2">
-                  <a
-                    href="#"
-                    className="px-3 py-1.5 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100"
-                  >
-                    Goethe, J.W. (15)
-                  </a>
-                  <a
-                    href="#"
-                    className="px-3 py-1.5 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100"
-                  >
-                    Schiller, F. (9)
-                  </a>
-                </nav>
-              </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="facet-3">
-              <AccordionTrigger className="text-md text-ulb-grey-800 py-2">
-                <BookOpenIcon className="size-4 mr-2" />
-                Sammlung
-              </AccordionTrigger>
-              <AccordionContent>
-                <nav className="flex flex-col gap-0.5 pl-2">
-                  <a
-                    href="#"
-                    className="px-3 py-1.5 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100"
-                  >
-                    Handschriften (34)
-                  </a>
-                  <a
-                    href="#"
-                    className="px-3 py-1.5 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100"
-                  >
-                    Inkunabeln (21)
-                  </a>
-                </nav>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+          <TreeView data={sampleFileSystem} />
         </SidebarContent>
       </Sidebar>
     </div>
