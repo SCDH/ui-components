@@ -45,13 +45,12 @@ export interface AppLayoutProps {
 // ---------------------------------------------------------------------------
 
 function renderTopNavItem(item: TopNavItem, variant: 'desktop' | 'mobile') {
-  const inner = item.label
-
+  // Skip sentinel items that only carry actions (no label)
   if (item.href) {
     return (
       <MenubarItem key={item.label} active={item.isActive} variant={variant} asChild>
         <a href={item.href} onClick={item.onClick}>
-          {inner}
+          {item.label}
         </a>
       </MenubarItem>
     )
@@ -59,7 +58,7 @@ function renderTopNavItem(item: TopNavItem, variant: 'desktop' | 'mobile') {
 
   return (
     <MenubarItem key={item.label} active={item.isActive} variant={variant} onClick={item.onClick}>
-      {inner}
+      {item.label}
     </MenubarItem>
   )
 }
@@ -106,8 +105,8 @@ function AppLayout({
               </Button>
             </SheetTrigger>
             <SheetContent title={title} side="left">
-              {/* Top-level nav items */}
-              {topNavItems.map(item => renderTopNavItem(item, 'mobile'))}
+              {/* Top-level nav items (skip action-only sentinels) */}
+              {topNavItems.filter(item => item.label).map(item => renderTopNavItem(item, 'mobile'))}
 
               {/* Separator + Sidebar content */}
               {sidebar && (
@@ -127,7 +126,9 @@ function AppLayout({
       {/* ---- Menubar ---- */}
       <Menubar className={isMobile ? 'justify-start' : undefined}>
         {!isMobile && topNavItems.length > 0 && (
-          <MenubarItems>{topNavItems.map(item => renderTopNavItem(item, 'desktop'))}</MenubarItems>
+          <MenubarItems>
+            {topNavItems.filter(item => item.label).map(item => renderTopNavItem(item, 'desktop'))}
+          </MenubarItems>
         )}
         {!isMobile && renderActions(topNavItems)}
         {/* On mobile the hamburger is already rendered inside the Header,

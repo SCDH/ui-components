@@ -1,3 +1,4 @@
+import * as React from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { fn } from '@storybook/test'
 import { HelpCircleIcon, LogInIcon } from 'lucide-react'
@@ -23,32 +24,68 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 // ---------------------------------------------------------------------------
-// Shared render helpers
+// Static data (hoisted per rerender-no-inline-components)
 // ---------------------------------------------------------------------------
 
-/** Renders the desktop nav items (reused across stories). */
-function DesktopNavItems() {
-  return (
-    <MenubarItems>
-      <MenubarItem active>Home</MenubarItem>
-      <MenubarItem>Suche</MenubarItem>
-      <MenubarItem>Sammlungen</MenubarItem>
-      <MenubarItem>Über uns</MenubarItem>
-    </MenubarItems>
-  )
+const NAV_ITEMS = [
+  { id: 'home', label: 'Home' },
+  { id: 'search', label: 'Suche' },
+  { id: 'collections', label: 'Sammlungen' },
+  { id: 'about', label: 'Über uns' }
+] as const
+
+// ---------------------------------------------------------------------------
+// SelectableMenubar — interactive wrapper for stories
+//
+// Simulates the production pattern where active state is derived from the
+// current URL (via NavLink / useLocation). In Storybook we track it with
+// local state so clicking an item visibly marks it as active.
+// ---------------------------------------------------------------------------
+
+interface SelectableMenubarProps {
+  /** ID of the initially active item, or undefined for none. */
+  initialActiveId?: string
+  /** Whether to show the action buttons (Help, Login). */
+  showActions?: boolean
 }
 
-/** Renders the right-aligned action buttons (reused across stories). */
-function DesktopActions() {
+function SelectableMenubar({
+  initialActiveId = 'home',
+  showActions = true
+}: SelectableMenubarProps) {
+  const [activeId, setActiveId] = React.useState(initialActiveId)
+
+  const handleSelect = React.useCallback((id: string) => {
+    setActiveId(id)
+  }, [])
+
   return (
-    <MenubarActions>
-      <Button variant="link" size="icon" aria-label="Hilfe" onClick={fn()}>
-        <HelpCircleIcon />
-      </Button>
-      <Button variant="link" size="icon" aria-label="Login" onClick={fn()}>
-        <LogInIcon />
-      </Button>
-    </MenubarActions>
+    <div className="min-h-[200px] bg-ulb-grey-050">
+      <Menubar>
+        <MenubarItems>
+          {NAV_ITEMS.map(item => (
+            <MenubarItem
+              key={item.id}
+              active={activeId === item.id}
+              onClick={() => handleSelect(item.id)}
+            >
+              {item.label}
+            </MenubarItem>
+          ))}
+        </MenubarItems>
+
+        {showActions && (
+          <MenubarActions>
+            <Button variant="link" size="icon" aria-label="Hilfe" onClick={fn()}>
+              <HelpCircleIcon />
+            </Button>
+            <Button variant="link" size="icon" aria-label="Login" onClick={fn()}>
+              <LogInIcon />
+            </Button>
+          </MenubarActions>
+        )}
+      </Menubar>
+    </div>
   )
 }
 
@@ -59,48 +96,27 @@ function DesktopActions() {
 /**
  * Default desktop navigation.
  * Nav items left-aligned, action buttons right-aligned.
- * Home item is in active state (blue border-bottom).
+ * Click any item to activate it — the active item gets a blue bottom border.
+ * "Home" is initially active, matching the production `NavLink` pattern
+ * where the current URL determines the active state.
  */
 export const Default: Story = {
-  render: () => (
-    <div className="min-h-[200px] bg-ulb-grey-050">
-      <Menubar>
-        <DesktopNavItems />
-        <DesktopActions />
-      </Menubar>
-    </div>
-  )
+  render: () => <SelectableMenubar />
 }
 
 /**
- * Desktop navigation without active item.
- * All menu items are in default (inactive) state.
+ * Desktop navigation with no initially active item.
+ * Click any item to mark it as active. This demonstrates the "cold start"
+ * state before any navigation has occurred.
  */
 export const NoActiveItem: Story = {
-  render: () => (
-    <div className="min-h-[200px] bg-ulb-grey-050">
-      <Menubar>
-        <MenubarItems>
-          <MenubarItem>Home</MenubarItem>
-          <MenubarItem>Suche</MenubarItem>
-          <MenubarItem>Sammlungen</MenubarItem>
-          <MenubarItem>Über uns</MenubarItem>
-        </MenubarItems>
-        <DesktopActions />
-      </Menubar>
-    </div>
-  )
+  render: () => <SelectableMenubar initialActiveId={undefined} />
 }
 
 /**
  * Minimal navigation — only menu items, no action buttons.
+ * Click any item to activate it.
  */
 export const ItemsOnly: Story = {
-  render: () => (
-    <div className="min-h-[200px] bg-ulb-grey-050">
-      <Menubar>
-        <DesktopNavItems />
-      </Menubar>
-    </div>
-  )
+  render: () => <SelectableMenubar showActions={false} />
 }

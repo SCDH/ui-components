@@ -1,3 +1,4 @@
+import * as React from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { HelpCircleIcon, LogInIcon, FolderIcon, UsersIcon, BookOpenIcon } from 'lucide-react'
 import { AppLayout } from '@/components/ui/app-layout'
@@ -31,28 +32,26 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 // ---------------------------------------------------------------------------
-// Shared mock data
+// Static data (hoisted per rerender-no-inline-components)
 // ---------------------------------------------------------------------------
 
-const topNavItems: TopNavItem[] = [
-  { label: 'Home', href: '#', isActive: true },
-  { label: 'Suche', href: '#' },
-  { label: 'Sammlungen', href: '#' },
-  { label: 'Über uns', href: '#' },
-  {
-    label: '',
-    actions: (
-      <>
-        <Button variant="link" size="icon" aria-label="Hilfe">
-          <HelpCircleIcon />
-        </Button>
-        <Button variant="link" size="icon" aria-label="Login">
-          <LogInIcon />
-        </Button>
-      </>
-    )
-  }
-]
+const NAV_ITEMS = [
+  { id: 'home', label: 'Home' },
+  { id: 'search', label: 'Suche' },
+  { id: 'collections', label: 'Sammlungen' },
+  { id: 'about', label: 'Über uns' }
+] as const
+
+const actionButtons = (
+  <>
+    <Button variant="link" size="icon" aria-label="Hilfe">
+      <HelpCircleIcon />
+    </Button>
+    <Button variant="link" size="icon" aria-label="Login">
+      <LogInIcon />
+    </Button>
+  </>
+)
 
 const sidebarContent = (
   <Accordion type="multiple" className="w-full" defaultValue={['facet-1']}>
@@ -167,27 +166,87 @@ const MainContent = () => (
 )
 
 // ---------------------------------------------------------------------------
+// SelectableAppLayout — interactive wrapper for stories
+//
+// Simulates the production pattern where active state is derived from the
+// current URL (via NavLink / useLocation). In Storybook we track it with
+// local state so clicking a nav item visibly marks it as active in both
+// the desktop Menubar and the mobile Sheet.
+// ---------------------------------------------------------------------------
+
+interface SelectableAppLayoutProps extends Omit<
+  import('@/components/ui/app-layout').AppLayoutProps,
+  'topNavItems' | 'title'
+> {
+  /** ID of the initially active nav item, or undefined for none. */
+  initialActiveId?: string
+  /** Whether to show the action buttons (Help, Login). */
+  showActions?: boolean
+}
+
+function SelectableAppLayout({
+  initialActiveId = 'home',
+  showActions = true,
+  sidebar,
+  footer,
+  children,
+  logo
+}: SelectableAppLayoutProps) {
+  const [activeId, setActiveId] = React.useState(initialActiveId)
+
+  const handleSelect = React.useCallback((id: string) => {
+    setActiveId(id)
+  }, [])
+
+  // Derive topNavItems during render (rerender-derived-state-no-effect)
+  const topNavItems: TopNavItem[] = React.useMemo(
+    () => [
+      ...NAV_ITEMS.map(item => ({
+        label: item.label,
+        isActive: activeId === item.id,
+        onClick: () => handleSelect(item.id)
+      })),
+      ...(showActions ? [{ label: '', actions: actionButtons }] : [])
+    ],
+    [activeId, handleSelect, showActions]
+  )
+
+  return (
+    <AppLayout
+      logo={logo}
+      title="SCDH UI Components"
+      topNavItems={topNavItems}
+      sidebar={sidebar}
+      footer={footer}
+    >
+      {children}
+    </AppLayout>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Stories
 // ---------------------------------------------------------------------------
 
 /**
  * Full desktop layout with Header, Menubar, Sidebar, Content, and Footer.
  * - Header: Logo + centered title
- * - Menubar: Nav items left, action buttons right, Home item active
+ * - Menubar: Nav items left, action buttons right, "Home" initially active
  * - Sidebar: Collapsible with Accordion-based facets
  * - Footer: Copyright + legal links
+ *
+ * Click any nav item to mark it as active — the blue bottom border moves.
+ * The same active state is reflected in the mobile Sheet.
  */
 export const Desktop: Story = {
   render: () => (
-    <AppLayout
+    <SelectableAppLayout
       logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
-      title="SCDH UI Components"
-      topNavItems={topNavItems}
       sidebar={sidebarContent}
       footer={footerContent}
     >
       <MainContent />
-    </AppLayout>
+    </SelectableAppLayout>
   )
 }
 
@@ -196,15 +255,13 @@ export const Desktop: Story = {
  */
 export const DesktopCollapsedSidebar: Story = {
   render: () => (
-    <AppLayout
+    <SelectableAppLayout
       logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
-      title="SCDH UI Components"
-      topNavItems={topNavItems}
       sidebar={sidebarContent}
       footer={footerContent}
     >
       <MainContent />
-    </AppLayout>
+    </SelectableAppLayout>
   ),
   play: async ({ canvasElement }) => {
     // Click the sidebar toggle to collapse
@@ -218,6 +275,7 @@ export const DesktopCollapsedSidebar: Story = {
 /**
  * Mobile viewport — hamburger button opens a Sheet.
  * The Sheet contains topNavItems, a Separator, and the sidebar Accordion.
+ * Click any item in the Sheet to mark it as active.
  * Use the Storybook viewport toolbar to switch to a mobile viewport width.
  */
 export const Mobile: Story = {
@@ -227,15 +285,13 @@ export const Mobile: Story = {
     }
   },
   render: () => (
-    <AppLayout
+    <SelectableAppLayout
       logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
-      title="SCDH UI Components"
-      topNavItems={topNavItems}
       sidebar={sidebarContent}
       footer={footerContent}
     >
       <MainContent />
-    </AppLayout>
+    </SelectableAppLayout>
   )
 }
 
@@ -249,32 +305,28 @@ export const Tablet: Story = {
     }
   },
   render: () => (
-    <AppLayout
+    <SelectableAppLayout
       logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
-      title="SCDH UI Components"
-      topNavItems={topNavItems}
       sidebar={sidebarContent}
       footer={footerContent}
     >
       <MainContent />
-    </AppLayout>
+    </SelectableAppLayout>
   )
 }
 
 /**
  * Minimal layout — no sidebar, no footer, just Header + Menubar + Content.
+ * No initially active item (cold-start state).
  */
 export const Minimal: Story = {
   render: () => (
-    <AppLayout
+    <SelectableAppLayout
       logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
-      title="Minimal App"
-      topNavItems={[
-        { label: 'Home', href: '#', isActive: true },
-        { label: 'About', href: '#' }
-      ]}
+      initialActiveId={undefined}
+      showActions={false}
     >
       <MainContent />
-    </AppLayout>
+    </SelectableAppLayout>
   )
 }
