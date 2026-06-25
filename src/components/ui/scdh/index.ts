@@ -30,13 +30,7 @@ export type {
 
 export { Header, HeaderLogo, HeaderTitle } from '../header'
 
-export {
-  NavMenu,
-  NavMenuItems,
-  NavMenuItem,
-  NavMenuActions,
-  NavMenuMobile,
-  NavMenuMobileTrigger,
-  NavMenuMobileContent
-} from '../nav-menu'
-export type { NavMenuItemProps } from '../nav-menu'
+export { Menubar, MenubarItems, MenubarItem, MenubarActions } from '../menubar'
+export type { MenubarItemProps } from '../menubar'
+
+export { NavHeader, NavHeaderMobileTrigger, NavHeaderMobileContent } from '../nav-header'
