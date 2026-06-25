@@ -17,7 +17,7 @@ import logoSrc from '@/assets/logo_uni_ms.svg'
 // ---------------------------------------------------------------------------
 
 const meta = {
-  title: 'SCDH-UI/AppLayout',
+  title: 'SCDH-UI/Composites/AppLayout',
   component: AppLayout,
   parameters: {
     layout: 'fullscreen'

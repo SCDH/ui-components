@@ -28,14 +28,14 @@ export type {
   UseSearchFacetsReturn
 } from './facet-search'
 
-export { Header, HeaderLogo, HeaderTitle } from '../header'
+export { Header, HeaderLogo, HeaderTitle } from './header'
 
-export { Menubar, MenubarItems, MenubarItem, MenubarActions } from '../menubar'
-export type { MenubarItemProps } from '../menubar'
+export { Menubar, MenubarItems, MenubarItem, MenubarActions } from './menubar'
+export type { MenubarItemProps } from './menubar'
 
-export { Sidebar, SidebarToggle, SidebarContent } from '../sidebar'
+export { Sidebar, SidebarToggle, SidebarContent } from './sidebar'
 
-export { Footer } from '../footer'
+export { Footer } from './footer'
 
 export { AppLayout } from '../app-layout'
 export type { AppLayoutProps, TopNavItem } from '../app-layout'

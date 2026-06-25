@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { fn } from '@storybook/test'
 import { HelpCircleIcon, LogInIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Menubar, MenubarItems, MenubarItem, MenubarActions } from '@/components/ui/menubar'
+import { Menubar, MenubarItems, MenubarItem, MenubarActions } from '@/components/ui/scdh/menubar'
 
 const meta = {
   title: 'SCDH-UI/Menubar',

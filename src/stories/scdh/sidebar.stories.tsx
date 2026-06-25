@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { BookOpenIcon, FolderIcon, SettingsIcon, UsersIcon } from 'lucide-react'
-import { Sidebar, SidebarToggle, SidebarContent } from '@/components/ui/sidebar'
+import { Sidebar, SidebarToggle, SidebarContent } from '@/components/ui/scdh/sidebar'
 import {
   Accordion,
   AccordionContent,

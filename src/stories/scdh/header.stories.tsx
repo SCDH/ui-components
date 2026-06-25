@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { BookOpenIcon } from 'lucide-react'
-import { Header, HeaderLogo, HeaderTitle } from '@/components/ui/header'
+import { Header, HeaderLogo, HeaderTitle } from '@/components/ui/scdh/header'
 import logoSrc from '@/assets/logo_uni_ms.svg'
 
 const meta = {
