@@ -1,16 +1,12 @@
 import * as React from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { HelpCircleIcon, LogInIcon, FolderIcon, UsersIcon, BookOpenIcon } from 'lucide-react'
+import { HelpCircleIcon, LogInIcon } from 'lucide-react'
 import { AppLayout } from '@/components/ui/scdh/app-layout'
 import type { TopNavItem } from '@/components/ui/scdh/app-layout'
 import { Button } from '@/components/ui/button'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger
-} from '@/components/ui/accordion'
+import { Facet, SearchBar, ListItem } from '@/components/ui/scdh'
 import logoSrc from '@/assets/logo_uni_ms.svg'
+import { FACET_GROUPS, SEARCH_RESULTS } from './mock-data'
 
 // ---------------------------------------------------------------------------
 // Meta
@@ -54,80 +50,29 @@ const actionButtons = (
 )
 
 const sidebarContent = (
-  <Accordion type="multiple" className="w-full" defaultValue={['facet-1']}>
-    <AccordionItem value="facet-1">
-      <AccordionTrigger className="text-md text-ulb-grey-800 py-2">
-        <FolderIcon className="size-4 mr-2" />
-        Epoche
-      </AccordionTrigger>
-      <AccordionContent>
-        <nav className="flex flex-col gap-0.5 pl-2">
-          <a
-            href="#"
-            className="px-3 py-1.5 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100"
-          >
-            Antike (42)
-          </a>
-          <a
-            href="#"
-            className="px-3 py-1.5 rounded-md text-sm text-scdh-blue-700 bg-scdh-blue-050"
-          >
-            Mittelalter (128)
-          </a>
-          <a
-            href="#"
-            className="px-3 py-1.5 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100"
-          >
-            Neuzeit (67)
-          </a>
-        </nav>
-      </AccordionContent>
-    </AccordionItem>
-    <AccordionItem value="facet-2">
-      <AccordionTrigger className="text-md text-ulb-grey-800 py-2">
-        <UsersIcon className="size-4 mr-2" />
-        Autor:in
-      </AccordionTrigger>
-      <AccordionContent>
-        <nav className="flex flex-col gap-0.5 pl-2">
-          <a
-            href="#"
-            className="px-3 py-1.5 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100"
-          >
-            Goethe, J.W. (15)
-          </a>
-          <a
-            href="#"
-            className="px-3 py-1.5 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100"
-          >
-            Schiller, F. (9)
-          </a>
-        </nav>
-      </AccordionContent>
-    </AccordionItem>
-    <AccordionItem value="facet-3">
-      <AccordionTrigger className="text-md text-ulb-grey-800 py-2">
-        <BookOpenIcon className="size-4 mr-2" />
-        Sammlung
-      </AccordionTrigger>
-      <AccordionContent>
-        <nav className="flex flex-col gap-0.5 pl-2">
-          <a
-            href="#"
-            className="px-3 py-1.5 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100"
-          >
-            Handschriften (34)
-          </a>
-          <a
-            href="#"
-            className="px-3 py-1.5 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100"
-          >
-            Inkunabeln (21)
-          </a>
-        </nav>
-      </AccordionContent>
-    </AccordionItem>
-  </Accordion>
+  <nav className="flex flex-col gap-0.5 p-4">
+    <a href="#" className="px-3 py-2 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100">
+      Autoren
+    </a>
+    <a href="#" className="px-3 py-2 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100">
+      Regionen
+    </a>
+    <a
+      href="#"
+      className="px-3 py-2 rounded-md text-sm text-scdh-blue-700 bg-scdh-blue-050 font-medium"
+    >
+      Epochen
+    </a>
+    <a href="#" className="px-3 py-2 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100">
+      Werke
+    </a>
+    <a href="#" className="px-3 py-2 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100">
+      Sammlungen
+    </a>
+    <a href="#" className="px-3 py-2 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100">
+      Institutionen
+    </a>
+  </nav>
 )
 
 const footerContent = (
@@ -162,6 +107,37 @@ const MainContent = () => (
       laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto
       beatae vitae dicta sunt explicabo.
     </p>
+  </div>
+)
+
+// ---------------------------------------------------------------------------
+// Faceted search demo — static data for visual demonstration only
+// ---------------------------------------------------------------------------
+
+const facetedSidebarContent = (
+  <div className="flex flex-col">
+    {FACET_GROUPS.map(group => (
+      <Facet
+        key={group.value}
+        title={group.title}
+        items={group.items}
+        collapsible
+        defaultExpanded={group.defaultExpanded}
+        className="border-0 shadow-none bg-transparent"
+      />
+    ))}
+  </div>
+)
+
+const SearchResultsContent = () => (
+  <div className="p-8">
+    <SearchBar placeholder="Volltextsuche im Katalog..." className="mb-6" />
+    <p className="text-sm text-ulb-grey-600 mb-4">{SEARCH_RESULTS.length} Ergebnisse</p>
+    <div className="flex flex-col gap-4">
+      {SEARCH_RESULTS.map((item, i) => (
+        <ListItem key={i} {...item} />
+      ))}
+    </div>
   </div>
 )
 
@@ -327,6 +303,32 @@ export const Minimal: Story = {
       showActions={false}
     >
       <MainContent />
+    </SelectableAppLayout>
+  )
+}
+
+/**
+ * Faceted search layout — visual demonstration of a full search interface
+ * inside the SCDH AppLayout.
+ *
+ * - **Sidebar:** Three collapsible facets (Epoche, Autor:in, Sammlung)
+ *   with item counts, purely visual — no active search engine.
+ * - **Main:** A static search bar and 8 example search results rendered
+ *   as ListItem cards with thumbnails, metadata, and tags.
+ * - **Not interactive** — unlike the FacetSearch composite, this needs no
+ *   SearchServiceProvider, no MSW, and no play functions.
+ *
+ * The same Header, Menubar, and Footer from the other stories frame the
+ * search interface in a realistic SCDH page layout.
+ */
+export const FacetedSearch: Story = {
+  render: () => (
+    <SelectableAppLayout
+      logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
+      sidebar={facetedSidebarContent}
+      footer={footerContent}
+    >
+      <SearchResultsContent />
     </SelectableAppLayout>
   )
 }
