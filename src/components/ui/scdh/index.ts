@@ -37,5 +37,5 @@ export { Sidebar, SidebarToggle, SidebarContent } from './sidebar'
 
 export { Footer } from './footer'
 
-export { AppLayout } from '../app-layout'
-export type { AppLayoutProps, TopNavItem } from '../app-layout'
+export { AppLayout } from './app-layout'
+export type { AppLayoutProps, TopNavItem } from './app-layout'

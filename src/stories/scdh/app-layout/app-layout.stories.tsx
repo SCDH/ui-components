@@ -1,8 +1,8 @@
 import * as React from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { HelpCircleIcon, LogInIcon, FolderIcon, UsersIcon, BookOpenIcon } from 'lucide-react'
-import { AppLayout } from '@/components/ui/app-layout'
-import type { TopNavItem } from '@/components/ui/app-layout'
+import { AppLayout } from '@/components/ui/scdh/app-layout'
+import type { TopNavItem } from '@/components/ui/scdh/app-layout'
 import { Button } from '@/components/ui/button'
 import {
   Accordion,
@@ -175,7 +175,7 @@ const MainContent = () => (
 // ---------------------------------------------------------------------------
 
 interface SelectableAppLayoutProps extends Omit<
-  import('@/components/ui/app-layout').AppLayoutProps,
+  import('@/components/ui/scdh/app-layout').AppLayoutProps,
   'topNavItems' | 'title'
 > {
   /** ID of the initially active nav item, or undefined for none. */
