@@ -46,8 +46,7 @@
     "test": "vitest",
     "tokens:transform": "tsx design_system/scripts/transform-tokens.ts",
     "tokens:integrate": "tsx design_system/scripts/integrate-tokens.ts",
-    "tokens:integrate-config": "tsx design_system/scripts/integrate-config.ts",
-    "tokens:build": "pnpm tokens:transform && pnpm tokens:integrate && pnpm tokens:integrate-config"
+    "tokens:build": "pnpm tokens:transform && pnpm tokens:integrate"
   },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
@@ -64,24 +63,24 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.545.0",
-    "tailwind-merge": "^3.3.1",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
-    "@chromatic-com/storybook": "^4.1.1",
+    "@chromatic-com/storybook": "^5.4.0",
     "@eslint/js": "^9.36.0",
     "@storybook/addon-a11y": "^10.6.0",
+    "@tailwindcss/postcss": "^4.3.3",
     "@storybook/addon-docs": "^10.6.0",
     "@storybook/addon-onboarding": "^10.6.0",
     "@storybook/addon-vitest": "^10.6.0",
     "@storybook/react-vite": "^10.6.0",
+    "baseline-browser-mapping": "^2.11.27",
     "@types/node": "^24.6.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react-swc": "^4.1.0",
     "@vitest/browser": "^3.2.4",
     "@vitest/coverage-v8": "^3.2.4",
-    "autoprefixer": "^10.4.21",
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.22",
@@ -94,7 +93,8 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "storybook": "^10.6.0",
-    "tailwindcss": "^3",
+    "tailwindcss": "^4.3.3",
+    "tw-animate-css": "^1.4.0",
     "tsx": "^4.21.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.45.0",
