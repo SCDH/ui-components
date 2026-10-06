@@ -8,7 +8,7 @@ import {
 } from '../../components/ui/field'
 import { Input } from '../../components/ui/input'
 import { useId, useState } from 'react'
-import { userEvent, within, expect } from '@storybook/test'
+import { userEvent, within, expect } from 'storybook/test'
 
 const meta = {
   title: 'SCDH-UI/Field',

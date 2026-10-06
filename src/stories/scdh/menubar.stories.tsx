@@ -1,6 +1,6 @@
 import * as React from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { fn } from '@storybook/test'
+import { fn } from 'storybook/test'
 import { HelpCircleIcon, LogInIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Menubar, MenubarItems, MenubarItem, MenubarActions } from '@/components/ui/scdh/menubar'

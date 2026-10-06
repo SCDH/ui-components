@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { SearchBar } from '../../components/ui/scdh/search-bar'
 import { useState } from 'react'
-import { userEvent, within, expect } from '@storybook/test'
+import { userEvent, within, expect } from 'storybook/test'
 
 const meta = {
   title: 'SCDH-UI/SearchBar',
