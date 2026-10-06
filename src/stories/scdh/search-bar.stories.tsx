@@ -50,7 +50,7 @@ type Story = StoryObj<typeof meta>
 
 /** Default size – for standalone search bars (e.g. main search) */
 export const Default: Story = {
-  render: () => {
+  render: function DefaultRender() {
     const [query, setQuery] = useState('')
 
     return (
@@ -68,7 +68,7 @@ export const Default: Story = {
 
 /** Compact size – for inline usage inside Facets or sidebars */
 export const Compact: Story = {
-  render: () => {
+  render: function CompactRender() {
     const [query, setQuery] = useState('')
 
     return (
@@ -88,7 +88,7 @@ export const Compact: Story = {
 /** Shows the clear button when there is text in the input */
 export const WithValue: Story = {
   name: 'With Value (Clear Button Visible)',
-  render: () => {
+  render: function WithValueRender() {
     const [query, setQuery] = useState('Goethe')
 
     return (
@@ -109,7 +109,7 @@ export const WithValue: Story = {
  */
 export const Interactive: Story = {
   name: 'Interactive (Controlled State)',
-  render: () => {
+  render: function InteractiveRender() {
     const [query, setQuery] = useState('')
     const [submitted, setSubmitted] = useState<string | null>(null)
 
@@ -144,7 +144,7 @@ export const Interactive: Story = {
 /** Side-by-side comparison of default and compact size variants */
 export const SizeComparison: Story = {
   name: 'Size Comparison',
-  render: () => {
+  render: function SizeComparisonRender() {
     const [defaultQuery, setDefaultQuery] = useState('')
     const [compactQuery, setCompactQuery] = useState('')
 
@@ -187,7 +187,7 @@ export const SizeComparison: Story = {
  */
 export const AutomatedInteraction: Story = {
   name: 'Automated: Type and Clear',
-  render: () => {
+  render: function AutomatedInteractionRender() {
     const [query, setQuery] = useState('')
 
     return (
