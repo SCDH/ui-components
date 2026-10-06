@@ -18,7 +18,7 @@ jobs:
           version: 11
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: npx playwright install --with-deps chromium
@@ -34,7 +34,7 @@ jobs:
           version: 11
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           registry-url: https://registry.npmjs.org/
           cache: pnpm
       - run: pnpm install --frozen-lockfile
