@@ -4,62 +4,215 @@ A modern, accessible UI component library for library contexts and web applicati
 
 With the integration of **Design Tokens** (compatible with Penpot) and **Tailwind CSS**, this library provides a highly flexible foundation for consistent user interfaces.
 
-## 🚀 Why this library?
+## 📦 Components
 
-This suite was specifically developed for the requirements of digital humanities and library systems:
+The library consists of base components, SCDH-specific components, and two **Composites** (aggregations of multiple components that demonstrate how they work together).
 
-- **Library Focus**: Includes specialized components such as `FacetSearch`, `TreeView`, and `SearchBar`, optimized for exploring large amounts of data.
-- **Modern Tech Stack**: Based on **React**, **TypeScript**, and **Tailwind CSS**.
-- **Accessibility**: Uses proven patterns (including those based on Radix UI) to ensure inclusive interfaces.
-- **Themability**: Full support for design system tokens. Colors, spacing, and typography can be controlled centrally.
-- **Quality Assurance**: Extensive documentation and testing via **Storybook** and **Interaction Testing**.
+### Base Components
 
-## 📦 Component Overview
+These components live in [`src/components/ui/`](src/components/ui/) and form the fundamental building blocks:
 
-The library offers a mix of basic primitives and complex domain components:
+| Component | Description |
+| --------- | ------------ |
+| `Accordion` | Collapsible content sections. |
+| `Badge` | Small status or label elements. |
+| `Button` | Buttons in various variants. |
+| `Card` | Container for grouped content. |
+| `Checkbox` | Multi-select field. |
+| `Field` | Form field with label, description, and error state. |
+| `Input` | Single-line input field. |
+| `Label` | Label for form elements. |
+| `RadioGroup` | Group of single-select fields. |
+| `Separator` | Visual divider. |
+| `Sheet` | Side overlay panel (e.g., for mobile navigation). |
+| `TreeView` | Hierarchical representation of data (base variant). |
 
-### Basic Components
+### SCDH Components
 
-`Button`, `Badge`, `Checkbox`, `Input`, `Label`, `Radio Group`, `Accordion`, `Card`, `Separator`.
+These components live in [`src/components/ui/scdh/`](src/components/ui/scdh/) and are tailored to the requirements of library and digital humanities systems:
 
-### SCDH Special Components
+| Component | Description |
+| --------- | ------------ |
+| `TreeView` | Hierarchical representation of collections or classifications (SCDH variant with custom icons and defaults). |
+| `PageView` | Standardized layouts for detail and list views. |
+| `SearchBar` | Optimized search fields for library portals. |
+| `Facet` | A single facet for filtering search results. |
+| `ListItem` | List entry with tags and actions. |
+| `Header` | Header with logo and title (`HeaderLogo`, `HeaderTitle`). |
+| `Menubar` | Navigation bar (`MenubarItems`, `MenubarItem`, `MenubarActions`). |
+| `Sidebar` | Sidebar (`SidebarToggle`, `SidebarContent`). |
+| `Footer` | Footer. |
 
-- **FacetSearch**: Powerful filter interfaces for search results.
-- **TreeView**: Hierarchical representation of collections or classifications.
-- **SearchBar**: Optimized search inputs for library portals.
-- **PageView**: Standardized layouts for detail and list views.
+### Composites
 
-## 🛠 Integration
+Composites bundle multiple components into a cohesive, reusable building block:
+
+| Composite | Description |
+| --------- | ------------ |
+| `FacetSearch` | Complete faceted search: combines `SearchBar`, `Facet`, and `ListItem` with a search service (`SearchServiceProvider`, `useSearchService`, `useSearchFacets`). |
+| `AppLayout` | Complete app layout: combines `Header`, `Menubar`, `Sidebar`, `Footer`, and a responsive `Sheet` for mobile navigation. |
+
+---
+
+## 🧑‍💻 For Developers: Contributing
+
+### Prerequisites
+
+- **Node.js** (current LTS version)
+- **pnpm** (recommended, see [pnpm.io/motivation](https://pnpm.io/motivation))
+
+Installing pnpm:
+
+```bash
+# Linux / macOS
+curl -fsSL https://get.pnpm.io/install.sh | sh -
+
+# Windows (PowerShell)
+Invoke-WebRequest https://get.pnpm.io/install.ps1 -UseBasicParsing | Invoke-Expression
+```
+
+### Setting up the development environment
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start Storybook (interactive development environment)
+pnpm run storybook
+```
+
+Then open <http://localhost:6006> to see the components.
+
+### Useful scripts
+
+| Command | Description |
+| ------ | ------------ |
+| `pnpm run storybook` | Starts Storybook with Hot Module Replacement. |
+| `pnpm run build` | Builds the NPM package (library build) into `dist/`. |
+| `pnpm run build:app` | Builds the demo app. |
+| `pnpm run lint` | Runs ESLint. |
+| `pnpm test` | Runs the Vitest tests (including Storybook interaction tests). |
+| `pnpm tokens:build` | Transforms and integrates design tokens (see the Design section). |
+
+### Storybook & tests
+
+Each component has a `.stories.tsx` file in [`src/stories/`](src/stories/). These define the various states (stories) of the component. Changes are immediately visible in Storybook via Hot Module Replacement.
+
+In addition, we use **Play functions** in the stories to automatically simulate complex user interactions. These interaction tests are run via **Vitest**:
+
+```bash
+# Run all tests
+pnpm test
+
+# Test a specific file
+pnpm test path/to/file.stories.tsx
+```
+
+For more details, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+---
+
+## 🚀 For Users: Using the NPM package
+
+This repository is the basis for an **NPM package**. You can use the components directly in your own app.
 
 ### Installation
 
 ```bash
-pnpm add @scdh/ui-components
+pnpm add @scdh_muenster/ui-components
 ```
 
-### Configuration
+### Importing styles
 
-To ensure styles are loaded correctly, the Tailwind presets from the package must be included:
+Import the compiled styles in your app entry point:
 
-```js
-// tailwind.config.ts / .js
-export default {
-  content: [
-    // ... your files
-    './node_modules/@scdh/ui-components/dist/**/*.js',
-  ],
-  // ... further configuration
+```ts
+import '@scdh_muenster/ui-components/styles.css'
+```
+
+### Using components
+
+```tsx
+import { Button, Badge, SearchBar, FacetSearch } from '@scdh_muenster/ui-components'
+
+export function MyApp() {
+  return (
+    <div>
+      <Button>Let's go</Button>
+      <Badge>New</Badge>
+      <SearchBar onSearch={(query) => console.log(query)} />
+    </div>
+  )
 }
 ```
 
-## 📖 Documentation
+### Notes
 
-Full interactive documentation, including code examples, can be found in our **Storybook**.
-
-👉 COMING SOON...
+- The library uses **Tailwind CSS 4** with CSS-first theme configuration. No consumer-side Tailwind config preset is required.
+- `react` and `react-dom` are **peer dependencies** and must be present in your app (version `^18` or `^19`).
+- The styles are provided via `@scdh_muenster/ui-components/styles.css`.
 
 ---
 
-## 🤝 Contributing & Development
+## 🎨 For Designers: Design guidelines
 
-Want to contribute to the library? You can find all information about local setup, build scripts, and the design token workflow in [CONTRIBUTING.md](CONTRIBUTING.md).
+### Tailwind
+
+The library uses Tailwind CSS 4 with **CSS-first theme configuration**. The theme variables are defined in [`src/styles.css`](src/styles.css) via `@theme inline` and exposed as utility classes:
+
+```css
+@theme inline {
+  --color-scdh-blue-500: hsl(var(--scdh-blue-500));
+}
+```
+
+In code, you then use the generated utility classes:
+
+```tsx
+<button className="bg-scdh-blue-500 text-white rounded-lg px-4 py-2">
+  Action
+</button>
+```
+
+No separate Tailwind config file is needed – everything runs through the CSS variables in `styles.css`.
+
+### styles.css
+
+[`src/styles.css`](src/styles.css) is the **single source of truth** for the design system. It contains:
+
+- `@import "tailwindcss"` and `@import "tw-animate-css"`
+- `@theme inline` mappings (CSS variables → Tailwind utilities)
+- `@font-face` definitions (e.g., `Metawebpro`, `WWU Symbol`)
+- `@layer base` with `:root` and `.dark` variables (colors, radii, etc.)
+
+> ⚠️ **Important:** `src/styles.css` is automatically generated by `design_system/scripts/integrate-tokens.ts` and must **not** be edited manually – changes will be overwritten. Instead, edit [`src/styles.template`](src/styles.template) (base styles and shadcn/ui configuration).
+
+### PenPot import
+
+The importer from a design system tool (currently **PenPot**) lives in the [`design_system/`](design_system/) directory. Here's how the import works:
+
+1. **Export tokens:** Export your design tokens from PenPot as a JSON file.
+2. **Place the JSON:** Save the file as `tokens.json` in [`design_system/input/`](design_system/input/).
+3. **Run the build script:**
+
+   ```bash
+   pnpm tokens:build
+   ```
+
+   This runs two scripts:
+   - `tokens:transform` (`design_system/scripts/transform-tokens.ts`): Converts the tokens into CSS variables and Tailwind theme variables.
+   - `tokens:integrate` (`design_system/scripts/integrate-tokens.ts`): Integrates the generated tokens into `src/styles.css`.
+
+4. **Result:**
+   - The generated CSS variables land in [`design_system/output/generated-tokens.css`](design_system/output/generated-tokens.css).
+   - The Tailwind theme variables are written into `src/styles.css`.
+
+5. **Verify:** Check the changes afterwards in Storybook.
+
+### What to keep in mind for the components
+
+- **Styling via Tailwind classes:** Components are styled with Tailwind utility classes, not their own CSS files.
+- **`cn()` utility:** Use the `cn()` function from [`src/lib/utils.ts`](src/lib/utils.ts) to combine classes intelligently and avoid conflicts.
+- **Accessibility:** The components are based on proven patterns (including **Radix UI**). Keep the underlying ARIA attributes and keyboard navigation intact.
+- **Design tokens:** Use central tokens (e.g., `bg-scdh-blue-500`) instead of hardcoded colors to keep the design consistent.
+- **Maintain stories:** Every new or changed component should have a `.stories.tsx` file in [`src/stories/`](src/stories/) so the component is documented and tested in Storybook.

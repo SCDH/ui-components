@@ -1,18 +1,18 @@
 /**
  * Design Token Integrator
- * 
+ *
  * Integrates generated design tokens into the application styles.
  * Combines:
  * 1. Generated tokens from design_system/generated-tokens.css
  * 2. Template styles from src/styles.template
- * 
+ *
  * Output: src/styles.css
- * 
- * Usage: 
+ *
+ * Usage:
  *   pnpm tokens:integrate
  *   or
  *   pnpm tsx design_system/integrate-tokens.ts
- * 
+ *
  * The script:
  * - Reads the generated design tokens CSS
  * - Reads the styles template
@@ -20,13 +20,13 @@
  * - Writes the combined output to src/styles.css
  */
 
-import { readFileSync, writeFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { readFileSync, writeFileSync } from 'fs'
+import { join, dirname } from 'path'
+import { fileURLToPath } from 'url'
 
 // Get __dirname equivalent in ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 // ============================================
 // Configuration
@@ -35,8 +35,8 @@ const __dirname = dirname(__filename);
 const PATHS = {
   generatedTokens: join(__dirname, '../output/generated-tokens.css'),
   stylesTemplate: join(__dirname, '../../src/styles.template'),
-  outputStyles: join(__dirname, '../../src/styles.css'),
-};
+  outputStyles: join(__dirname, '../../src/styles.css')
+}
 
 // ============================================
 // Helper Functions
@@ -46,29 +46,34 @@ const PATHS = {
  * Extracts CSS variables from a @layer base { :root { ... } } block
  */
 function extractRootVariables(cssContent: string): string[] {
-  const variables: string[] = [];
-  
+  const variables: string[] = []
+
   // Match :root block inside @layer base
-  const rootBlockRegex = /:root\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/gs;
-  const matches = cssContent.match(rootBlockRegex);
-  
+  const rootBlockRegex = /:root\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/gs
+  const matches = cssContent.match(rootBlockRegex)
+
   if (matches) {
     for (const match of matches) {
       // Extract the content between :root { and }
-      const contentMatch = match.match(/:root\s*\{([\s\S]*)\}/);
+      const contentMatch = match.match(/:root\s*\{([\s\S]*)\}/)
       if (contentMatch && contentMatch[1]) {
-        const content = contentMatch[1];
+        const content = contentMatch[1]
         // Split by lines and filter out comments and empty lines
-        const lines = content.split('\n')
+        const lines = content
+          .split('\n')
           .map(line => line.trim())
-          .filter(line => line && !line.startsWith('/*') && line !== '*/');
-        
-        variables.push(...lines);
+          .filter(line => line && !line.startsWith('/*') && line !== '*/')
+
+        variables.push(...lines)
       }
     }
   }
-  
-  return variables;
+
+  return variables
+}
+
+function extractThemeBlocks(cssContent: string): string[] {
+  return cssContent.match(/@theme(?:\s+inline)?\s*\{[\s\S]*?\}/g) ?? []
 }
 
 /**
@@ -78,35 +83,31 @@ function extractRootVariables(cssContent: string): string[] {
  * - Avoids duplication
  */
 function mergeCSSFiles(generatedTokensCSS: string, templateCSS: string): string {
-  const now = new Date().toISOString().split('T')[0];
-  
+  const now = new Date().toISOString().split('T')[0]
+
   // Extract CSS variables from both files
-  const tokenVariables = extractRootVariables(generatedTokensCSS);
-  const templateVariables = extractRootVariables(templateCSS);
-  
+  const tokenVariables = extractRootVariables(generatedTokensCSS)
+  const templateVariables = extractRootVariables(templateCSS)
+  const generatedThemeBlocks = extractThemeBlocks(generatedTokensCSS)
+
   // Remove @layer base blocks from template (we'll create a merged one)
-  let cleanedTemplate = templateCSS.replace(
-    /@layer\s+base\s*\{[\s\S]*?\n\}\s*(?=\n|$)/g,
-    ''
-  ).trim();
-  
-  // Extract header comment from generated tokens if it exists
-  const headerMatch = generatedTokensCSS.match(/^\/\*[\s\S]*?\*\//);
-  const generatedHeader = headerMatch ? headerMatch[0] : '';
-  
+  const cleanedTemplate = templateCSS
+    .replace(/@layer\s+base\s*\{[\s\S]*?\n\}\s*(?=\n|$)/g, '')
+    .trim()
+
   // Extract other @layer base content from template (not inside :root)
-  const baseLayerMatch = templateCSS.match(/@layer\s+base\s*\{([\s\S]*)\}/);
-  let additionalBaseContent = '';
-  
+  const baseLayerMatch = templateCSS.match(/@layer\s+base\s*\{([\s\S]*)\}/)
+  let additionalBaseContent = ''
+
   if (baseLayerMatch) {
-    const baseContent = baseLayerMatch[1];
+    const baseContent = baseLayerMatch[1]
     // Remove :root blocks to keep only other base styles
     additionalBaseContent = baseContent
       .replace(/:root\s*\{[^}]*(?:\{[^}]*\}[^}]*)*\}/gs, '')
       .replace(/\.dark\s*\{[^}]*(?:\{[^}]*\}[^}]*)*\}/gs, '')
-      .trim();
+      .trim()
   }
-  
+
   // Build the merged @layer base block with all variables
   const mergedLayerBase = `@layer base {
   :root {
@@ -120,7 +121,10 @@ ${tokenVariables.map(v => `    ${v}`).join('\n')}
        shadcn/ui Variables
        ============================================ */
 ${templateVariables.filter(v => !v.startsWith('--')).join('\n')}
-${templateVariables.filter(v => v.startsWith('--')).map(v => `    ${v}`).join('\n')}
+${templateVariables
+  .filter(v => v.startsWith('--'))
+  .map(v => `    ${v}`)
+  .join('\n')}
   }
   
   /* Dark mode theme (optional, can be enabled by consumers) */
@@ -140,8 +144,8 @@ ${templateVariables.filter(v => v.startsWith('--')).map(v => `    ${v}`).join('\
     --ring: 0 0% 83.1%;
   }
 ${additionalBaseContent ? '\n  ' + additionalBaseContent.split('\n').join('\n  ') : ''}
-}`;
-  
+}`
+
   // Combine everything
   const output = `/**
  * UniMS UI Components - Main Stylesheet
@@ -157,14 +161,16 @@ ${additionalBaseContent ? '\n  ' + additionalBaseContent.split('\n').join('\n  '
 
 ${cleanedTemplate}
 
+${generatedThemeBlocks.join('\n\n')}
+
 /* ============================================
    Integrated Design Tokens & Base Styles
    ============================================ */
 
 ${mergedLayerBase}
-`;
-  
-  return output;
+`
+
+  return output
 }
 
 // ============================================
@@ -172,39 +178,38 @@ ${mergedLayerBase}
 // ============================================
 
 function integrateTokens(): void {
-  console.log('🔄 Starting token integration...\n');
-  
+  console.log('🔄 Starting token integration...\n')
+
   try {
     // Read input files
-    console.log('📖 Reading files...');
-    const generatedTokensCSS = readFileSync(PATHS.generatedTokens, 'utf-8');
-    const templateCSS = readFileSync(PATHS.stylesTemplate, 'utf-8');
-    
-    console.log(`   ✓ Read ${PATHS.generatedTokens}`);
-    console.log(`   ✓ Read ${PATHS.stylesTemplate}`);
-    
+    console.log('📖 Reading files...')
+    const generatedTokensCSS = readFileSync(PATHS.generatedTokens, 'utf-8')
+    const templateCSS = readFileSync(PATHS.stylesTemplate, 'utf-8')
+
+    console.log(`   ✓ Read ${PATHS.generatedTokens}`)
+    console.log(`   ✓ Read ${PATHS.stylesTemplate}`)
+
     // Merge CSS files
-    console.log('\n🔧 Merging CSS files...');
-    const mergedCSS = mergeCSSFiles(generatedTokensCSS, templateCSS);
-    
+    console.log('\n🔧 Merging CSS files...')
+    const mergedCSS = mergeCSSFiles(generatedTokensCSS, templateCSS)
+
     // Write output
-    console.log('\n💾 Writing output...');
-    writeFileSync(PATHS.outputStyles, mergedCSS, 'utf-8');
-    console.log(`   ✓ Created ${PATHS.outputStyles}`);
-    
+    console.log('\n💾 Writing output...')
+    writeFileSync(PATHS.outputStyles, mergedCSS, 'utf-8')
+    console.log(`   ✓ Created ${PATHS.outputStyles}`)
+
     // Summary
-    console.log('\n✅ Token integration completed successfully!');
-    console.log('\n📋 Summary:');
-    console.log(`   - Combined design tokens and template styles`);
-    console.log(`   - Output: src/styles.css (${mergedCSS.split('\n').length} lines)`);
-    console.log('\n💡 Next steps:');
-    console.log('   - Review src/styles.css');
-    console.log('   - Restart your dev server if running');
-    
+    console.log('\n✅ Token integration completed successfully!')
+    console.log('\n📋 Summary:')
+    console.log(`   - Combined design tokens and template styles`)
+    console.log(`   - Output: src/styles.css (${mergedCSS.split('\n').length} lines)`)
+    console.log('\n💡 Next steps:')
+    console.log('   - Review src/styles.css')
+    console.log('   - Restart your dev server if running')
   } catch (error) {
-    console.error('\n❌ Error during token integration:');
-    console.error(error);
-    process.exit(1);
+    console.error('\n❌ Error during token integration:')
+    console.error(error)
+    process.exit(1)
   }
 }
 
@@ -212,4 +217,4 @@ function integrateTokens(): void {
 // Run the script
 // ============================================
 
-integrateTokens();
+integrateTokens()

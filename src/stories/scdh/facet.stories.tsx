@@ -267,7 +267,7 @@ export const SearchableRadio: Story = {
  */
 export const SearchableInteractive: Story = {
   name: 'Searchable: Interactive with Selection',
-  render: () => {
+  render: function SearchableInteractiveRender() {
     const [selected, setSelected] = useState<string[]>([])
 
     return (
@@ -308,7 +308,7 @@ export const SearchableInteractive: Story = {
  */
 export const SearchableServerSide: Story = {
   name: 'Searchable: Server-Side Filtering (Simulated)',
-  render: () => {
+  render: function SearchableServerSideRender() {
     const [items, setItems] = useState<FacetItem[]>(manyAuthors)
     const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
 
@@ -378,7 +378,7 @@ export const SearchableServerSide: Story = {
 // Interactive example with state management
 export const InteractiveMultipleFilters: Story = {
   name: 'Interactive: Deferred Filtering',
-  render: () => {
+  render: function InteractiveMultipleFiltersRender() {
     const [selectedCategories, setSelectedCategories] = useState<string[]>([])
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>([])
     const [appliedFilters, setAppliedFilters] = useState<{
@@ -471,7 +471,7 @@ export const InteractiveMultipleFilters: Story = {
 // Instant toggle example
 export const InstantTogglePattern: Story = {
   name: 'Instant Toggle Pattern',
-  render: () => {
+  render: function InstantTogglePatternRender() {
     const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
 
     const handleToggle = (value: string) => {

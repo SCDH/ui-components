@@ -73,7 +73,7 @@ export const Horizontal: Story = {
 
 export const ValidatedError: Story = {
   name: 'Error State (Static)',
-  render: () => {
+  render: function InteractiveValidationRender() {
     return (
       <Field orientation="vertical" data-invalid={true}>
         <FieldLabel>Username</FieldLabel>
@@ -136,7 +136,7 @@ export const WithDescription: Story = {
 
 export const InteractiveValidation: Story = {
   name: 'Interaction: Form Validation',
-  render: () => {
+  render: function InteractiveValidationStoryRender() {
     const id = useId()
     const [error, setError] = useState<string | null>(null)
 
