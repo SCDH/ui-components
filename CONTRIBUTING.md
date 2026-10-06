@@ -52,7 +52,7 @@ Guidelines for customizing the library UI components.
 Manage the global design system through these files:
 
 - **Design Tokens (CSS Variables)**: [`src/styles.css`](src/styles.css) - *Single Source of Truth*.
-- **Tailwind Configuration**: [`tailwind.config.js`](tailwind.config.js) - *Mapping tokens to utility classes*.
+- **Tailwind Configuration**: [`src/styles.css`](src/styles.css) - *CSS-first theme variables and utility mappings*.
 - **Individual Components**: [`src/components/ui/scdh/`](src/components/ui/scdh/) - *Specific logic and layout*.
 
 ### 2. The Styling Workflow
@@ -71,11 +71,11 @@ Add or update brand colors and variables in [`src/styles.css`](src/styles.css):
 
 #### Step B: Register in Tailwind
 
-Map your CSS variables to Tailwind utility classes in [`tailwind.config.js`](tailwind.config.js):
+Tailwind 4 reads the generated theme variables from [`src/styles.css`](src/styles.css):
 
-```js
-colors: {
-  'scdh-blue': 'hsl(var(--scdh-blue))',
+```css
+@theme inline {
+  --color-scdh-blue-500: hsl(var(--scdh-blue-500));
 }
 ```
 
@@ -106,15 +106,17 @@ We use automated scripts to transform Design Tokens from Penpot into our CSS and
    *This runs three sub-scripts: `transform`, `integrate` (CSS), and `integrate-config` (Tailwind).*
 4. **Output**:
    - The generated CSS variables will appear in `design_system/output/generated-tokens.css`.
-   - The Tailwind configuration is updated in `design_system/output/generated-tailwind-config.json`.
+
+- The Tailwind theme variables are written into `src/styles.css`.
+
 5. **Final Step**: Verify the changes in Storybook. The scripts are designed to automatically update the project's styling source files.
 
 ### 4. File Responsibility
 
 | File | Purpose |
-|------|---------|
+| ------ | --------- |
 | [`styles.css`](src/styles.css) | Global tokens, font definitions, and base layer styles. |
-| [`tailwind.config.js`](tailwind.config.js) | Theme extension and utility class generation. |
+| [`src/styles.css`](src/styles.css) | Theme variables, utility mappings, and global styles. |
 | `preview.css` | Storybook-specific canvas and layout styling. |
 | `*.tsx` | Component-specific styling via Tailwind classes. |
 | [`design_system/`](design_system/) | Source and scripts for syncing with Penpot. |

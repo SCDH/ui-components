@@ -39,18 +39,13 @@ pnpm add @scdh/ui-components
 
 ### Configuration
 
-To ensure styles are loaded correctly, the Tailwind presets from the package must be included:
+Import the compiled styles from the package in your application entrypoint:
 
-```js
-// tailwind.config.ts / .js
-export default {
-  content: [
-    // ... your files
-    './node_modules/@scdh/ui-components/dist/**/*.js',
-  ],
-  // ... further configuration
-}
+```ts
+import '@scdh_muenster/ui-components/styles.css'
 ```
+
+The library uses Tailwind CSS 4's CSS-first theme configuration and does not require a consumer-side Tailwind config preset.
 
 ## 📖 Documentation
 
