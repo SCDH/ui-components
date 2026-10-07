@@ -37,8 +37,8 @@ const Sidebar = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
         <aside
           ref={ref}
           className={cn(
-            'hidden md:flex flex-col h-[calc(100vh-var(--header-height,75px))] sticky top-[var(--header-height,75px)] bg-white border-r border-ulb-grey-200 overflow-hidden transition-[width] duration-300',
-            isCollapsed ? 'w-16' : 'w-64',
+            'hidden md:flex flex-col h-[calc(100vh-var(--header-height,88px))] sticky top-[var(--header-height,88px)] bg-ulb-grey-050 border-r-2 border-ulb-grey-200 overflow-hidden transition-[width] duration-300',
+            isCollapsed ? 'w-16' : 'w-80',
             className
           )}
           {...props}

@@ -14,7 +14,7 @@ const Menubar = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
     <nav
       ref={ref}
       className={cn(
-        'relative flex items-center h-14 bg-white border-b border-ulb-grey-200 px-[var(--space-linear-300)]',
+        'relative flex h-16 items-center bg-ulb-grey-100 border-b-2 border-ulb-grey-200 px-[var(--space-linear-300)]',
         className
       )}
       {...props}

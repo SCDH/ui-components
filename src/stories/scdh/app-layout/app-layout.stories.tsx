@@ -40,10 +40,10 @@ const NAV_ITEMS = [
 
 const actionButtons = (
   <>
-    <Button variant="link" size="icon" aria-label="Hilfe">
+    <Button variant="tertiary" size="icon" aria-label="Hilfe">
       <HelpCircleIcon />
     </Button>
-    <Button variant="link" size="icon" aria-label="Login">
+    <Button variant="tertiary" size="icon" aria-label="Login">
       <LogInIcon />
     </Button>
   </>
@@ -51,25 +51,25 @@ const actionButtons = (
 
 const sidebarContent = (
   <nav className="flex flex-col gap-0.5 p-4">
-    <a href="#" className="px-3 py-2 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100">
+    <a href="#" className="px-3 py-2 rounded-md text-md text-ulb-grey-800 hover:bg-ulb-grey-100">
       Autoren
     </a>
-    <a href="#" className="px-3 py-2 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100">
+    <a href="#" className="px-3 py-2 rounded-md text-md text-ulb-grey-800 hover:bg-ulb-grey-100">
       Regionen
     </a>
     <a
       href="#"
-      className="px-3 py-2 rounded-md text-sm text-scdh-blue-700 bg-scdh-blue-050 font-medium"
+      className="px-3 py-2 rounded-md text-md text-scdh-blue-700 font-medium hover:bg-ulb-grey-100"
     >
       Epochen
     </a>
-    <a href="#" className="px-3 py-2 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100">
+    <a href="#" className="px-3 py-2 rounded-md text-md text-ulb-grey-800 hover:bg-ulb-grey-100">
       Werke
     </a>
-    <a href="#" className="px-3 py-2 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100">
+    <a href="#" className="px-3 py-2 rounded-md text-md text-ulb-grey-800 hover:bg-ulb-grey-100">
       Sammlungen
     </a>
-    <a href="#" className="px-3 py-2 rounded-md text-sm text-ulb-grey-700 hover:bg-ulb-grey-100">
+    <a href="#" className="px-3 py-2 rounded-md text-md text-ulb-grey-800 hover:bg-ulb-grey-100">
       Institutionen
     </a>
   </nav>

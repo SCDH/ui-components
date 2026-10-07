@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils'
  * Header root container.
  *
  * Features:
- * - Fixed height (75px ≈ 10vh)
+ * - Fixed height (88px)
  * - Horizontal flex layout with space between logo (left) and title (center)
  * - Bottom border using design token ulb-grey-200
  */
@@ -14,9 +14,9 @@ const Header = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElem
   ({ className, children, style, ...props }, ref) => (
     <header
       ref={ref}
-      style={{ '--header-height': '75px', ...style } as React.CSSProperties}
+      style={{ '--header-height': '88px', ...style } as React.CSSProperties}
       className={cn(
-        'sticky top-0 z-10 flex h-[var(--header-height,75px)] items-center justify-between bg-white border-b border-ulb-grey-200 px-[var(--space-linear-300)]',
+        'sticky top-0 z-10 flex h-[var(--header-height,88px)] items-center justify-between bg-white border-b-2 border-ulb-grey-200 px-[var(--space-linear-300)]',
         className
       )}
       {...props}

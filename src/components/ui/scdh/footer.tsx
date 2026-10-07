@@ -13,7 +13,7 @@ const Footer = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
     <footer
       ref={ref}
       className={cn(
-        'mt-auto border-t border-ulb-grey-200 bg-white px-[var(--space-linear-300)] py-4',
+        'mt-auto border-t-2 border-ulb-grey-200 bg-white px-[var(--space-linear-300)] py-4',
         className
       )}
       {...props}

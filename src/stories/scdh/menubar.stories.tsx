@@ -76,10 +76,10 @@ function SelectableMenubar({
 
         {showActions && (
           <MenubarActions>
-            <Button variant="link" size="icon" aria-label="Hilfe" onClick={fn()}>
+            <Button variant="tertiary" size="icon" aria-label="Hilfe" onClick={fn()}>
               <HelpCircleIcon />
             </Button>
-            <Button variant="link" size="icon" aria-label="Login" onClick={fn()}>
+            <Button variant="tertiary" size="icon" aria-label="Login" onClick={fn()}>
               <LogInIcon />
             </Button>
           </MenubarActions>

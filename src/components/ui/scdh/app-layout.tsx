@@ -94,7 +94,9 @@ function AppLayout({
   const isMobile = useIsMobile()
 
   return (
-    <div className={cn('grid min-h-screen', 'grid-rows-[auto_auto_1fr_auto]', className)}>
+    <div
+      className={cn('grid min-h-screen grid-rows-[auto_auto_1fr_auto]', className)}
+    >
       {/* ---- Header ---- */}
       <Header className="z-30">
         {isMobile && (
@@ -136,7 +138,7 @@ function AppLayout({
       </Menubar>
 
       {/* ---- Body (Sidebar + Content) ---- */}
-      <div className="grid grid-cols-[auto_1fr]">
+      <div className="grid min-h-0 grid-cols-[auto_1fr] bg-ulb-grey-050">
         {/* Desktop sidebar */}
         {!isMobile && sidebar && (
           <Sidebar>
@@ -145,7 +147,7 @@ function AppLayout({
         )}
 
         {/* Main content */}
-        <main className="min-h-0">{children}</main>
+        <main className="min-h-0 bg-ulb-grey-050">{children}</main>
       </div>
 
       {/* ---- Footer ---- */}
