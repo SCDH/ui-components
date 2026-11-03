@@ -25,7 +25,8 @@ These components live in [`src/components/ui/`](src/components/ui/) and form the
 | `RadioGroup` | Group of single-select fields. |
 | `Separator` | Visual divider. |
 | `Sheet` | Side overlay panel (e.g., for mobile navigation). |
-| `TreeView` | Hierarchical representation of data (base variant). |
+
+All base components above are exported from the package entry. The base `tree-view.tsx` is intentionally **not** exported; use the SCDH `TreeView` instead.
 
 ### SCDH Components
 
@@ -156,15 +157,22 @@ The theme is **not namespaced**. Importing it makes your whole app use the SCDH 
 
 ### Using components
 
+Both the base components (`Button`, `Badge`, `Card`, …) and the SCDH components (`SearchBar`, `TreeView`, `FacetSearch`, …) are imported from the package entry:
+
 ```tsx
-import { Button, Badge, SearchBar, FacetSearch } from '@scdh_muenster/ui-components'
+import { useState } from 'react'
+import { Button, Badge, SearchBar } from '@scdh_muenster/ui-components'
 
 export function MyApp() {
+  const [query, setQuery] = useState('')
+
   return (
     <div>
+      {/* Base components */}
       <Button>Let's go</Button>
       <Badge>New</Badge>
-      <SearchBar onSearch={(query) => console.log(query)} />
+      {/* SCDH component */}
+      <SearchBar value={query} onChange={setQuery} onSubmit={(value) => console.log(value)} />
     </div>
   )
 }
