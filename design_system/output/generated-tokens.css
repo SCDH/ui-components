@@ -1,7 +1,7 @@
 /* ============================================
    Design Tokens - CSS Custom Properties
    Generated from Penpot design tokens
-   Last updated: 2026-10-06
+   Last updated: 2026-11-03
    ============================================ */
 
 @layer base {
@@ -354,5 +354,5 @@
   --text-2xl--line-height: 1.5;
   --text-3xl: var(--font-size-3xl);
   --text-3xl--line-height: 1.5;
-  --font-primary: Meta, system-ui, sans-serif;
+  --font-primary: Metawebpro, system-ui, sans-serif;
 }

@@ -31,6 +31,23 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 // ============================================
+// Font Family Aliases
+// ============================================
+
+/**
+ * Penpot names the font family "Meta", but the @font-face rules in
+ * src/styles.template register it as "Metawebpro". Map the Penpot name to the
+ * loaded family so `font-primary` resolves to a font that actually exists.
+ */
+const FONT_FAMILY_ALIASES: Record<string, string> = {
+  Meta: 'Metawebpro'
+}
+
+function resolveFontFamily(family: string): string {
+  return FONT_FAMILY_ALIASES[family] ?? family
+}
+
+// ============================================
 // Type Definitions
 // ============================================
 
@@ -362,9 +379,9 @@ function processFontFamilyTokens(
       const tokenValue = value as TokenValue
 
       if (tokenValue.$type === 'fontFamilies') {
-        const fontFamily = Array.isArray(tokenValue.$value)
-          ? tokenValue.$value
-          : [tokenValue.$value as string]
+        const fontFamily = (
+          Array.isArray(tokenValue.$value) ? tokenValue.$value : [tokenValue.$value as string]
+        ).map(resolveFontFamily)
 
         // Add fallback fonts
         const fontKey = currentPath[currentPath.length - 1]
@@ -491,7 +508,9 @@ function generateCSSOutput(transformed: TransformedTokens): string {
           themeLines.push(`  --text-${themeName}--line-height: ${value[1].lineHeight};`)
         }
       } else if (namespace === 'font' && Array.isArray(value)) {
-        const families = value.map(family => (family.includes(' ') ? `'${family}'` : family))
+        const families = value
+          .map(resolveFontFamily)
+          .map(family => (family.includes(' ') ? `'${family}'` : family))
         themeLines.push(`  --font-${themeName}: ${families.join(', ')};`)
       } else {
         themeLines.push(`  --${namespace}-${themeName}: ${value};`)
