@@ -566,9 +566,7 @@ function main() {
 
     console.log('\n🎉 Transformation complete!')
     console.log('\n📝 Next steps:')
-    console.log(
-      '   1. Copy content from ../output/generated-tokens.css to src/theme.css (@layer base)'
-    )
+    console.log('   1. Run `pnpm tokens:integrate` to merge the tokens into src/theme.css')
     console.log('   2. Review the generated CSS theme variables\n')
   } catch (error) {
     console.error('❌ Error during transformation:', error)
