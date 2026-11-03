@@ -5,6 +5,15 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
 import dts from 'vite-plugin-dts';
+import pkg from './package.json';
+
+// Runtime and peer dependencies stay external so consumers resolve them themselves
+const externalDeps = [
+  ...Object.keys(pkg.dependencies ?? {}),
+  ...Object.keys(pkg.peerDependencies ?? {}),
+];
+const isExternal = (id: string) =>
+  externalDeps.some((dep) => id === dep || id.startsWith(`${dep}/`));
 
 const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
 
@@ -30,8 +39,8 @@ export default defineConfig(({ mode }) => {
           fileName: (format) => `index.${format === 'es' ? 'mjs' : 'js'}`
         },
         rollupOptions: {
-          // Externalize peer dependencies to avoid bundling them
-          external: ['react', 'react-dom', 'react/jsx-runtime'],
+          // Externalize dependencies and peer dependencies to avoid bundling them
+          external: isExternal,
           output: {
             globals: {
               react: 'React',

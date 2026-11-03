@@ -143,7 +143,7 @@ If your app already compiles its own Tailwind 4, import the raw theme instead of
 @source "../node_modules/@scdh_muenster/ui-components/dist/index.mjs";
 ```
 
-`@source` makes Tailwind scan the library bundle (the path is relative to the CSS file), so the classes used by the components are generated in your build. Utilities you use in your own code, such as `bg-scdh-blue-500`, are picked up by Tailwind's normal scanning of your app. Note that the bundle also contains its bundled dependencies, so a few unrelated utilities (e.g. `collapse`, `container`) may end up in your CSS.
+`@source` makes Tailwind scan the library bundle (the path is relative to the CSS file), so the classes used by the components are generated in your build. Utilities you use in your own code, such as `bg-scdh-blue-500`, are picked up by Tailwind's normal scanning of your app.
 
 #### What `theme.css` changes globally
 
