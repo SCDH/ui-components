@@ -130,6 +130,8 @@ Import the compiled styles in your app entry point:
 import '@scdh_muenster/ui-components/styles.css'
 ```
 
+> **Dark mode (since 0.4.0):** `dark:` utilities follow the `.dark` class (`@custom-variant dark (&:where(.dark, .dark *))`), not the operating system setting. Add the `dark` class to a parent element (usually `<html>`) to enable them. Previously, `dark:` classes reacted to `prefers-color-scheme`.
+
 ### Using with your own Tailwind 4
 
 If your app already compiles its own Tailwind 4, import the raw theme instead of the precompiled bundle. `theme.css` contains only the design tokens, fonts and base styles – no `@import "tailwindcss"` – so your app ends up with a single Tailwind build and a single Preflight:
@@ -141,9 +143,16 @@ If your app already compiles its own Tailwind 4, import the raw theme instead of
 @source "../node_modules/@scdh_muenster/ui-components/dist/index.mjs";
 ```
 
-`@source` makes Tailwind scan the library bundle, so all classes used by the components and all token utilities (e.g. `bg-scdh-500`) are generated in your build.
+`@source` makes Tailwind scan the library bundle (the path is relative to the CSS file), so the classes used by the components are generated in your build. Utilities you use in your own code, such as `bg-scdh-blue-500`, are picked up by Tailwind's normal scanning of your app. Note that the bundle also contains its bundled dependencies, so a few unrelated utilities (e.g. `collapse`, `container`) may end up in your CSS.
 
-> **Dark mode:** `dark:` utilities follow the `.dark` class (`@custom-variant dark (&:where(.dark, .dark *))`), not the system setting. Add the `dark` class to a parent element (usually `<html>`) to enable it.
+#### What `theme.css` changes globally
+
+The theme is **not namespaced**. Importing it makes your whole app use the SCDH design tokens:
+
+- **Tailwind defaults are replaced:** the colour scales `blue`, `red`, `green`, `pink`, `yellow`, `violet`, `rose` plus `white` and `black`, the font-size scale (`text-sm` is 10px, not 14px), and the spacing keys of the token set (e.g. `p-100` is 8px).
+- **shadcn variable names are defined:** `--background`, `--foreground`, `--primary`, `--border`, … as HSL channel triples (e.g. `0 0% 9%`), with `--color-primary: hsl(var(--primary))` etc. If your app has its own shadcn theme (often `oklch(...)` values), the two definitions collide: the import order decides which one wins, and mixing the formats produces invalid colours. Use one theme per app.
+- **Base styles are set:** `* { border-color }` and `body` font, background and text colour.
+- **`dark:` follows the `.dark` class** (see the dark-mode note under *Importing styles*). If you define your own `@custom-variant dark`, put it **after** the `theme.css` import – the last definition wins.
 
 ### Using components
 
