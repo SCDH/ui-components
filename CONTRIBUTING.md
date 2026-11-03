@@ -51,15 +51,15 @@ Guidelines for customizing the library UI components.
 
 Manage the global design system through these files:
 
-- **Design Tokens (CSS Variables)**: [`src/styles.css`](src/styles.css) - *Single Source of Truth*.
-- **Tailwind Configuration**: [`src/styles.css`](src/styles.css) - *CSS-first theme variables and utility mappings*.
+- **Design Tokens (CSS Variables)**: [`src/theme.css`](src/theme.css) - *Single Source of Truth*.
+- **Tailwind Configuration**: [`src/theme.css`](src/theme.css) - *CSS-first theme variables and utility mappings*.
 - **Individual Components**: [`src/components/ui/scdh/`](src/components/ui/scdh/) - *Specific logic and layout*.
 
 ### 2. The Styling Workflow
 
 #### Step A: Define Tokens (CSS)
 
-Add or update brand colors and variables in [`src/styles.css`](src/styles.css):
+Add or update brand colors and variables in [`src/theme.css`](src/theme.css):
 
 ```css
 @layer base {
@@ -71,7 +71,7 @@ Add or update brand colors and variables in [`src/styles.css`](src/styles.css):
 
 #### Step B: Register in Tailwind
 
-Tailwind 4 reads the generated theme variables from [`src/styles.css`](src/styles.css):
+Tailwind 4 reads the generated theme variables from [`src/theme.css`](src/theme.css):
 
 ```css
 @theme inline {
@@ -107,7 +107,7 @@ We use automated scripts to transform Design Tokens from Penpot into our CSS and
 4. **Output**:
    - The generated CSS variables will appear in `design_system/output/generated-tokens.css`.
 
-- The Tailwind theme variables are written into `src/styles.css`.
+- The Tailwind theme variables are written into `src/theme.css`.
 
 5. **Final Step**: Verify the changes in Storybook. The scripts are designed to automatically update the project's styling source files.
 
@@ -115,8 +115,8 @@ We use automated scripts to transform Design Tokens from Penpot into our CSS and
 
 | File | Purpose |
 | ------ | --------- |
-| [`styles.css`](src/styles.css) | Global tokens, font definitions, and base layer styles. |
-| [`src/styles.css`](src/styles.css) | Theme variables, utility mappings, and global styles. |
+| [`src/theme.css`](src/theme.css) | Generated: global tokens, font definitions, theme variables, utility mappings and base layer styles (edit [`src/styles.template`](src/styles.template) instead). |
+| [`src/styles.css`](src/styles.css) | Hand-written bundle entry: `tailwindcss` + `theme.css`. |
 | `preview.css` | Storybook-specific canvas and layout styling. |
 | `*.tsx` | Component-specific styling via Tailwind classes. |
 | [`design_system/`](design_system/) | Source and scripts for syncing with Penpot. |

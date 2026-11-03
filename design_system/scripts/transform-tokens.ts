@@ -2,7 +2,7 @@
  * Design Token Transformer
  *
  * Transforms Penpot design tokens (JSON) into:
- * 1. CSS Custom Properties for styles.css
+ * 1. CSS Custom Properties for theme.css
  * 2. Tailwind CSS theme variables for the CSS-first configuration
  *
  * Usage:
@@ -567,7 +567,7 @@ function main() {
     console.log('\n🎉 Transformation complete!')
     console.log('\n📝 Next steps:')
     console.log(
-      '   1. Copy content from ../output/generated-tokens.css to src/styles.css (@layer base)'
+      '   1. Copy content from ../output/generated-tokens.css to src/theme.css (@layer base)'
     )
     console.log('   2. Review the generated CSS theme variables\n')
   } catch (error) {
