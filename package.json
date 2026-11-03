@@ -36,7 +36,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build --mode lib && node -e \"const fs=require('fs'); const oldPath='dist/ui-components.css'; const newPath='dist/styles.css'; if(fs.existsSync(oldPath)) fs.renameSync(oldPath, newPath);\"",
+    "build": "vite build --mode lib && node scripts/postbuild.mjs",
     "build:app": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
