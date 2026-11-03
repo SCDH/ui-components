@@ -8,6 +8,9 @@
 // Import styles - will be compiled to CSS during build
 import './styles.css'
 
+// Export shadcn base components (except the base TreeView, superseded by the SCDH TreeView)
+export * from './components/ui'
+
 // Export all SCDH components
 export * from './components/ui/scdh'
 
