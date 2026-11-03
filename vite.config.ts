@@ -36,7 +36,7 @@ export default defineConfig(({ mode }) => {
           entry: path.resolve(dirname, 'src/index.ts'),
           name: 'SCDHUIComponents',
           formats: ['es', 'cjs'],
-          fileName: (format) => `index.${format === 'es' ? 'mjs' : 'js'}`
+          fileName: (format) => `index.${format === 'es' ? 'mjs' : 'cjs'}`
         },
         rollupOptions: {
           // Externalize dependencies and peer dependencies to avoid bundling them
