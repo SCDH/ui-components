@@ -1,8 +1,10 @@
 import type { Preview } from '@storybook/react-vite'
 import { initialize, mswLoader } from 'msw-storybook-addon'
 
-// Initialize MSW for Storybook (intercepts HTTP requests in the browser)
-initialize()
+// Initialize MSW for Storybook (intercepts HTTP requests in the browser).
+// The worker URL is relative so it also resolves when Storybook is served
+// from a sub-path (e.g. GitHub Pages at /ui-components/).
+initialize({ serviceWorker: { url: './mockServiceWorker.js' } })
 
 // Import component library styles (will be in npm package)
 import '../src/styles.css'
