@@ -88,6 +88,16 @@ export const Icon: Story = {
   }
 }
 
+/** Borderless icon-only button, e.g. for pager arrows. Always set an `aria-label`. */
+export const IconOnly: Story = {
+  args: {
+    children: <ArrowUpIcon />,
+    variant: 'icon',
+    size: 'icon',
+    'aria-label': 'Nach oben'
+  }
+}
+
 // Combined Examples
 export const IconWithText: Story = {
   args: {
