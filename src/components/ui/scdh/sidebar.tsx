@@ -2,6 +2,7 @@ import * as React from 'react'
 import { PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
+import { useControllableState } from '@/hooks/use-controllable-state'
 import { Button } from '@/components/ui/button'
 
 // ---------------------------------------------------------------------------
@@ -10,6 +11,7 @@ import { Button } from '@/components/ui/button'
 
 type SidebarContextValue = {
   isCollapsed: boolean
+  setCollapsed: (collapsed: boolean) => void
   toggle: () => void
 }
 
@@ -18,41 +20,86 @@ const SidebarContext = React.createContext<SidebarContextValue | null>(null)
 function useSidebar() {
   const ctx = React.useContext(SidebarContext)
   if (!ctx) {
-    throw new Error('Sidebar compound components must be used within <Sidebar>')
+    throw new Error(
+      'Sidebar compound components must be used within <Sidebar> or <SidebarProvider>'
+    )
   }
   return ctx
+}
+
+export interface SidebarProviderProps {
+  /** Collapsed state (controlled). */
+  collapsed?: boolean
+  /** Initial collapsed state (uncontrolled). Default `false`. */
+  defaultCollapsed?: boolean
+  onCollapsedChange?: (collapsed: boolean) => void
+  children?: React.ReactNode
+}
+
+/**
+ * Holds the collapse state of the sidebar so that parts outside of the `Sidebar`, e.g. the
+ * `SidebarTrigger` in the header of the main content, can open it again. `AppLayout` provides
+ * it; a `Sidebar` used on its own creates its own.
+ */
+function SidebarProvider({
+  collapsed,
+  defaultCollapsed = false,
+  onCollapsedChange,
+  children
+}: SidebarProviderProps) {
+  const [isCollapsed, setCollapsed] = useControllableState<boolean>({
+    value: collapsed,
+    defaultValue: defaultCollapsed,
+    onChange: onCollapsedChange
+  })
+  const value = React.useMemo(
+    () => ({ isCollapsed, setCollapsed, toggle: () => setCollapsed(!isCollapsed) }),
+    [isCollapsed, setCollapsed]
+  )
+
+  return <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>
 }
 
 // ---------------------------------------------------------------------------
 // Sidebar — Root container (desktop-only, left column)
 // ---------------------------------------------------------------------------
 
-const Sidebar = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
+const SidebarAside = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
   ({ className, children, ...props }, ref) => {
-    const [isCollapsed, setIsCollapsed] = React.useState(false)
-    const toggle = React.useCallback(() => setIsCollapsed(prev => !prev), [])
+    const { isCollapsed } = useSidebar()
 
     return (
-      <SidebarContext.Provider value={{ isCollapsed, toggle }}>
-        <aside
-          ref={ref}
-          className={cn(
-            'hidden md:flex flex-col h-[calc(100vh-var(--header-height,88px))] sticky top-[var(--header-height,88px)] bg-ulb-grey-050 border-r-2 border-ulb-grey-200 overflow-hidden transition-[width] duration-300',
-            isCollapsed ? 'w-16' : 'w-72',
-            className
-          )}
-          {...props}
-        >
-          {children}
-        </aside>
-      </SidebarContext.Provider>
+      <aside
+        ref={ref}
+        className={cn(
+          'hidden md:flex flex-col h-[calc(100vh-var(--header-height,88px))] sticky top-[var(--header-height,88px)] bg-ulb-grey-050 border-r-2 border-ulb-grey-200 overflow-hidden transition-[width] duration-300',
+          // Collapsed, the sidebar is gone completely; only the `SidebarTrigger` remains
+          isCollapsed ? 'w-0 border-r-0' : 'w-72',
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </aside>
     )
   }
 )
+SidebarAside.displayName = 'SidebarAside'
+
+/**
+ * Sidebar on the left (tablet and desktop). Collapsed, it disappears completely; the
+ * `SidebarTrigger` (e.g. next to the page title) brings it back.
+ */
+const Sidebar = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>((props, ref) => {
+  // Inside a `SidebarProvider` (e.g. in `AppLayout`) the state is shared, otherwise own it here
+  const inProvider = React.useContext(SidebarContext) !== null
+  const aside = <SidebarAside ref={ref} {...props} />
+  return inProvider ? aside : <SidebarProvider>{aside}</SidebarProvider>
+})
 Sidebar.displayName = 'Sidebar'
 
 // ---------------------------------------------------------------------------
-// SidebarToggle — collapse/expand button
+// SidebarToggle — collapse/expand button inside the sidebar
 // ---------------------------------------------------------------------------
 
 const SidebarToggle = React.forwardRef<HTMLButtonElement, React.HTMLAttributes<HTMLButtonElement>>(
@@ -77,33 +124,56 @@ const SidebarToggle = React.forwardRef<HTMLButtonElement, React.HTMLAttributes<H
 SidebarToggle.displayName = 'SidebarToggle'
 
 // ---------------------------------------------------------------------------
+// SidebarTrigger — shows the collapsed sidebar again
+// ---------------------------------------------------------------------------
+
+/**
+ * Button that opens a collapsed sidebar. Place it in the header of the main content, next to the
+ * page title. It is only shown while the sidebar is collapsed (and on tablet and desktop, where
+ * the sidebar exists).
+ */
+const SidebarTrigger = React.forwardRef<HTMLButtonElement, React.HTMLAttributes<HTMLButtonElement>>(
+  ({ className, ...props }, ref) => {
+    const { isCollapsed, setCollapsed } = useSidebar()
+    if (!isCollapsed) return null
+
+    return (
+      <Button
+        ref={ref}
+        variant="secondary"
+        size="icon"
+        onClick={() => setCollapsed(false)}
+        aria-label="Seitenleiste ausklappen"
+        className={cn('max-md:hidden shrink-0', className)}
+        {...props}
+      >
+        <PanelLeftOpen className="size-4" />
+      </Button>
+    )
+  }
+)
+SidebarTrigger.displayName = 'SidebarTrigger'
+
+// ---------------------------------------------------------------------------
 // SidebarHeader — toggle with a title next to it
 // ---------------------------------------------------------------------------
 
 /**
  * Header row of the sidebar: the collapse toggle with the title next to it (e.g. "Alle Briefe").
- * Collapsed, only the toggle remains, centred in the narrow rail.
  */
 const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, children, ...props }, ref) => {
     const { isCollapsed } = useSidebar()
+    if (isCollapsed) return null
 
     return (
       <div
         ref={ref}
-        className={cn(
-          'flex shrink-0 items-center gap-4 py-4',
-          isCollapsed ? 'justify-center px-0' : 'px-6',
-          className
-        )}
+        className={cn('flex shrink-0 items-center gap-4 px-6 py-4', className)}
         {...props}
       >
         <SidebarToggle className="m-0 self-auto" />
-        {!isCollapsed && (
-          <h2 className="truncate text-lg font-bold whitespace-nowrap text-foreground">
-            {children}
-          </h2>
-        )}
+        <h2 className="truncate text-lg font-bold whitespace-nowrap text-foreground">{children}</h2>
       </div>
     )
   }
@@ -122,7 +192,7 @@ const SidebarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
       <div
         ref={ref}
         className={cn(
-          'flex-1 overflow-y-auto px-3 pb-4 transition-opacity duration-300',
+          'flex-1 overflow-y-auto px-6 pb-4 transition-opacity duration-300',
           isCollapsed ? 'opacity-0 invisible' : 'opacity-100',
           className
         )}
@@ -136,4 +206,12 @@ const SidebarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
 )
 SidebarContent.displayName = 'SidebarContent'
 
-export { Sidebar, SidebarToggle, SidebarHeader, SidebarContent }
+export {
+  Sidebar,
+  SidebarProvider,
+  SidebarToggle,
+  SidebarTrigger,
+  SidebarHeader,
+  SidebarContent,
+  useSidebar
+}

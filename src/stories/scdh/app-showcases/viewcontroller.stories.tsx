@@ -2,8 +2,10 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Plus } from 'lucide-react'
 import { expect, userEvent, waitFor, within } from 'storybook/test'
 import { AppLayout } from '@/components/ui/scdh/app-layout'
+import { SidebarTrigger } from '@/components/ui/scdh/sidebar'
 import { ViewController, useViewController } from '@/components/ui/scdh/views'
 import { Button } from '@/components/ui/button'
+import { EntryList } from '@/components/ui/scdh/entry-list'
 import logoSrc from '@/assets/logo_uni_ms.svg'
 import { LONG_MODES, METADATA_VIEW } from '../views/mock-data'
 
@@ -21,7 +23,7 @@ const meta = {
           'The `ViewController` in an app: inside an `AppLayout` with `fillViewport` and its ' +
           'sidebar (list of letters), below a title with an "Ansicht hinzufügen" button that ' +
           'operates the controller via `useViewController`. The page does not scroll, only the ' +
-          'contents of the views do. The sidebar (288px) can be collapsed to give the views more room.'
+          'contents of the views do. The sidebar (288px) can be collapsed: it disappears completely and a button next to the title brings it back.'
       }
     }
   }
@@ -41,26 +43,10 @@ const LETTERS = [
   'PersonA an PersonC',
   'PersonD an PersonB',
   'PersonB an PersonD'
-]
+].map((label, i) => ({ id: `letter-${i}`, label }))
 
 function LetterList() {
-  return (
-    <nav aria-label="Alle Briefe">
-      <ul className="overflow-hidden rounded-2xl border border-ulb-grey-200 bg-background py-2 dark:border-border">
-        {LETTERS.map((title, i) => (
-          <li key={title}>
-            <button
-              type="button"
-              aria-current={i === 0 ? 'page' : undefined}
-              className="flex w-full items-center border-l-2 border-transparent px-5 py-3 text-left text-lg text-foreground hover:bg-ulb-grey-050 aria-[current=page]:border-scdh-blue-500 aria-[current=page]:bg-ulb-grey-050 dark:hover:bg-accent dark:aria-[current=page]:bg-accent"
-            >
-              {title}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  )
+  return <EntryList entries={LETTERS} defaultValue="letter-0" aria-label="Alle Briefe" />
 }
 
 // ---------------------------------------------------------------------------
@@ -76,9 +62,13 @@ function ViewerPage() {
   return (
     <div className="flex h-full flex-col bg-background text-foreground">
       <div className="flex shrink-0 items-start justify-between gap-4 px-6 pt-6 pb-4">
-        <div>
-          <h2 className="text-2xl font-medium">PersonB an PersonA</h2>
-          <p className="text-md text-ulb-grey-600">2. Oktober 1956</p>
+        <div className="flex min-w-0 items-start gap-4">
+          {/* Shown while the sidebar is collapsed: brings it back */}
+          <SidebarTrigger />
+          <div>
+            <h2 className="text-2xl font-medium">PersonB an PersonA</h2>
+            <p className="text-md text-ulb-grey-600">2. Oktober 1956</p>
+          </div>
         </div>
         <Button variant="secondary" onClick={() => controller.addView()}>
           <Plus className="md:hidden" aria-hidden />
@@ -135,6 +125,13 @@ export const Demo: Story = {
       expect(reading.getBoundingClientRect().width).toBeGreaterThan(widthWithSidebar + 50)
     )
     await expect(letters).not.toBeVisible()
+    // The sidebar is gone completely; only the trigger next to the title remains
+    const aside = canvasElement.querySelector('aside')!
+    await waitFor(() => expect(aside.getBoundingClientRect().width).toBe(0))
+    await expect(
+      canvas.queryByRole('button', { name: 'Seitenleiste einklappen' })
+    ).not.toBeInTheDocument()
+    await expect(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' })).toBeVisible()
     await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
     await waitFor(() =>
       expect(Math.abs(reading.getBoundingClientRect().width - widthWithSidebar)).toBeLessThan(2)

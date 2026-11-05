@@ -33,12 +33,24 @@ export { Header, HeaderLogo, HeaderTitle } from './header'
 export { Menubar, MenubarItems, MenubarItem, MenubarActions } from './menubar'
 export type { MenubarItemProps } from './menubar'
 
-export { Sidebar, SidebarToggle, SidebarHeader, SidebarContent } from './sidebar'
+export {
+  Sidebar,
+  SidebarProvider,
+  SidebarToggle,
+  SidebarTrigger,
+  SidebarHeader,
+  SidebarContent,
+  useSidebar
+} from './sidebar'
+export type { SidebarProviderProps } from './sidebar'
 
 export { Footer } from './footer'
 
 export { AppLayout } from './app-layout'
 export type { AppLayoutProps, TopNavItem } from './app-layout'
+
+export { EntryList } from './entry-list'
+export type { EntryListProps, EntryListItem } from './entry-list'
 
 export { Pager } from './pager'
 export type { PagerProps } from './pager'

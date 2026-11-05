@@ -1,68 +1,112 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { BookOpenIcon, FolderIcon, SettingsIcon, UsersIcon } from 'lucide-react'
-import { Sidebar, SidebarToggle, SidebarContent } from '@/components/ui/scdh/sidebar'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarProvider,
+  SidebarTrigger
+} from '@/components/ui/scdh/sidebar'
 import { TreeView } from '@/components/ui/scdh/tree-view'
 import type { TreeDataItem } from '@/components/ui/scdh/tree-view'
+import { EntryList } from '@/components/ui/scdh/entry-list'
 
 const meta = {
   title: 'SCDH-UI/Sidebar',
   component: Sidebar,
   parameters: {
-    layout: 'fullscreen'
+    layout: 'fullscreen',
+    docs: {
+      description: {
+        component:
+          'Sidebar on the left (tablet and desktop) with a header (collapse toggle and title) and ' +
+          'scrollable content. Collapsed, it disappears completely; the `SidebarTrigger` in the ' +
+          'header of the main content brings it back. The collapse state lives in a ' +
+          '`SidebarProvider` (provided by `AppLayout`), so the trigger can sit anywhere next to the ' +
+          'sidebar.'
+      }
+    }
   },
-  tags: ['autodocs']
+  tags: ['autodocs'],
+  // In the Storybook iframe the root shrinks to its content (`place-items: center` on the body in
+  // preview.css), so the page gets the viewport width explicitly; in the docs `w-full` is enough
+  decorators: [
+    (Story, { viewMode }) => (
+      <div className={viewMode === 'docs' ? 'w-full' : 'w-screen'}>
+        <Story />
+      </div>
+    )
+  ]
 } satisfies Meta<typeof Sidebar>
 
 export default meta
 type Story = StoryObj<typeof meta>
 
+const ENTRIES = [
+  { id: 'e1', label: 'Eintrag 1' },
+  { id: 'e2', label: 'Weiterer Eintrag' },
+  { id: 'e3', label: 'Weiterer Eintrag 3' },
+  { id: 'e4', label: 'Eintrag 4' },
+  { id: 'e5', label: 'Eintrag 5' },
+  { id: 'e6', label: 'Eintrag 6' }
+]
+
+/** Sidebar next to a main area whose header holds the `SidebarTrigger`. */
+function SidebarPage({
+  title,
+  defaultCollapsed,
+  children
+}: {
+  title: string
+  defaultCollapsed?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <SidebarProvider defaultCollapsed={defaultCollapsed}>
+      <div
+        className="flex min-h-screen bg-background text-foreground"
+        style={{ '--header-height': '0px' } as React.CSSProperties}
+      >
+        <Sidebar>{children}</Sidebar>
+        <main className="min-w-0 flex-1 p-6">
+          <div className="flex items-start gap-4">
+            <SidebarTrigger />
+            <div>
+              <h2 className="text-2xl font-medium">{title}</h2>
+              <p className="text-md text-ulb-grey-600">7. Oktober 1956</p>
+            </div>
+          </div>
+        </main>
+      </div>
+    </SidebarProvider>
+  )
+}
+
 /**
- * Default sidebar with collapse toggle and example navigation items.
- * The toggle button collapses the sidebar from w-64 to w-16.
+ * Default sidebar (design "3 Ansichten"): header with the collapse toggle and the title, below a
+ * list card with the selected entry on grey and a blue edge.
  */
 export const Default: Story = {
   render: () => (
-    <div
-      className="min-h-screen bg-ulb-grey-050"
-      style={{ '--header-height': '0px' } as React.CSSProperties}
-    >
-      <Sidebar>
-        <SidebarToggle />
-        <SidebarContent>
-          <nav className="flex flex-col gap-1">
-            <a
-              href="#"
-              className="flex items-center gap-3 px-3 py-2 rounded-md text-ulb-grey-700 hover:bg-ulb-grey-100 text-md"
-            >
-              <FolderIcon className="size-4 flex-shrink-0" />
-              <span>Dokumente</span>
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-3 px-3 py-2 rounded-md text-ulb-grey-700 hover:bg-ulb-grey-100 text-md"
-            >
-              <UsersIcon className="size-4 flex-shrink-0" />
-              <span>Personen</span>
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-3 px-3 py-2 rounded-md text-ulb-grey-700 hover:bg-ulb-grey-100 text-md"
-            >
-              <BookOpenIcon className="size-4 flex-shrink-0" />
-              <span>Sammlungen</span>
-            </a>
-            <a
-              href="#"
-              className="flex items-center gap-3 px-3 py-2 rounded-md text-ulb-grey-700 hover:bg-ulb-grey-100 text-md"
-            >
-              <SettingsIcon className="size-4 flex-shrink-0" />
-              <span>Einstellungen</span>
-            </a>
-          </nav>
-        </SidebarContent>
-      </Sidebar>
-    </div>
-  )
+    <SidebarPage title="PersonA an PersonB">
+      <SidebarHeader>Alle Briefe</SidebarHeader>
+      <SidebarContent>
+        <EntryList entries={ENTRIES} defaultValue="e2" aria-label="Alle Briefe" />
+      </SidebarContent>
+    </SidebarPage>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByRole('heading', { name: 'Alle Briefe' })).toBeVisible()
+    await expect(canvas.getByRole('button', { name: 'Seitenleiste einklappen' })).toBeVisible()
+    await expect(
+      canvas.getByRole('button', { name: 'Weiterer Eintrag', current: 'page' })
+    ).toBeVisible()
+    // The trigger only shows while the sidebar is collapsed
+    await expect(
+      canvas.queryByRole('button', { name: 'Seitenleiste ausklappen' })
+    ).not.toBeInTheDocument()
+  }
 }
 
 // Sample file system data (hoisted per rerender-no-inline-components)
@@ -126,49 +170,39 @@ const sampleFileSystem: TreeDataItem[] = [
  */
 export const WithTreeView: Story = {
   render: () => (
-    <div
-      className="min-h-screen bg-ulb-grey-050"
-      style={{ '--header-height': '0px' } as React.CSSProperties}
-    >
-      <Sidebar>
-        <SidebarToggle />
-        <SidebarContent>
-          <TreeView data={sampleFileSystem} />
-        </SidebarContent>
-      </Sidebar>
-    </div>
+    <SidebarPage title="Dateien">
+      <SidebarHeader>Dateien</SidebarHeader>
+      <SidebarContent>
+        <TreeView data={sampleFileSystem} />
+      </SidebarContent>
+    </SidebarPage>
   )
 }
 
 /**
- * Collapsed sidebar.
- * Only icons inside the collapsed state remain visible via the toggle button.
+ * Collapsed sidebar: it is gone completely, only the trigger next to the page title remains.
+ * A click on it opens the sidebar again.
  */
 export const Collapsed: Story = {
   render: () => (
-    <div
-      className="min-h-screen bg-ulb-grey-050"
-      style={{ '--header-height': '0px' } as React.CSSProperties}
-    >
-      <Sidebar>
-        <SidebarToggle />
-        <SidebarContent>
-          <nav className="flex flex-col gap-1">
-            <a
-              href="#"
-              className="flex items-center gap-3 px-3 py-2 rounded-md text-ulb-grey-700 hover:bg-ulb-grey-100"
-            >
-              <FolderIcon className="size-4" />
-              <span>Dokumente</span>
-            </a>
-          </nav>
-        </SidebarContent>
-      </Sidebar>
-    </div>
+    <SidebarPage title="PersonA an PersonB" defaultCollapsed>
+      <SidebarHeader>Alle Briefe</SidebarHeader>
+      <SidebarContent>
+        <EntryList entries={ENTRIES} defaultValue="e2" aria-label="Alle Briefe" />
+      </SidebarContent>
+    </SidebarPage>
   ),
   play: async ({ canvasElement }) => {
-    // Click the toggle to collapse
-    const toggle = canvasElement.querySelector('button') as HTMLButtonElement
-    if (toggle) toggle.click()
+    const canvas = within(canvasElement)
+    const aside = canvasElement.querySelector('aside')!
+    await expect(aside.getBoundingClientRect().width).toBe(0)
+    await expect(canvas.queryByRole('heading', { name: 'Alle Briefe' })).not.toBeInTheDocument()
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
+    await waitFor(() => expect(aside.getBoundingClientRect().width).toBeGreaterThan(200))
+    await expect(canvas.getByRole('heading', { name: 'Alle Briefe' })).toBeVisible()
+    await expect(
+      canvas.queryByRole('button', { name: 'Seitenleiste ausklappen' })
+    ).not.toBeInTheDocument()
   }
 }

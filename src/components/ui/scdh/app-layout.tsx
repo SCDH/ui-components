@@ -5,7 +5,12 @@ import { cn } from '@/lib/utils'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { Header, HeaderLogo, HeaderTitle } from '@/components/ui/scdh/header'
 import { Menubar, MenubarItems, MenubarItem, MenubarActions } from '@/components/ui/scdh/menubar'
-import { Sidebar, SidebarContent, SidebarHeader } from '@/components/ui/scdh/sidebar'
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarProvider
+} from '@/components/ui/scdh/sidebar'
 import { Footer } from '@/components/ui/scdh/footer'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet'
@@ -39,6 +44,11 @@ export interface AppLayoutProps {
    * shown as a heading above the sidebar content.
    */
   sidebarTitle?: React.ReactNode
+  /** Collapsed state of the sidebar (controlled). */
+  sidebarCollapsed?: boolean
+  /** Initial collapsed state of the sidebar (uncontrolled). Default `false`. */
+  defaultSidebarCollapsed?: boolean
+  onSidebarCollapsedChange?: (collapsed: boolean) => void
   /** Content rendered in the Footer. */
   footer?: React.ReactNode
   /** Main content area. */
@@ -100,6 +110,9 @@ function AppLayout({
   topNavItems = [],
   sidebar,
   sidebarTitle,
+  sidebarCollapsed,
+  defaultSidebarCollapsed,
+  onSidebarCollapsedChange,
   footer,
   children,
   fillViewport = false,
@@ -108,85 +121,97 @@ function AppLayout({
   const isMobile = useIsMobile()
 
   return (
-    <div
-      className={cn(
-        'grid',
-        fillViewport
-          ? 'h-screen grid-rows-[auto_auto_minmax(0,1fr)_auto]'
-          : 'min-h-screen grid-rows-[auto_auto_1fr_auto]',
-        className
-      )}
+    <SidebarProvider
+      collapsed={sidebarCollapsed}
+      defaultCollapsed={defaultSidebarCollapsed}
+      onCollapsedChange={onSidebarCollapsedChange}
     >
-      {/* ---- Header ---- */}
-      <Header className="z-30">
-        {isMobile && (
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button variant="link" size="icon" aria-label="Menü öffnen" className="md:hidden">
-                <Menu className="size-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent title={title} side="left">
-              {/* Top-level nav items (skip action-only sentinels) */}
-              {topNavItems.filter(item => item.label).map(item => renderTopNavItem(item, 'mobile'))}
-
-              {/* Separator + Sidebar content */}
-              {sidebar && (
-                <>
-                  <Separator className="my-2" />
-                  {sidebarTitle && <h2 className="px-3 pt-2 text-lg font-bold">{sidebarTitle}</h2>}
-                  {sidebar}
-                </>
-              )}
-            </SheetContent>
-          </Sheet>
-        )}
-
-        {logo && <HeaderLogo>{logo}</HeaderLogo>}
-        <HeaderTitle className={isMobile ? 'max-md:hidden' : undefined}>{title}</HeaderTitle>
-      </Header>
-
-      {/* ---- Menubar ---- */}
-      <Menubar className={isMobile ? 'justify-start' : undefined}>
-        {!isMobile && topNavItems.length > 0 && (
-          <MenubarItems>
-            {topNavItems.filter(item => item.label).map(item => renderTopNavItem(item, 'desktop'))}
-          </MenubarItems>
-        )}
-        {!isMobile && renderActions(topNavItems)}
-        {/* On mobile the hamburger is already rendered inside the Header,
-            nothing extra needed in the Menubar */}
-      </Menubar>
-
-      {/* ---- Body (Sidebar + Content) ---- */}
       <div
         className={cn(
-          'grid min-h-0 bg-ulb-grey-050',
-          fillViewport ? 'grid-cols-[auto_minmax(0,1fr)] overflow-hidden' : 'grid-cols-[auto_1fr]'
+          'grid',
+          fillViewport
+            ? 'h-screen grid-rows-[auto_auto_minmax(0,1fr)_auto]'
+            : 'min-h-screen grid-rows-[auto_auto_1fr_auto]',
+          className
         )}
       >
-        {/* Desktop sidebar */}
-        {!isMobile && sidebar && (
-          <Sidebar>
-            {sidebarTitle && <SidebarHeader>{sidebarTitle}</SidebarHeader>}
-            <SidebarContent className={sidebarTitle ? 'px-6' : undefined}>{sidebar}</SidebarContent>
-          </Sidebar>
-        )}
+        {/* ---- Header ---- */}
+        <Header className="z-30">
+          {isMobile && (
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="link" size="icon" aria-label="Menü öffnen" className="md:hidden">
+                  <Menu className="size-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent title={title} side="left">
+                {/* Top-level nav items (skip action-only sentinels) */}
+                {topNavItems
+                  .filter(item => item.label)
+                  .map(item => renderTopNavItem(item, 'mobile'))}
 
-        {/* Main content */}
-        <main
+                {/* Separator + Sidebar content */}
+                {sidebar && (
+                  <>
+                    <Separator className="my-2" />
+                    {sidebarTitle && (
+                      <h2 className="px-3 pt-2 text-lg font-bold">{sidebarTitle}</h2>
+                    )}
+                    {sidebar}
+                  </>
+                )}
+              </SheetContent>
+            </Sheet>
+          )}
+
+          {logo && <HeaderLogo>{logo}</HeaderLogo>}
+          <HeaderTitle className={isMobile ? 'max-md:hidden' : undefined}>{title}</HeaderTitle>
+        </Header>
+
+        {/* ---- Menubar ---- */}
+        <Menubar className={isMobile ? 'justify-start' : undefined}>
+          {!isMobile && topNavItems.length > 0 && (
+            <MenubarItems>
+              {topNavItems
+                .filter(item => item.label)
+                .map(item => renderTopNavItem(item, 'desktop'))}
+            </MenubarItems>
+          )}
+          {!isMobile && renderActions(topNavItems)}
+          {/* On mobile the hamburger is already rendered inside the Header,
+            nothing extra needed in the Menubar */}
+        </Menubar>
+
+        {/* ---- Body (Sidebar + Content) ---- */}
+        <div
           className={cn(
-            'min-h-0 bg-ulb-grey-050',
-            fillViewport && 'flex min-w-0 flex-col overflow-hidden'
+            'grid min-h-0 bg-ulb-grey-050',
+            fillViewport ? 'grid-cols-[auto_minmax(0,1fr)] overflow-hidden' : 'grid-cols-[auto_1fr]'
           )}
         >
-          {children}
-        </main>
-      </div>
+          {/* Desktop sidebar */}
+          {!isMobile && sidebar && (
+            <Sidebar>
+              {sidebarTitle && <SidebarHeader>{sidebarTitle}</SidebarHeader>}
+              <SidebarContent>{sidebar}</SidebarContent>
+            </Sidebar>
+          )}
 
-      {/* ---- Footer ---- */}
-      {footer && <Footer>{footer}</Footer>}
-    </div>
+          {/* Main content */}
+          <main
+            className={cn(
+              'min-h-0 bg-ulb-grey-050',
+              fillViewport && 'flex min-w-0 flex-col overflow-hidden'
+            )}
+          >
+            {children}
+          </main>
+        </div>
+
+        {/* ---- Footer ---- */}
+        {footer && <Footer>{footer}</Footer>}
+      </div>
+    </SidebarProvider>
   )
 }
 

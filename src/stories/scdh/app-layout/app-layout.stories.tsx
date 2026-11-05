@@ -5,6 +5,7 @@ import { expect, userEvent, within } from 'storybook/test'
 import { AppLayout } from '@/components/ui/scdh/app-layout'
 import type { TopNavItem } from '@/components/ui/scdh/app-layout'
 import { Button } from '@/components/ui/button'
+import { SidebarTrigger } from '@/components/ui/scdh/sidebar'
 import { Facet, SearchBar, ListItem } from '@/components/ui/scdh'
 import logoSrc from '@/assets/logo_uni_ms.svg'
 import { FACET_GROUPS, SEARCH_RESULTS } from './mock-data'
@@ -338,7 +339,8 @@ export const FacetedSearch: Story = {
 
 /**
  * Sidebar with a title ("sidebarTitle"): a header row with the collapse toggle and the title
- * appears above the content (design "3 Ansichten"). Collapsed, only the toggle remains.
+ * appears above the content (design "3 Ansichten"). Collapsed, the sidebar is gone completely;
+ * the `SidebarTrigger` in the header of the main content brings it back.
  */
 export const CollapsibleSidebar: Story = {
   render: () => (
@@ -348,6 +350,10 @@ export const CollapsibleSidebar: Story = {
       sidebarTitle="Alle Briefe"
       footer={footerContent}
     >
+      <div className="flex items-center gap-4 px-8 pt-8">
+        <SidebarTrigger />
+        <h1 className="text-2xl font-bold text-ulb-grey-900">Willkommen</h1>
+      </div>
       <MainContent />
     </SelectableAppLayout>
   ),
@@ -355,6 +361,9 @@ export const CollapsibleSidebar: Story = {
     const canvas = within(canvasElement)
     await expect(canvas.getByRole('heading', { name: 'Alle Briefe' })).toBeVisible()
     await expect(canvas.getByText('Autoren')).toBeVisible()
+    await expect(
+      canvas.queryByRole('button', { name: 'Seitenleiste ausklappen' })
+    ).not.toBeInTheDocument()
 
     await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste einklappen' }))
     await expect(canvas.getByText('Autoren')).not.toBeVisible()
