@@ -6,7 +6,7 @@ With the integration of **Design Tokens** (compatible with Penpot) and **Tailwin
 
 ## 📦 Components
 
-The library consists of base components, SCDH-specific components, and two **Composites** (aggregations of multiple components that demonstrate how they work together).
+The library consists of base components, SCDH-specific components, and **Composites** (aggregations of multiple components that demonstrate how they work together).
 
 ### Base Components
 
@@ -23,6 +23,7 @@ These components live in [`src/components/ui/`](src/components/ui/) and form the
 | `Input` | Single-line input field. |
 | `Label` | Label for form elements. |
 | `RadioGroup` | Group of single-select fields. |
+| `Select` | Dropdown selection. |
 | `Separator` | Visual divider. |
 | `Sheet` | Side overlay panel (e.g., for mobile navigation). |
 
@@ -43,6 +44,8 @@ These components live in [`src/components/ui/scdh/`](src/components/ui/scdh/) an
 | `Menubar` | Navigation bar (`MenubarItems`, `MenubarItem`, `MenubarActions`). |
 | `Sidebar` | Sidebar (`SidebarToggle`, `SidebarContent`). |
 | `Footer` | Footer. |
+| `Pager` | Compact navigation for swipeable pages: arrows plus a progress bar (tap to jump). Does not swipe itself. |
+| `View` | One view of a document: fixed header with mode selection (e.g. reading text, TEI source, facsimile) above its own scrolling content. |
 
 ### Composites
 
@@ -51,7 +54,8 @@ Composites bundle multiple components into a cohesive, reusable building block:
 | Composite | Description |
 | --------- | ------------ |
 | `FacetSearch` | Complete faceted search: combines `SearchBar`, `Facet`, and `ListItem` with a search service (`SearchServiceProvider`, `useSearchService`, `useSearchFacets`). |
-| `AppLayout` | Complete app layout: combines `Header`, `Menubar`, `Sidebar`, `Footer`, and a responsive `Sheet` for mobile navigation. |
+| `AppLayout` | Complete app layout: combines `Header`, `Menubar`, `Sidebar`, `Footer`, and a responsive `Sheet` for mobile navigation. With `fillViewport` it fits the viewport so only the content scrolls. |
+| `ViewController` | Arranges `View`s side by side and holds their state (open views, active view; `useViewController`). Shows up to 3 views on desktop, 2 on tablet and 1 on mobile; a pinned view ("Metadaten") stays in place, with more views a `Pager` appears and the views are swiped. |
 
 ---
 
