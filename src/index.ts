@@ -35,5 +35,12 @@ export type {
   UseSearchFacetsReturn,
   MenubarItemProps,
   AppLayoutProps,
-  TopNavItem
+  TopNavItem,
+  PagerProps,
+  ViewProps,
+  ViewMode,
+  ViewControllerProps,
+  ViewControllerApi,
+  ViewState,
+  UseViewControllerOptions
 } from './components/ui/scdh'
