@@ -14,7 +14,8 @@ const buttonVariants = cva(
           'bg-white border border-scdh-blue-500 text-black hover:bg-scdh-blue-100 active:bg-scdh-blue-200',
         tertiary:
           'bg-white border border-ulb-grey-200 text-black hover:bg-ulb-grey-100 active:bg-ulb-grey-200',
-        link: 'text-ulb-grey-900 underline-offset-4 underline  hover:decoration-transparent'
+        link: 'text-ulb-grey-900 underline-offset-4 underline  hover:decoration-transparent',
+        icon: 'bg-transparent text-foreground hover:bg-ulb-grey-100 active:bg-ulb-grey-200 dark:hover:bg-accent dark:active:bg-secondary'
       },
       size: {
         default: 'h-[36px] px-3 text-lg',
