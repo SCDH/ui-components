@@ -53,46 +53,45 @@ function LetterList() {
 // Demo
 // ---------------------------------------------------------------------------
 
-function ViewerPage() {
+function ViewerPage({ initialViewId }: { initialViewId?: string }) {
   const controller = useViewController({
     modes: LONG_MODES,
+    defaultActiveViewId: initialViewId,
     defaultViews: [METADATA_VIEW, { id: 'reading', mode: 'reading' }, { id: 'tei', mode: 'tei' }]
   })
 
   return (
     <div className="flex h-full flex-col bg-background text-foreground">
-      <div className="flex shrink-0 items-start justify-between gap-4 pt-6 pr-6 pb-6 pl-8">
-        <div className="flex min-w-0 items-start gap-4">
+      {/* Mobile: trigger, centred bold title and an icon button; desktop: title with date */}
+      <div className="flex shrink-0 items-center justify-between gap-4 px-6 pt-6 pb-2 md:items-start md:pb-6 md:pl-8">
+        <div className="flex min-w-0 flex-1 items-center gap-4 md:flex-none md:items-start">
           {/* Shown while the sidebar is collapsed: brings it back */}
           <SidebarTrigger />
-          <div>
-            <h2 className="text-2xl font-normal">PersonB an PersonA</h2>
-            <p className="text-lg text-ulb-grey-900">2. Oktober 1956</p>
+          <div className="min-w-0 flex-1 text-center md:flex-none md:text-left">
+            <h2 className="truncate text-lg font-bold md:text-2xl md:font-normal">
+              PersonB an PersonA
+            </h2>
+            <p className="hidden text-lg text-ulb-grey-900 md:block">2. Oktober 1956</p>
           </div>
         </div>
         <Button
           variant="secondary"
-          className="text-scdh-blue-500"
+          className="text-foreground max-md:w-9 max-md:px-0 md:text-scdh-blue-500"
           onClick={() => controller.addView()}
         >
           <Plus className="md:hidden" aria-hidden />
           <span className="max-md:sr-only">Ansicht hinzufügen</span>
         </Button>
       </div>
-      <div className="min-h-0 flex-1 px-10">
+      <div className="min-h-0 flex-1 md:px-10">
         <ViewController controller={controller} closable />
       </div>
     </div>
   )
 }
 
-/**
- * A letter viewer: title and "Ansicht hinzufügen" above the views. On desktop up to 3 views are
- * visible (the pinned "Metadaten" and 2 others), on tablet 2, on mobile 1. With more views a
- * `Pager` appears. Resize the window or switch the viewport to see the layouts.
- */
-export const Demo: Story = {
-  render: () => (
+function ViewerApp({ initialViewId }: { initialViewId?: string }) {
+  return (
     <AppLayout
       fillViewport
       logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
@@ -119,9 +118,18 @@ export const Demo: Story = {
         }
       ]}
     >
-      <ViewerPage />
+      <ViewerPage initialViewId={initialViewId} />
     </AppLayout>
-  ),
+  )
+}
+
+/**
+ * A letter viewer: title and "Ansicht hinzufügen" above the views. On desktop up to 3 views are
+ * visible (the pinned "Metadaten" and 2 others), on tablet 2, on mobile 1. With more views a
+ * `Pager` appears. Resize the window or switch the viewport to see the layouts.
+ */
+export const Demo: Story = {
+  render: () => <ViewerApp />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
@@ -168,5 +176,57 @@ export const Demo: Story = {
     await expect(canvas.queryAllByRole('region')).toHaveLength(4)
     await expect(canvas.getByRole('navigation', { name: 'Ansicht wechseln' })).toBeInTheDocument()
     await expect(document.scrollingElement!.scrollHeight).toBeLessThanOrEqual(window.innerHeight)
+  }
+}
+
+/**
+ * Mobile (design "Mobile Ansicht", 393 × 852): the header shows the title only, the menubar has
+ * the menu button on the left and the user on the right. The list of letters is an overlay below
+ * the menubar, opened with the button next to the title. The views are swiped, the pager sits
+ * below.
+ */
+export const Mobile: Story = {
+  parameters: {
+    viewport: {
+      options: {
+        iphone: { name: 'iPhone 393 × 852', styles: { width: '393px', height: '852px' } }
+      }
+    }
+  },
+  globals: { viewport: { value: 'iphone', isRotated: false } },
+  // As in the design: the second page, the reading text, is shown
+  render: () => <ViewerApp initialViewId="reading" />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+
+    // Header: title only, no logo
+    await expect(canvas.queryByAltText('SCDH Logo')).not.toBeInTheDocument()
+    await expect(canvas.getByText('Präsentator')).toBeVisible()
+    // Menubar: menu button left, user right
+    await expect(canvas.getByRole('button', { name: 'Menü öffnen' })).toBeVisible()
+    await expect(canvas.getByRole('button', { name: 'Angemeldet als JS' })).toBeVisible()
+
+    // The list starts closed; the trigger next to the title opens it as an overlay
+    await expect(canvas.queryByRole('navigation', { name: 'Alle Briefe' })).not.toBeInTheDocument()
+    await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
+    const letters = canvas.getByRole('navigation', { name: 'Alle Briefe' })
+    await expect(letters).toBeVisible()
+    const aside = canvasElement.querySelector('aside')!
+    const menubar = canvasElement.querySelector('nav')!.getBoundingClientRect()
+    const panel = aside.getBoundingClientRect()
+    await expect(panel.left).toBe(0)
+    await expect(Math.abs(panel.top - menubar.bottom)).toBeLessThan(2)
+    await expect(panel.width).toBeLessThan(window.innerWidth * 0.7)
+
+    // The toggle in the overlay closes it again
+    await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste einklappen' }))
+    await expect(canvas.queryByRole('navigation', { name: 'Alle Briefe' })).not.toBeInTheDocument()
+
+    // Views are swiped, the pager shows one page per view
+    const pager = canvas.getByRole('navigation', { name: 'Ansicht wechseln' })
+    const pages = within(pager).getAllByRole('button', { name: /^Seite \d von 3$/ })
+    await expect(pages).toHaveLength(3)
+    await expect(pages[1]).toHaveAttribute('aria-current', 'true')
+    await expect(document.scrollingElement!.scrollWidth).toBeLessThanOrEqual(window.innerWidth)
   }
 }

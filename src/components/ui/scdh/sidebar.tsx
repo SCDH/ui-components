@@ -64,17 +64,29 @@ function SidebarProvider({
 // Sidebar — Root container (desktop-only, left column)
 // ---------------------------------------------------------------------------
 
-const SidebarAside = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
-  ({ className, children, ...props }, ref) => {
+export interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
+  /**
+   * What the sidebar does on small screens: `hidden` (default) or `overlay`, a panel over the
+   * content below the menubar (the parent has to be positioned). Collapsed, it is gone in both.
+   */
+  mobile?: 'hidden' | 'overlay'
+}
+
+const SidebarAside = React.forwardRef<HTMLElement, SidebarProps>(
+  ({ mobile = 'hidden', className, children, ...props }, ref) => {
     const { isCollapsed } = useSidebar()
 
     return (
       <aside
         ref={ref}
         className={cn(
-          'hidden md:flex flex-col h-[calc(100vh-var(--header-height,80px))] sticky top-[var(--header-height,80px)] bg-ulb-grey-050 border-r border-ulb-grey-200 overflow-hidden transition-[width] duration-300',
+          'flex-col bg-ulb-grey-050 border-r border-ulb-grey-200 overflow-hidden transition-[width] duration-300',
+          'md:flex md:h-[calc(100vh-var(--header-height,80px))] md:sticky md:top-[var(--header-height,80px)]',
+          mobile === 'overlay'
+            ? 'max-md:absolute max-md:inset-y-0 max-md:left-0 max-md:z-20 max-md:flex max-md:w-60'
+            : 'max-md:hidden',
           // Collapsed, the sidebar is gone completely; only the `SidebarTrigger` remains
-          isCollapsed ? 'w-0 border-r-0' : 'w-72',
+          isCollapsed ? 'max-md:hidden md:w-0 md:border-r-0' : 'md:w-72',
           className
         )}
         {...props}
@@ -90,7 +102,7 @@ SidebarAside.displayName = 'SidebarAside'
  * Sidebar on the left (tablet and desktop). Collapsed, it disappears completely; the
  * `SidebarTrigger` (e.g. next to the page title) brings it back.
  */
-const Sidebar = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>((props, ref) => {
+const Sidebar = React.forwardRef<HTMLElement, SidebarProps>((props, ref) => {
   // Inside a `SidebarProvider` (e.g. in `AppLayout`) the state is shared, otherwise own it here
   const inProvider = React.useContext(SidebarContext) !== null
   const aside = <SidebarAside ref={ref} {...props} />
@@ -129,8 +141,7 @@ SidebarToggle.displayName = 'SidebarToggle'
 
 /**
  * Button that opens a collapsed sidebar. Place it in the header of the main content, next to the
- * page title. It is only shown while the sidebar is collapsed (and on tablet and desktop, where
- * the sidebar exists).
+ * page title. It is only shown while the sidebar is collapsed.
  */
 const SidebarTrigger = React.forwardRef<HTMLButtonElement, React.HTMLAttributes<HTMLButtonElement>>(
   ({ className, ...props }, ref) => {
@@ -144,7 +155,7 @@ const SidebarTrigger = React.forwardRef<HTMLButtonElement, React.HTMLAttributes<
         size="icon"
         onClick={() => setCollapsed(false)}
         aria-label="Seitenleiste ausklappen"
-        className={cn('max-md:hidden shrink-0', className)}
+        className={cn('shrink-0', className)}
         {...props}
       >
         <PanelLeftOpen className="size-4" />
@@ -169,11 +180,11 @@ const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
     return (
       <div
         ref={ref}
-        className={cn('flex shrink-0 items-center gap-4 px-6 py-4', className)}
+        className={cn('flex shrink-0 items-center gap-4 px-6 py-4 max-md:px-5', className)}
         {...props}
       >
         <SidebarToggle className="m-0 self-auto" />
-        <h2 className="truncate text-lg font-normal whitespace-nowrap text-foreground">
+        <h2 className="truncate text-lg font-normal whitespace-nowrap text-foreground max-md:font-bold">
           {children}
         </h2>
       </div>
@@ -194,7 +205,7 @@ const SidebarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
       <div
         ref={ref}
         className={cn(
-          'flex-1 overflow-y-auto px-6 pb-4 transition-opacity duration-300',
+          'flex-1 overflow-y-auto px-6 pb-4 transition-opacity duration-300 max-md:px-5',
           isCollapsed ? 'opacity-0 invisible' : 'opacity-100',
           className
         )}

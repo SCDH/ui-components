@@ -86,10 +86,11 @@ function renderTopNavItem(item: TopNavItem, variant: 'desktop' | 'mobile') {
 }
 
 /** Collect action nodes across all topNavItems that define them. */
-function renderActions(items: TopNavItem[]): React.ReactNode {
+function renderActions(items: TopNavItem[], isMobile: boolean): React.ReactNode {
   const actions = items.flatMap(item => (item.actions ? [item.actions] : []))
   if (actions.length === 0) return null
-  return <MenubarActions>{actions}</MenubarActions>
+  // MenubarActions is desktop-only by default; the design keeps them in the mobile menubar
+  return <MenubarActions className={isMobile ? 'flex' : undefined}>{actions}</MenubarActions>
 }
 
 // ---------------------------------------------------------------------------
@@ -101,8 +102,10 @@ function renderActions(items: TopNavItem[]): React.ReactNode {
  * and responsive mobile navigation via a Sheet.
  *
  * Desktop: Header → Menubar → [Sidebar | Content] → Footer
- * Mobile:  Header → Menubar (hamburger only) → Content → Footer
- *          Hamburger opens a Sheet with merged topNavItems + sidebar.
+ * Mobile:  Header (title only) → Menubar (hamburger left, actions right) → Content → Footer
+ *          The hamburger opens a Sheet with the topNavItems. With `sidebarTitle` the sidebar is an
+ *          overlay below the Menubar, opened with a `SidebarTrigger` in the content; without it
+ *          the sidebar content is part of the Sheet.
  */
 function AppLayout({
   logo,
@@ -122,8 +125,11 @@ function AppLayout({
 
   return (
     <SidebarProvider
+      // Desktop and mobile start differently: the sidebar is open next to the content on desktop,
+      // on mobile it is an overlay that starts closed
+      key={isMobile ? 'mobile' : 'desktop'}
       collapsed={sidebarCollapsed}
-      defaultCollapsed={defaultSidebarCollapsed}
+      defaultCollapsed={defaultSidebarCollapsed ?? (isMobile && !!sidebarTitle)}
       onCollapsedChange={onSidebarCollapsedChange}
     >
       <div
@@ -137,11 +143,23 @@ function AppLayout({
       >
         {/* ---- Header ---- */}
         <Header className="z-30">
+          {/* The mobile header shows the title only */}
+          {!isMobile && logo && <HeaderLogo>{logo}</HeaderLogo>}
+          <HeaderTitle>{title}</HeaderTitle>
+        </Header>
+
+        {/* ---- Menubar ---- */}
+        <Menubar className={isMobile ? 'justify-between' : undefined}>
           {isMobile && (
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="link" size="icon" aria-label="Menü öffnen" className="md:hidden">
-                  <Menu className="size-5" />
+                <Button
+                  variant="tertiary"
+                  size="icon"
+                  aria-label="Menü öffnen"
+                  className="border-ulb-grey-800"
+                >
+                  <Menu />
                 </Button>
               </SheetTrigger>
               <SheetContent title={title} side="left">
@@ -150,26 +168,16 @@ function AppLayout({
                   .filter(item => item.label)
                   .map(item => renderTopNavItem(item, 'mobile'))}
 
-                {/* Separator + Sidebar content */}
-                {sidebar && (
+                {/* Separator + Sidebar content (with a sidebarTitle it is an overlay instead) */}
+                {sidebar && !sidebarTitle && (
                   <>
                     <Separator className="my-2" />
-                    {sidebarTitle && (
-                      <h2 className="px-3 pt-2 text-lg font-bold">{sidebarTitle}</h2>
-                    )}
                     {sidebar}
                   </>
                 )}
               </SheetContent>
             </Sheet>
           )}
-
-          {logo && <HeaderLogo>{logo}</HeaderLogo>}
-          <HeaderTitle className={isMobile ? 'max-md:hidden' : undefined}>{title}</HeaderTitle>
-        </Header>
-
-        {/* ---- Menubar ---- */}
-        <Menubar className={isMobile ? 'justify-start' : undefined}>
           {!isMobile && topNavItems.length > 0 && (
             <MenubarItems>
               {topNavItems
@@ -177,21 +185,27 @@ function AppLayout({
                 .map(item => renderTopNavItem(item, 'desktop'))}
             </MenubarItems>
           )}
-          {!isMobile && renderActions(topNavItems)}
-          {/* On mobile the hamburger is already rendered inside the Header,
-            nothing extra needed in the Menubar */}
+          {renderActions(topNavItems, isMobile)}
         </Menubar>
 
         {/* ---- Body (Sidebar + Content) ---- */}
         <div
           className={cn(
-            'grid min-h-0 bg-background',
-            fillViewport ? 'grid-cols-[auto_minmax(0,1fr)] overflow-hidden' : 'grid-cols-[auto_1fr]'
+            'relative grid min-h-0 bg-background',
+            isMobile
+              ? 'grid-cols-[minmax(0,1fr)]'
+              : fillViewport
+                ? 'grid-cols-[auto_minmax(0,1fr)]'
+                : 'grid-cols-[auto_1fr]',
+            fillViewport && 'overflow-hidden'
           )}
         >
-          {/* Desktop sidebar */}
-          {!isMobile && sidebar && (
-            <Sidebar className={fillViewport ? 'h-full' : undefined}>
+          {/* Sidebar: next to the content, on mobile an overlay (only with a sidebarTitle) */}
+          {sidebar && (!isMobile || sidebarTitle) && (
+            <Sidebar
+              mobile={sidebarTitle ? 'overlay' : 'hidden'}
+              className={fillViewport ? 'md:h-full' : undefined}
+            >
               {sidebarTitle && <SidebarHeader>{sidebarTitle}</SidebarHeader>}
               <SidebarContent>{sidebar}</SidebarContent>
             </Sidebar>

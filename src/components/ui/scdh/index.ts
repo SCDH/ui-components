@@ -42,7 +42,7 @@ export {
   SidebarContent,
   useSidebar
 } from './sidebar'
-export type { SidebarProviderProps } from './sidebar'
+export type { SidebarProviderProps, SidebarProps } from './sidebar'
 
 export { Footer } from './footer'
 

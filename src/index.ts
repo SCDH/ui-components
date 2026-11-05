@@ -40,6 +40,7 @@ export type {
   EntryListItem,
   PagerProps,
   SidebarProviderProps,
+  SidebarProps,
   ViewProps,
   ViewMode,
   ViewControllerProps,
