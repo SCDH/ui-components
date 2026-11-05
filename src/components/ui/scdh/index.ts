@@ -33,7 +33,7 @@ export { Header, HeaderLogo, HeaderTitle } from './header'
 export { Menubar, MenubarItems, MenubarItem, MenubarActions } from './menubar'
 export type { MenubarItemProps } from './menubar'
 
-export { Sidebar, SidebarToggle, SidebarContent } from './sidebar'
+export { Sidebar, SidebarToggle, SidebarHeader, SidebarContent } from './sidebar'
 
 export { Footer } from './footer'
 

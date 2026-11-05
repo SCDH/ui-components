@@ -38,7 +38,7 @@ const Sidebar = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>
           ref={ref}
           className={cn(
             'hidden md:flex flex-col h-[calc(100vh-var(--header-height,88px))] sticky top-[var(--header-height,88px)] bg-ulb-grey-050 border-r-2 border-ulb-grey-200 overflow-hidden transition-[width] duration-300',
-            isCollapsed ? 'w-16' : 'w-80',
+            isCollapsed ? 'w-16' : 'w-72',
             className
           )}
           {...props}
@@ -77,6 +77,40 @@ const SidebarToggle = React.forwardRef<HTMLButtonElement, React.HTMLAttributes<H
 SidebarToggle.displayName = 'SidebarToggle'
 
 // ---------------------------------------------------------------------------
+// SidebarHeader — toggle with a title next to it
+// ---------------------------------------------------------------------------
+
+/**
+ * Header row of the sidebar: the collapse toggle with the title next to it (e.g. "Alle Briefe").
+ * Collapsed, only the toggle remains, centred in the narrow rail.
+ */
+const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, children, ...props }, ref) => {
+    const { isCollapsed } = useSidebar()
+
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          'flex shrink-0 items-center gap-4 py-4',
+          isCollapsed ? 'justify-center px-0' : 'px-6',
+          className
+        )}
+        {...props}
+      >
+        <SidebarToggle className="m-0 self-auto" />
+        {!isCollapsed && (
+          <h2 className="truncate text-lg font-bold whitespace-nowrap text-foreground">
+            {children}
+          </h2>
+        )}
+      </div>
+    )
+  }
+)
+SidebarHeader.displayName = 'SidebarHeader'
+
+// ---------------------------------------------------------------------------
 // SidebarContent — scrollable content area
 // ---------------------------------------------------------------------------
 
@@ -102,4 +136,4 @@ const SidebarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
 )
 SidebarContent.displayName = 'SidebarContent'
 
-export { Sidebar, SidebarToggle, SidebarContent }
+export { Sidebar, SidebarToggle, SidebarHeader, SidebarContent }
