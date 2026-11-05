@@ -39,3 +39,16 @@ export { Footer } from './footer'
 
 export { AppLayout } from './app-layout'
 export type { AppLayoutProps, TopNavItem } from './app-layout'
+
+export { Pager } from './pager'
+export type { PagerProps } from './pager'
+
+export { View, ViewController, useViewController } from './views'
+export type {
+  ViewProps,
+  ViewMode,
+  ViewControllerProps,
+  ViewControllerApi,
+  ViewState,
+  UseViewControllerOptions
+} from './views'
