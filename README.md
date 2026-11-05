@@ -54,7 +54,7 @@ Composites bundle multiple components into a cohesive, reusable building block:
 | Composite | Description |
 | --------- | ------------ |
 | `FacetSearch` | Complete faceted search: combines `SearchBar`, `Facet`, and `ListItem` with a search service (`SearchServiceProvider`, `useSearchService`, `useSearchFacets`). |
-| `AppLayout` | Complete app layout: combines `Header`, `Menubar`, `Sidebar`, `Footer`, and a responsive `Sheet` for mobile navigation. With `fillViewport` it fits the viewport so only the content scrolls. |
+| `AppLayout` | Complete app layout: combines `Header`, `Menubar`, `Sidebar`, `Footer`, and a responsive `Sheet` for mobile navigation. With `sidebarTitle` the sidebar gets a header with a collapse toggle; with `fillViewport` the layout fits the viewport so only the content scrolls. |
 | `ViewController` | Arranges `View`s side by side and holds their state (open views, active view; `useViewController`). Shows up to 3 views on desktop, 2 on tablet and 1 on mobile; a pinned view ("Metadaten") stays in place, with more views a `Pager` appears and the views are swiped. |
 
 ---
