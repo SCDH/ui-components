@@ -42,8 +42,9 @@ These components live in [`src/components/ui/scdh/`](src/components/ui/scdh/) an
 | `ListItem` | List entry with tags and actions. |
 | `Header` | Header with logo and title (`HeaderLogo`, `HeaderTitle`). |
 | `Menubar` | Navigation bar (`MenubarItems`, `MenubarItem`, `MenubarActions`). |
-| `Sidebar` | Sidebar (`SidebarToggle`, `SidebarContent`). |
+| `Sidebar` | Sidebar with header and content (`SidebarHeader`, `SidebarToggle`, `SidebarContent`). Collapsed, it disappears completely; `SidebarTrigger` (placed next to the page title) brings it back, `SidebarProvider` shares the state. |
 | `Footer` | Footer. |
+| `EntryList` | List of entries in a card (e.g. "Alle Briefe" in the sidebar) with the selected entry on grey and a blue edge. Entries are buttons or links; controlled or uncontrolled selection. |
 | `Pager` | Compact navigation for swipeable pages: arrows plus a progress bar (tap to jump). Does not swipe itself. |
 | `View` | One view of a document: fixed header with mode selection (e.g. reading text, TEI source, facsimile) above its own scrolling content. |
 
@@ -54,7 +55,7 @@ Composites bundle multiple components into a cohesive, reusable building block:
 | Composite | Description |
 | --------- | ------------ |
 | `FacetSearch` | Complete faceted search: combines `SearchBar`, `Facet`, and `ListItem` with a search service (`SearchServiceProvider`, `useSearchService`, `useSearchFacets`). |
-| `AppLayout` | Complete app layout: combines `Header`, `Menubar`, `Sidebar`, `Footer`, and a responsive `Sheet` for mobile navigation. With `sidebarTitle` the sidebar gets a header with a collapse toggle; with `fillViewport` the layout fits the viewport so only the content scrolls. |
+| `AppLayout` | Complete app layout: combines `Header`, `Menubar`, `Sidebar`, `Footer`, and a responsive `Sheet` for mobile navigation. On mobile the header shows the title only, the menu button and actions sit in the menubar. With `sidebarTitle` the sidebar gets a header with a collapse toggle (state via `sidebarCollapsed` / `defaultSidebarCollapsed`) and on mobile becomes an overlay below the menubar; with `fillViewport` the layout fits the viewport so only the content scrolls. |
 | `ViewController` | Arranges `View`s side by side and holds their state (open views, active view; `useViewController`). Shows up to 3 views on desktop, 2 on tablet and 1 on mobile; a pinned view ("Metadaten") stays in place, with more views a `Pager` appears and the views are swiped. |
 
 ---
@@ -156,7 +157,7 @@ The theme is **not namespaced**. Importing it makes your whole app use the SCDH 
 
 - **Tailwind defaults are replaced:** the colour scales `blue`, `red`, `green`, `pink`, `yellow`, `violet`, `rose` plus `white` and `black`, the font-size scale (`text-sm` is 10px, not 14px), and the spacing keys of the token set (e.g. `p-100` is 8px).
 - **shadcn variable names are defined:** `--background`, `--foreground`, `--primary`, `--border`, … as HSL channel triples (e.g. `0 0% 9%`), with `--color-primary: hsl(var(--primary))` etc. If your app has its own shadcn theme (often `oklch(...)` values), the two definitions collide: the import order decides which one wins, and mixing the formats produces invalid colours. Use one theme per app.
-- **Base styles are set:** `* { border-color }` and `body` font, background and text colour.
+- **Base styles are set:** `* { border-color }`, `body` font, background and text colour, and `cursor: pointer` on enabled buttons (Tailwind 4 no longer does that itself; `cursor-*` utilities still override it).
 - **`dark:` follows the `.dark` class** (see the dark-mode note under *Importing styles*). If you define your own `@custom-variant dark`, put it **after** the `theme.css` import – the last definition wins.
 
 ### Using components
