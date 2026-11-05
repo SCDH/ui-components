@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Plus } from 'lucide-react'
-import { expect, userEvent, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 import { AppLayout } from '@/components/ui/scdh/app-layout'
 import { ViewController, useViewController } from '@/components/ui/scdh/views'
 import { Button } from '@/components/ui/button'
@@ -21,7 +21,7 @@ const meta = {
           'The `ViewController` in an app: inside an `AppLayout` with `fillViewport` and its ' +
           'sidebar (list of letters), below a title with an "Ansicht hinzufügen" button that ' +
           'operates the controller via `useViewController`. The page does not scroll, only the ' +
-          'contents of the views do. The sidebar takes 320px, which is what is left for the views.'
+          'contents of the views do. The sidebar (288px) can be collapsed to give the views more room.'
       }
     }
   }
@@ -31,31 +31,30 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 // ---------------------------------------------------------------------------
-// Sidebar: list of all letters (desktop and tablet; on mobile AppLayout moves it into the menu)
+// Sidebar content: list of all letters (the title "Alle Briefe" comes from AppLayout)
 // ---------------------------------------------------------------------------
 
 const LETTERS = [
-  { title: 'PersonB an PersonA', date: '2.10.1956' },
-  { title: 'PersonA an PersonB', date: '15.1.1957' },
-  { title: 'PersonC an PersonA', date: '3.3.1957' },
-  { title: 'PersonA an PersonC', date: '19.4.1957' },
-  { title: 'PersonD an PersonB', date: '8.8.1958' }
+  'PersonB an PersonA',
+  'PersonA an PersonB',
+  'PersonC an PersonA',
+  'PersonA an PersonC',
+  'PersonD an PersonB',
+  'PersonB an PersonD'
 ]
 
 function LetterList() {
   return (
-    <nav aria-label="Alle Briefe" className="flex flex-col gap-4 pt-4">
-      <h2 className="px-1 text-lg font-medium">Alle Briefe</h2>
-      <ul className="overflow-hidden rounded-xl border border-ulb-grey-200 bg-background">
-        {LETTERS.map((letter, i) => (
-          <li key={letter.title}>
+    <nav aria-label="Alle Briefe">
+      <ul className="overflow-hidden rounded-2xl border border-ulb-grey-200 bg-background py-2 dark:border-border">
+        {LETTERS.map((title, i) => (
+          <li key={title}>
             <button
               type="button"
               aria-current={i === 0 ? 'page' : undefined}
-              className="flex w-full flex-col px-4 py-2 text-left text-md text-foreground hover:bg-ulb-grey-100 aria-[current=page]:border-l-2 aria-[current=page]:border-scdh-blue-700 aria-[current=page]:bg-ulb-grey-100"
+              className="flex w-full items-center border-l-2 border-transparent px-5 py-3 text-left text-lg text-foreground hover:bg-ulb-grey-050 aria-[current=page]:border-scdh-blue-500 aria-[current=page]:bg-ulb-grey-050 dark:hover:bg-accent dark:aria-[current=page]:bg-accent"
             >
-              <span className="text-lg">{letter.title}</span>
-              <span className="text-ulb-grey-600">{letter.date}</span>
+              {title}
             </button>
           </li>
         ))}
@@ -105,6 +104,7 @@ export const Demo: Story = {
       logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
       title="Präsentator"
       sidebar={<LetterList />}
+      sidebarTitle="Alle Briefe"
       topNavItems={[
         { label: 'Viewer', isActive: true },
         { label: 'Über das Projekt' },
@@ -126,6 +126,20 @@ export const Demo: Story = {
     // The sidebar takes its share of the width; nothing spills out of the page
     await expect(canvas.getByRole('navigation', { name: 'Alle Briefe' })).toBeVisible()
     await expect(document.scrollingElement!.scrollWidth).toBeLessThanOrEqual(window.innerWidth)
+
+    // Collapsing the sidebar gives the views more width, expanding takes it back
+    const letters = canvas.getByRole('navigation', { name: 'Alle Briefe' })
+    const widthWithSidebar = reading.getBoundingClientRect().width
+    await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste einklappen' }))
+    await waitFor(() =>
+      expect(reading.getBoundingClientRect().width).toBeGreaterThan(widthWithSidebar + 50)
+    )
+    await expect(letters).not.toBeVisible()
+    await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
+    await waitFor(() =>
+      expect(Math.abs(reading.getBoundingClientRect().width - widthWithSidebar)).toBeLessThan(2)
+    )
+    await expect(letters).toBeVisible()
 
     // Title and the add button
     await expect(canvas.getByRole('heading', { name: 'PersonB an PersonA' })).toBeVisible()
