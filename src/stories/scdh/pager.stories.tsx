@@ -43,6 +43,12 @@ export const Default: Story = {
       'true'
     )
 
+    // Arrows and progress bar segments show the pointer cursor
+    await expect(getComputedStyle(next).cursor).toBe('pointer')
+    await expect(
+      getComputedStyle(canvas.getByRole('button', { name: 'Seite 2 von 3' })).cursor
+    ).toBe('pointer')
+
     await userEvent.click(next)
     await expect(args.onIndexChange).toHaveBeenLastCalledWith(1)
     await expect(canvas.getByRole('button', { name: 'Seite 2 von 3' })).toHaveAttribute(

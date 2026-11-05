@@ -55,6 +55,11 @@ export const Default: Story = {
       'page'
     )
 
+    // Entries show the pointer cursor
+    for (const entry of canvas.getAllByRole('button')) {
+      await expect(getComputedStyle(entry).cursor).toBe('pointer')
+    }
+
     await userEvent.click(canvas.getByRole('button', { name: 'Eintrag 4' }))
     await expect(args.onValueChange).toHaveBeenCalledWith('e4')
     await expect(canvas.getByRole('button', { name: 'Eintrag 4' })).toHaveAttribute(

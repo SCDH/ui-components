@@ -120,4 +120,11 @@
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
+
+  /* Tailwind 4 no longer sets a pointer cursor on buttons (preflight); utilities such as
+     cursor-default or cursor-not-allowed still win over this base rule */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
 }

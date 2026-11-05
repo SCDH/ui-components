@@ -164,6 +164,14 @@ export const Demo: Story = {
     )
     await expect(letters).toBeVisible()
 
+    // All buttons show the pointer cursor
+    const pointer = (el: HTMLElement) => expect(getComputedStyle(el).cursor).toBe('pointer')
+    await pointer(canvas.getByRole('button', { name: 'Seitenleiste einklappen' }))
+    await pointer(canvas.getByRole('button', { name: 'Ansicht hinzufügen' }))
+    await pointer(within(reading).getByRole('button', { name: /schließen/ }))
+    await pointer(within(reading).getByRole('combobox'))
+    await pointer(canvas.getByRole('button', { name: 'PersonA an PersonB' }))
+
     // Title and the add button
     await expect(canvas.getByRole('heading', { name: 'PersonB an PersonA' })).toBeVisible()
     await expect(canvas.queryAllByRole('region')).toHaveLength(3)
@@ -204,6 +212,9 @@ export const Mobile: Story = {
     await expect(canvas.getByText('Präsentator')).toBeVisible()
     // Menubar: menu button left, user right
     await expect(canvas.getByRole('button', { name: 'Menü öffnen' })).toBeVisible()
+    await expect(getComputedStyle(canvas.getByRole('button', { name: 'Menü öffnen' })).cursor).toBe(
+      'pointer'
+    )
     await expect(canvas.getByRole('button', { name: 'Angemeldet als JS' })).toBeVisible()
 
     // The list starts closed; the trigger next to the title opens it as an overlay
