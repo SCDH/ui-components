@@ -37,6 +37,12 @@ export interface AppLayoutProps {
   footer?: React.ReactNode
   /** Main content area. */
   children?: React.ReactNode
+  /**
+   * Fit the layout to the viewport height instead of growing with the content. The page itself
+   * does not scroll then; the main area is a flex column with a bounded height, so content such
+   * as a `ViewController` can fill it (`h-full`) and scroll internally. Default: `false`.
+   */
+  fillViewport?: boolean
   className?: string
 }
 
@@ -89,13 +95,20 @@ function AppLayout({
   sidebar,
   footer,
   children,
+  fillViewport = false,
   className
 }: AppLayoutProps) {
   const isMobile = useIsMobile()
 
   return (
     <div
-      className={cn('grid min-h-screen grid-rows-[auto_auto_1fr_auto]', className)}
+      className={cn(
+        'grid',
+        fillViewport
+          ? 'h-screen grid-rows-[auto_auto_minmax(0,1fr)_auto]'
+          : 'min-h-screen grid-rows-[auto_auto_1fr_auto]',
+        className
+      )}
     >
       {/* ---- Header ---- */}
       <Header className="z-30">
@@ -138,7 +151,12 @@ function AppLayout({
       </Menubar>
 
       {/* ---- Body (Sidebar + Content) ---- */}
-      <div className="grid min-h-0 grid-cols-[auto_1fr] bg-ulb-grey-050">
+      <div
+        className={cn(
+          'grid min-h-0 bg-ulb-grey-050',
+          fillViewport ? 'grid-cols-[auto_minmax(0,1fr)] overflow-hidden' : 'grid-cols-[auto_1fr]'
+        )}
+      >
         {/* Desktop sidebar */}
         {!isMobile && sidebar && (
           <Sidebar>
@@ -147,7 +165,14 @@ function AppLayout({
         )}
 
         {/* Main content */}
-        <main className="min-h-0 bg-ulb-grey-050">{children}</main>
+        <main
+          className={cn(
+            'min-h-0 bg-ulb-grey-050',
+            fillViewport && 'flex min-w-0 flex-col overflow-hidden'
+          )}
+        >
+          {children}
+        </main>
       </div>
 
       {/* ---- Footer ---- */}
