@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { Header, HeaderLogo, HeaderTitle } from '@/components/ui/scdh/header'
 import { Menubar, MenubarItems, MenubarItem, MenubarActions } from '@/components/ui/scdh/menubar'
-import { Sidebar, SidebarContent } from '@/components/ui/scdh/sidebar'
+import { Sidebar, SidebarContent, SidebarHeader } from '@/components/ui/scdh/sidebar'
 import { Footer } from '@/components/ui/scdh/footer'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet'
@@ -33,6 +33,12 @@ export interface AppLayoutProps {
   topNavItems?: TopNavItem[]
   /** Arbitrary content rendered in the Sidebar (desktop) and below topNavItems in the Sheet (mobile). */
   sidebar?: React.ReactNode
+  /**
+   * Title of the sidebar, e.g. "Alle Briefe". Makes the sidebar collapsible: a header row with the
+   * toggle and this title appears above the sidebar content (desktop). In the mobile Sheet it is
+   * shown as a heading above the sidebar content.
+   */
+  sidebarTitle?: React.ReactNode
   /** Content rendered in the Footer. */
   footer?: React.ReactNode
   /** Main content area. */
@@ -93,6 +99,7 @@ function AppLayout({
   title,
   topNavItems = [],
   sidebar,
+  sidebarTitle,
   footer,
   children,
   fillViewport = false,
@@ -127,6 +134,7 @@ function AppLayout({
               {sidebar && (
                 <>
                   <Separator className="my-2" />
+                  {sidebarTitle && <h2 className="px-3 pt-2 text-lg font-bold">{sidebarTitle}</h2>}
                   {sidebar}
                 </>
               )}
@@ -160,7 +168,8 @@ function AppLayout({
         {/* Desktop sidebar */}
         {!isMobile && sidebar && (
           <Sidebar>
-            <SidebarContent>{sidebar}</SidebarContent>
+            {sidebarTitle && <SidebarHeader>{sidebarTitle}</SidebarHeader>}
+            <SidebarContent className={sidebarTitle ? 'px-6' : undefined}>{sidebar}</SidebarContent>
           </Sidebar>
         )}
 

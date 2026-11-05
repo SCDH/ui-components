@@ -1,6 +1,7 @@
 import * as React from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { HelpCircleIcon, LogInIcon } from 'lucide-react'
+import { expect, userEvent, within } from 'storybook/test'
 import { AppLayout } from '@/components/ui/scdh/app-layout'
 import type { TopNavItem } from '@/components/ui/scdh/app-layout'
 import { Button } from '@/components/ui/button'
@@ -164,6 +165,7 @@ function SelectableAppLayout({
   initialActiveId = 'home',
   showActions = true,
   sidebar,
+  sidebarTitle,
   footer,
   children,
   logo
@@ -193,6 +195,7 @@ function SelectableAppLayout({
       title="SCDH UI Components"
       topNavItems={topNavItems}
       sidebar={sidebar}
+      sidebarTitle={sidebarTitle}
       footer={footer}
     >
       {children}
@@ -331,4 +334,33 @@ export const FacetedSearch: Story = {
       <SearchResultsContent />
     </SelectableAppLayout>
   )
+}
+
+/**
+ * Sidebar with a title ("sidebarTitle"): a header row with the collapse toggle and the title
+ * appears above the content (design "3 Ansichten"). Collapsed, only the toggle remains.
+ */
+export const CollapsibleSidebar: Story = {
+  render: () => (
+    <SelectableAppLayout
+      logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
+      sidebar={sidebarContent}
+      sidebarTitle="Alle Briefe"
+      footer={footerContent}
+    >
+      <MainContent />
+    </SelectableAppLayout>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await expect(canvas.getByRole('heading', { name: 'Alle Briefe' })).toBeVisible()
+    await expect(canvas.getByText('Autoren')).toBeVisible()
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste einklappen' }))
+    await expect(canvas.getByText('Autoren')).not.toBeVisible()
+    await expect(canvas.queryByRole('heading', { name: 'Alle Briefe' })).not.toBeInTheDocument()
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
+    await expect(canvas.getByText('Autoren')).toBeVisible()
+  }
 }
