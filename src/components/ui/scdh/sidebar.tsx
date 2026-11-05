@@ -72,7 +72,7 @@ const SidebarAside = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElem
       <aside
         ref={ref}
         className={cn(
-          'hidden md:flex flex-col h-[calc(100vh-var(--header-height,88px))] sticky top-[var(--header-height,88px)] bg-ulb-grey-050 border-r-2 border-ulb-grey-200 overflow-hidden transition-[width] duration-300',
+          'hidden md:flex flex-col h-[calc(100vh-var(--header-height,80px))] sticky top-[var(--header-height,80px)] bg-ulb-grey-050 border-r border-ulb-grey-200 overflow-hidden transition-[width] duration-300',
           // Collapsed, the sidebar is gone completely; only the `SidebarTrigger` remains
           isCollapsed ? 'w-0 border-r-0' : 'w-72',
           className
@@ -173,7 +173,9 @@ const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
         {...props}
       >
         <SidebarToggle className="m-0 self-auto" />
-        <h2 className="truncate text-lg font-bold whitespace-nowrap text-foreground">{children}</h2>
+        <h2 className="truncate text-lg font-normal whitespace-nowrap text-foreground">
+          {children}
+        </h2>
       </div>
     )
   }

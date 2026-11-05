@@ -123,7 +123,7 @@ const View = React.forwardRef<HTMLElement, ViewProps>(
         className={cn(
           'flex min-h-0 min-w-0 flex-col bg-background text-foreground',
           'not-first:border-l',
-          'border-ulb-grey-300 dark:border-border',
+          'border-ulb-grey-200 dark:border-border',
           className
         )}
         style={{
@@ -135,7 +135,7 @@ const View = React.forwardRef<HTMLElement, ViewProps>(
       >
         {/* ---- Header: fixed, does not scroll ---- */}
         <div className="shrink-0 px-6 pt-4">
-          <header className="flex min-h-9 items-center gap-3 border-b border-ulb-grey-300 pb-3 dark:border-border">
+          <header className="flex min-h-9 items-center gap-3 border-b border-ulb-grey-200 pb-4 dark:border-border">
             {headerTitle !== undefined && (
               <span id={titleId} className="shrink-0 text-lg">
                 {headerTitle}
@@ -149,7 +149,7 @@ const View = React.forwardRef<HTMLElement, ViewProps>(
                   aria-labelledby={
                     headerTitle !== undefined ? `${titleId} ${triggerId}` : undefined
                   }
-                  className="w-36 min-w-0 bg-background text-lg"
+                  className="min-w-[108px] max-w-full bg-background text-lg"
                 >
                   <SelectValue />
                 </SelectTrigger>

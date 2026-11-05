@@ -185,13 +185,13 @@ function AppLayout({
         {/* ---- Body (Sidebar + Content) ---- */}
         <div
           className={cn(
-            'grid min-h-0 bg-ulb-grey-050',
+            'grid min-h-0 bg-background',
             fillViewport ? 'grid-cols-[auto_minmax(0,1fr)] overflow-hidden' : 'grid-cols-[auto_1fr]'
           )}
         >
           {/* Desktop sidebar */}
           {!isMobile && sidebar && (
-            <Sidebar>
+            <Sidebar className={fillViewport ? 'h-full' : undefined}>
               {sidebarTitle && <SidebarHeader>{sidebarTitle}</SidebarHeader>}
               <SidebarContent>{sidebar}</SidebarContent>
             </Sidebar>
@@ -200,7 +200,7 @@ function AppLayout({
           {/* Main content */}
           <main
             className={cn(
-              'min-h-0 bg-ulb-grey-050',
+              'min-h-0 bg-background',
               fillViewport && 'flex min-w-0 flex-col overflow-hidden'
             )}
           >

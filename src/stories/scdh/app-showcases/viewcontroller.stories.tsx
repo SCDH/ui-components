@@ -61,21 +61,25 @@ function ViewerPage() {
 
   return (
     <div className="flex h-full flex-col bg-background text-foreground">
-      <div className="flex shrink-0 items-start justify-between gap-4 px-6 pt-6 pb-4">
+      <div className="flex shrink-0 items-start justify-between gap-4 pt-6 pr-6 pb-6 pl-8">
         <div className="flex min-w-0 items-start gap-4">
           {/* Shown while the sidebar is collapsed: brings it back */}
           <SidebarTrigger />
           <div>
-            <h2 className="text-2xl font-medium">PersonB an PersonA</h2>
-            <p className="text-md text-ulb-grey-600">2. Oktober 1956</p>
+            <h2 className="text-2xl font-normal">PersonB an PersonA</h2>
+            <p className="text-lg text-ulb-grey-900">2. Oktober 1956</p>
           </div>
         </div>
-        <Button variant="secondary" onClick={() => controller.addView()}>
+        <Button
+          variant="secondary"
+          className="text-scdh-blue-500"
+          onClick={() => controller.addView()}
+        >
           <Plus className="md:hidden" aria-hidden />
           <span className="max-md:sr-only">Ansicht hinzufügen</span>
         </Button>
       </div>
-      <div className="min-h-0 flex-1 border-t border-ulb-grey-300 dark:border-border">
+      <div className="min-h-0 flex-1 px-10">
         <ViewController controller={controller} closable />
       </div>
     </div>
@@ -98,7 +102,21 @@ export const Demo: Story = {
       topNavItems={[
         { label: 'Viewer', isActive: true },
         { label: 'Über das Projekt' },
-        { label: 'Netzwerk' }
+        { label: 'Netzwerk' },
+        // Initials of the logged-in user, right in the menubar
+        {
+          label: '',
+          actions: (
+            <Button
+              variant="tertiary"
+              size="icon"
+              aria-label="Angemeldet als JS"
+              className="border-ulb-grey-800"
+            >
+              JS
+            </Button>
+          )
+        }
       ]}
     >
       <ViewerPage />

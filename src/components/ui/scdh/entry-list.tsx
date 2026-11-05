@@ -35,7 +35,7 @@ export interface EntryListProps extends Omit<
 // ---------------------------------------------------------------------------
 
 const entryClasses = cn(
-  'flex w-full items-center border-l-2 border-transparent px-5 py-3 text-left text-lg text-foreground',
+  'flex w-full items-center border-l-2 border-transparent px-5 py-1.5 text-left text-lg text-foreground',
   'hover:bg-ulb-grey-050 dark:hover:bg-accent',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-scdh-blue-700',
   // Selected: grey background with a blue edge on the left
@@ -60,7 +60,7 @@ const EntryList = React.forwardRef<HTMLElement, EntryListProps>(
 
     return (
       <nav ref={ref} className={className} {...props}>
-        <ul className="overflow-hidden rounded-2xl border border-ulb-grey-200 bg-background py-2 dark:border-border">
+        <ul className="overflow-hidden rounded-2xl border border-ulb-grey-200 bg-background py-3 dark:border-border">
           {entries.map(entry => {
             const current = entry.id === selected ? ('page' as const) : undefined
             return (

@@ -24,13 +24,13 @@ const menubarItemVariants = cva(
         variant: 'desktop',
         active: false,
         className:
-          'h-full px-[var(--space-linear-150)] text-ulb-grey-700 hover:text-ulb-grey-900 hover:border-ulb-grey-300 border-b-2 border-transparent'
+          'h-full px-[var(--space-linear-125)] text-lg font-normal text-ulb-grey-950 hover:text-black hover:border-ulb-grey-300 border-b-2 border-transparent'
       },
       {
         variant: 'desktop',
         active: true,
         className:
-          'h-full px-[var(--space-linear-150)] text-scdh-blue-700 border-b-2 border-scdh-blue-700'
+          'h-full px-[var(--space-linear-125)] text-lg font-normal text-scdh-blue-600 border-b-2 border-scdh-blue-600'
       },
       {
         variant: 'mobile',

@@ -213,7 +213,7 @@ const ViewController = React.forwardRef<HTMLDivElement, ViewControllerProps>(
                 if (id !== undefined) controller.setActive(id)
               }}
               aria-label="Ansicht wechseln"
-              className="shrink-0 border-t border-ulb-grey-300 dark:border-border"
+              className="shrink-0 border-t border-ulb-grey-200 dark:border-border"
             />
           )}
         </div>

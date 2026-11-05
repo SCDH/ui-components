@@ -6,17 +6,17 @@ import { cn } from '@/lib/utils'
  * Header root container.
  *
  * Features:
- * - Fixed height (88px)
+ * - Fixed height (80px)
  * - Horizontal flex layout with space between logo (left) and title (center)
- * - Bottom border using design token ulb-grey-200
+ * - No border: the grey Menubar below separates it
  */
 const Header = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, children, style, ...props }, ref) => (
     <header
       ref={ref}
-      style={{ '--header-height': '88px', ...style } as React.CSSProperties}
+      style={{ '--header-height': '80px', ...style } as React.CSSProperties}
       className={cn(
-        'sticky top-0 z-10 flex h-[var(--header-height,88px)] items-center justify-between bg-white border-b-2 border-ulb-grey-200 px-[var(--space-linear-300)]',
+        'sticky top-0 z-10 flex h-[var(--header-height,80px)] items-center justify-between bg-white px-[var(--space-linear-300)]',
         className
       )}
       {...props}
@@ -53,7 +53,8 @@ const HeaderTitle = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDi
     <div
       ref={ref}
       className={cn(
-        'absolute left-1/2 -translate-x-1/2 font-metawebpro text-xl font-medium text-ulb-grey-900',
+        // Wide letter-spacing as in the design; the left padding keeps the text visually centred
+        'absolute left-1/2 -translate-x-1/2 pl-[0.2em] font-metawebpro text-xl font-normal tracking-[0.2em] text-ulb-grey-950',
         className
       )}
       {...props}
