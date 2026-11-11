@@ -183,6 +183,8 @@ export function MyApp() {
 }
 ```
 
+> **ViewController (since 0.6.0):** the layout follows the width of the controller itself, not the screen size, and the column widths are fixed in the component. Therefore `visibleViews` (`ViewController`), `size` (`ViewState`) and `defaultSize` / `minSize` (`View`) are gone – remove them where you pass them. At most 3 views can be open next to the pinned "Metadaten": check `canAdd` (e.g. to disable an "add view" button); `addView` returns `undefined` when no view can be added. Place the controller where its width is set from outside (a block, a `flex-1` or `1fr` area), not in a container that shrinks to fit its content.
+
 ### Notes
 
 - The library uses **Tailwind CSS 4** with CSS-first theme configuration. No consumer-side Tailwind config preset is required.
