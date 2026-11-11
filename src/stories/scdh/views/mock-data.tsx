@@ -22,8 +22,7 @@ export const METADATA_VIEW: ViewState = {
   id: 'metadata',
   mode: 'metadata',
   modes: [{ id: 'metadata', label: 'Metadaten', content: <Metadata /> }],
-  pinned: true,
-  size: 0.65
+  pinned: true
 }
 
 /** Metadata next to the reading text and the TEI source. */
@@ -33,11 +32,10 @@ export const THREE_VIEWS: ViewState[] = [
   { id: 'tei', mode: 'tei' }
 ]
 
-/** Metadata and four more views: more than fit next to each other on tablet and desktop. */
+/** Metadata and the most views that can be open next to it (3). */
 export const MANY_VIEWS: ViewState[] = [
   METADATA_VIEW,
   { id: 'v1', mode: 'reading' },
   { id: 'v2', mode: 'tei' },
-  { id: 'v3', mode: 'facsimile' },
-  { id: 'v4', mode: 'reading' }
+  { id: 'v3', mode: 'facsimile' }
 ]

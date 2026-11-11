@@ -41,10 +41,11 @@ export interface ViewProps extends Omit<
   onModeChange?: (modeId: string) => void
   /** Additional buttons on the right of the header. */
   actions?: React.ReactNode
-  /** Relative share of the available space next to other views (flex-grow). Default 1. */
-  defaultSize?: number
-  /** Minimum size in percent of the group. */
-  minSize?: number
+  /**
+   * Look of a pinned view (e.g. "Metadaten"): the title is indented and the content sits on a grey
+   * background over the full height.
+   */
+  pinned?: boolean
   /** Shows a close button in the header. */
   onClose?: () => void
   /** Ref to the scrolling content container. */
@@ -73,8 +74,7 @@ const View = React.forwardRef<HTMLElement, ViewProps>(
       defaultMode,
       onModeChange,
       actions,
-      defaultSize = 1,
-      minSize,
+      pinned = false,
       onClose,
       contentRef,
       children,
@@ -121,23 +121,17 @@ const View = React.forwardRef<HTMLElement, ViewProps>(
         ref={ref}
         {...regionProps}
         className={cn(
-          'flex min-h-0 min-w-0 flex-col bg-background text-foreground',
-          'not-first:border-l',
-          'border-ulb-grey-200 dark:border-border',
+          'flex min-h-0 min-w-0 flex-1 flex-col bg-background text-foreground',
           className
         )}
-        style={{
-          flex: `${defaultSize} 1 0%`,
-          ...(minSize !== undefined ? { minWidth: `${minSize}%` } : undefined),
-          ...style
-        }}
+        style={style}
         {...props}
       >
         {/* ---- Header: fixed, does not scroll ---- */}
-        <div className="shrink-0 px-6 pt-4">
-          <header className="flex min-h-9 items-center gap-3 border-b border-ulb-grey-200 pb-4 dark:border-border">
+        <div className="shrink-0">
+          <header className="box-content flex min-h-9 items-center gap-3 border-b border-ulb-grey-200 pb-4 dark:border-border">
             {headerTitle !== undefined && (
-              <span id={titleId} className="shrink-0 text-lg">
+              <span id={titleId} className={cn('shrink-0 text-lg', pinned && 'pl-4')}>
                 {headerTitle}
               </span>
             )}
@@ -184,7 +178,10 @@ const View = React.forwardRef<HTMLElement, ViewProps>(
         <div
           ref={contentRef}
           tabIndex={0}
-          className="min-h-0 flex-1 overflow-auto px-6 py-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-scdh-blue-700"
+          className={cn(
+            'min-h-0 flex-1 overflow-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-scdh-blue-700',
+            pinned ? 'bg-ulb-grey-050 p-4 dark:bg-secondary' : 'py-4'
+          )}
         >
           {modes ? currentMode?.content : children}
         </div>

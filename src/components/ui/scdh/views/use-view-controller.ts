@@ -3,6 +3,9 @@ import * as React from 'react'
 import { useControllableState } from '@/hooks/use-controllable-state'
 import type { ViewMode } from './view'
 
+/** At most this many views can be open next to the pinned ones. */
+export const MAX_VIEWS = 3
+
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -14,12 +17,11 @@ export interface ViewState {
   /** Modes of this view; falls back to the controller's `modes`. A single mode shows no selection. */
   modes?: ViewMode[]
   /**
-   * Pins the view: it can not be closed and, on tablet and desktop, stays in place while the other
-   * views are paged through. On small screens it is the first page of the swipe.
+   * Pins the view (meant for "Metadaten", pin only one): it can not be closed, is narrower than the
+   * others and stays in place while the other views are paged through. Where there is no room for
+   * it next to a view, it is the first page of the swipe.
    */
   pinned?: boolean
-  /** Relative share of the available space next to other views (flex-grow). Default 1. */
-  size?: number
 }
 
 export interface UseViewControllerOptions {
@@ -40,14 +42,19 @@ export interface ViewControllerApi {
   views: ViewState[]
   minViews: number
   /**
-   * Id of the active view: the visible one on small screens, the first visible one of the paged
-   * views on tablet and desktop.
+   * Id of the active view: the one in front of the paged views (when all views fit, it may also
+   * be further along).
    */
   activeId: string | undefined
   /** `true` if the view may be closed: it is not pinned and more than `minViews` views are open. */
   canClose: (id: string) => boolean
-  /** Opens a new view (in the given mode, default: first mode) and makes it active. Returns its id. */
-  addView: (modeId?: string) => string
+  /** `true` while fewer than 3 views are open next to the pinned ones, so one more can be added. */
+  canAdd: boolean
+  /**
+   * Opens a new view (in the given mode, default: first mode) and makes it active. Returns its id,
+   * or `undefined` when 3 views are open already (see `canAdd`).
+   */
+  addView: (modeId?: string) => string | undefined
   closeView: (id: string) => void
   setActive: (id: string) => void
   setMode: (id: string, modeId: string) => void
@@ -92,6 +99,7 @@ export function useViewController({
   const counter = React.useRef(0)
 
   const canClose = (id: string) => views.length > minViews && !views.find(v => v.id === id)?.pinned
+  const canAdd = views.filter(v => !v.pinned).length < MAX_VIEWS
 
   const update = (id: string, patch: Partial<ViewState>) =>
     setViews(views.map(v => (v.id === id ? { ...v, ...patch } : v)))
@@ -102,7 +110,9 @@ export function useViewController({
     minViews,
     activeId,
     canClose,
+    canAdd,
     addView: modeId => {
+      if (!canAdd) return undefined
       let id: string
       do {
         counter.current += 1

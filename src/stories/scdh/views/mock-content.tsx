@@ -69,7 +69,7 @@ const METADATA: [string, string[]][] = [
 
 export function Metadata() {
   return (
-    <dl className="flex flex-col gap-3 rounded-md bg-ulb-grey-050 p-4 text-md dark:bg-secondary">
+    <dl className="flex flex-col gap-3 text-md">
       {METADATA.map(([term, values]) => (
         <div key={term}>
           <dt className="font-medium">{term}</dt>
