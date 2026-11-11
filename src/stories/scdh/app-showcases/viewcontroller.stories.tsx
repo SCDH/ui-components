@@ -45,6 +45,35 @@ const LETTERS = [
   'PersonB an PersonD'
 ].map((label, i) => ({ id: `letter-${i}`, label }))
 
+/**
+ * Place and look of the sidebar button. Open and collapsed it is the same tertiary button in the
+ * same place, only its icon changes.
+ */
+function buttonLook(button: HTMLElement) {
+  const { left, top } = button.getBoundingClientRect()
+  const { backgroundColor, borderTopColor } = getComputedStyle(button)
+  return { left, top, backgroundColor, borderTopColor }
+}
+
+/**
+ * Watches the place of the sidebar button for `ms`, frame by frame: returns the frames in which no
+ * sidebar button could be clicked there (moved away, cut off or covered).
+ */
+function framesWithoutButton(place: { left: number; top: number }, ms: number) {
+  return new Promise<number[]>(resolve => {
+    const missing: number[] = []
+    const start = performance.now()
+    const check = () => {
+      const elapsed = performance.now() - start
+      const hit = document.elementFromPoint(place.left + 18, place.top + 18)
+      if (!hit?.closest('button[aria-label^="Seitenleiste"]')) missing.push(Math.round(elapsed))
+      if (elapsed < ms) requestAnimationFrame(check)
+      else resolve(missing)
+    }
+    requestAnimationFrame(check)
+  })
+}
+
 function LetterList() {
   return <EntryList entries={LETTERS} defaultValue="letter-0" aria-label="Alle Briefe" />
 }
@@ -63,7 +92,7 @@ function ViewerPage({ initialViewId }: { initialViewId?: string }) {
   return (
     <div className="flex h-full flex-col bg-background text-foreground">
       {/* Mobile: trigger, centred bold title and an icon button; desktop: title with date */}
-      <div className="flex shrink-0 items-center justify-between gap-4 px-6 pt-6 pb-2 md:items-start md:pb-6 md:pl-8">
+      <div className="flex shrink-0 items-center justify-between gap-4 px-6 pt-6 pb-2 md:items-start md:pb-6">
         <div className="flex min-w-0 flex-1 items-center gap-4 md:flex-none md:items-start">
           {/* Shown while the sidebar is collapsed: brings it back */}
           <SidebarTrigger />
@@ -151,7 +180,11 @@ export const Demo: Story = {
     const letters = canvas.getByRole('navigation', { name: 'Alle Briefe' })
     const views = canvasElement.querySelector('main')!
     const widthWithSidebar = views.getBoundingClientRect().width
-    await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste einklappen' }))
+    const toggle = canvas.getByRole('button', { name: 'Seitenleiste einklappen' })
+    const openLook = buttonLook(toggle)
+    await userEvent.click(toggle)
+    // While the sidebar closes (animated), the button stays where it is
+    await expect(await framesWithoutButton(openLook, 500)).toEqual([])
     await waitFor(() =>
       expect(views.getBoundingClientRect().width).toBeGreaterThan(widthWithSidebar + 50)
     )
@@ -163,6 +196,10 @@ export const Demo: Story = {
       canvas.queryByRole('button', { name: 'Seitenleiste einklappen' })
     ).not.toBeInTheDocument()
     await expect(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' })).toBeVisible()
+    // The button stays in place and keeps its look, only the icon changes
+    await expect(
+      buttonLook(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
+    ).toEqual(openLook)
     await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
     await waitFor(() =>
       expect(Math.abs(views.getBoundingClientRect().width - widthWithSidebar)).toBeLessThan(2)
@@ -223,9 +260,20 @@ export const Mobile: Story = {
 
     // The list starts closed; the trigger next to the title opens it as an overlay
     await expect(canvas.queryByRole('navigation', { name: 'Alle Briefe' })).not.toBeInTheDocument()
+    const collapsedLook = buttonLook(
+      canvas.getByRole('button', { name: 'Seitenleiste ausklappen' })
+    )
     await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
+    // The button in the overlay is in the same place and looks the same, only the icon changes
+    await expect(
+      buttonLook(canvas.getByRole('button', { name: 'Seitenleiste einklappen' }))
+    ).toEqual(collapsedLook)
     const letters = canvas.getByRole('navigation', { name: 'Alle Briefe' })
     await expect(letters).toBeVisible()
+    // The label in the overlay is regular, as on desktop
+    await expect(
+      getComputedStyle(canvas.getByRole('heading', { name: 'Alle Briefe' })).fontWeight
+    ).toBe('400')
     const aside = canvasElement.querySelector('aside')!
     const menubar = canvasElement.querySelector('nav')!.getBoundingClientRect()
     const panel = aside.getBoundingClientRect()

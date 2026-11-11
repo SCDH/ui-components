@@ -350,7 +350,7 @@ export const CollapsibleSidebar: Story = {
       sidebarTitle="Alle Briefe"
       footer={footerContent}
     >
-      <div className="flex items-center gap-4 px-8 pt-8">
+      <div className="flex items-center gap-4 px-6 pt-6">
         <SidebarTrigger />
         <h1 className="text-2xl font-bold text-ulb-grey-900">Willkommen</h1>
       </div>
@@ -367,10 +367,14 @@ export const CollapsibleSidebar: Story = {
 
     await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste einklappen' }))
     await expect(canvas.getByText('Autoren')).not.toBeVisible()
-    await expect(canvas.queryByRole('heading', { name: 'Alle Briefe' })).not.toBeInTheDocument()
+    // The header goes once the sidebar has closed (animated)
+    await waitFor(() =>
+      expect(canvas.queryByRole('heading', { name: 'Alle Briefe' })).not.toBeInTheDocument()
+    )
 
     await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
-    await expect(canvas.getByText('Autoren')).toBeVisible()
+    // The content fades in
+    await waitFor(() => expect(canvas.getByText('Autoren')).toBeVisible())
   }
 }
 

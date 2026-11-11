@@ -11,6 +11,12 @@ import { Button } from '@/components/ui/button'
 
 type SidebarContextValue = {
   isCollapsed: boolean
+  /**
+   * `true` while the sidebar is still animating closed: until then the toggle in it stays in
+   * place and the `SidebarTrigger` only keeps its spot free.
+   */
+  isClosing: boolean
+  setClosing: (closing: boolean) => void
   setCollapsed: (collapsed: boolean) => void
   toggle: () => void
 }
@@ -52,9 +58,17 @@ function SidebarProvider({
     defaultValue: defaultCollapsed,
     onChange: onCollapsedChange
   })
+  const [closing, setClosing] = React.useState(false)
+  const isClosing = isCollapsed && closing
   const value = React.useMemo(
-    () => ({ isCollapsed, setCollapsed, toggle: () => setCollapsed(!isCollapsed) }),
-    [isCollapsed, setCollapsed]
+    () => ({
+      isCollapsed,
+      isClosing,
+      setClosing,
+      setCollapsed,
+      toggle: () => setCollapsed(!isCollapsed)
+    }),
+    [isCollapsed, isClosing, setCollapsed]
   )
 
   return <SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>
@@ -74,13 +88,42 @@ export interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
 
 const SidebarAside = React.forwardRef<HTMLElement, SidebarProps>(
   ({ mobile = 'hidden', className, children, ...props }, ref) => {
-    const { isCollapsed } = useSidebar()
+    const { isCollapsed, setClosing } = useSidebar()
+    const asideRef = React.useRef<HTMLElement>(null)
+    React.useImperativeHandle(ref, () => asideRef.current!)
+
+    // Closing animates the width (not on small screens, not with reduced motion): note when it is
+    // over, so the `SidebarTrigger` takes over from the toggle only then
+    React.useLayoutEffect(() => {
+      const aside = asideRef.current
+      if (!isCollapsed || !aside) return
+      const style = getComputedStyle(aside)
+      const animates =
+        style.display !== 'none' &&
+        aside.getBoundingClientRect().width > 0 &&
+        parseFloat(style.transitionDuration) > 0
+      if (!animates) return
+      setClosing(true)
+      const done = () => setClosing(false)
+      const onEnd = (event: TransitionEvent) => {
+        if (event.target === aside && event.propertyName === 'width') done()
+      }
+      // In case the transition is cut short and never ends
+      const timer = setTimeout(done, parseFloat(style.transitionDuration) * 1000 + 200)
+      aside.addEventListener('transitionend', onEnd)
+      return () => {
+        clearTimeout(timer)
+        aside.removeEventListener('transitionend', onEnd)
+        done()
+      }
+    }, [isCollapsed, setClosing])
 
     return (
       <aside
-        ref={ref}
+        ref={asideRef}
         className={cn(
-          'flex-col bg-ulb-grey-050 border-r border-ulb-grey-200 overflow-hidden transition-[width] duration-300',
+          // Not clipped: while closing, the toggle stays visible in its place (the content clips)
+          'flex-col bg-ulb-grey-050 border-r border-ulb-grey-200 transition-[width] duration-300 motion-reduce:transition-none',
           'md:flex md:h-[calc(100vh-var(--header-height,80px))] md:sticky md:top-[var(--header-height,80px)]',
           mobile === 'overlay'
             ? 'max-md:absolute max-md:inset-y-0 max-md:left-0 max-md:z-20 max-md:flex max-md:w-60'
@@ -114,6 +157,12 @@ Sidebar.displayName = 'Sidebar'
 // SidebarToggle — collapse/expand button inside the sidebar
 // ---------------------------------------------------------------------------
 
+/**
+ * `SidebarToggle` and `SidebarTrigger` act as one button that only swaps its icon, so pressing it
+ * shows no state of its own beyond the hover.
+ */
+const noPressedState = 'active:bg-ulb-grey-100'
+
 const SidebarToggle = React.forwardRef<HTMLButtonElement, React.HTMLAttributes<HTMLButtonElement>>(
   ({ className, ...props }, ref) => {
     const { isCollapsed, toggle } = useSidebar()
@@ -125,7 +174,7 @@ const SidebarToggle = React.forwardRef<HTMLButtonElement, React.HTMLAttributes<H
         size="icon"
         onClick={toggle}
         aria-label={isCollapsed ? 'Seitenleiste ausklappen' : 'Seitenleiste einklappen'}
-        className={cn('self-end m-2 flex-shrink-0', className)}
+        className={cn('relative z-10 self-end m-2 flex-shrink-0', noPressedState, className)}
         {...props}
       >
         {isCollapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
@@ -141,21 +190,24 @@ SidebarToggle.displayName = 'SidebarToggle'
 
 /**
  * Button that opens a collapsed sidebar. Place it in the header of the main content, next to the
- * page title. It is only shown while the sidebar is collapsed.
+ * page title, 24px from the top and the left: that is where the `SidebarToggle` in the
+ * `SidebarHeader` sits, so the button seems to stay in place and only swap its icon. It is only
+ * shown while the sidebar is collapsed.
  */
 const SidebarTrigger = React.forwardRef<HTMLButtonElement, React.HTMLAttributes<HTMLButtonElement>>(
   ({ className, ...props }, ref) => {
-    const { isCollapsed, setCollapsed } = useSidebar()
+    const { isCollapsed, isClosing, setCollapsed } = useSidebar()
     if (!isCollapsed) return null
 
     return (
       <Button
         ref={ref}
-        variant="secondary"
+        variant="tertiary"
         size="icon"
         onClick={() => setCollapsed(false)}
         aria-label="Seitenleiste ausklappen"
-        className={cn('shrink-0', className)}
+        // While the sidebar closes, the toggle in it is still in this place
+        className={cn('shrink-0', isClosing && 'invisible', noPressedState, className)}
         {...props}
       >
         <PanelLeftOpen className="size-4" />
@@ -174,17 +226,18 @@ SidebarTrigger.displayName = 'SidebarTrigger'
  */
 const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, children, ...props }, ref) => {
-    const { isCollapsed } = useSidebar()
-    if (isCollapsed) return null
+    const { isCollapsed, isClosing } = useSidebar()
+    if (isCollapsed && !isClosing) return null
 
     return (
       <div
         ref={ref}
-        className={cn('flex shrink-0 items-center gap-4 px-6 py-4 max-md:px-5', className)}
+        // The toggle sits 24px from the top and the left, where the `SidebarTrigger` takes over
+        className={cn('flex shrink-0 items-center gap-4 px-6 pt-6 pb-4', className)}
         {...props}
       >
         <SidebarToggle className="m-0 self-auto" />
-        <h2 className="truncate text-lg font-normal whitespace-nowrap text-foreground max-md:font-bold">
+        <h2 className="min-w-0 truncate text-lg font-normal whitespace-nowrap text-foreground">
           {children}
         </h2>
       </div>
@@ -205,7 +258,7 @@ const SidebarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTM
       <div
         ref={ref}
         className={cn(
-          'flex-1 overflow-y-auto px-6 pb-4 transition-opacity duration-300 max-md:px-5',
+          'flex-1 overflow-x-hidden overflow-y-auto px-6 pb-4 transition-opacity duration-300 max-md:px-5',
           isCollapsed ? 'opacity-0 invisible' : 'opacity-100',
           className
         )}
