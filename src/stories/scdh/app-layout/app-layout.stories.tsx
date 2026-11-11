@@ -1,7 +1,7 @@
 import * as React from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { HelpCircleIcon, LogInIcon } from 'lucide-react'
-import { expect, userEvent, within } from 'storybook/test'
+import { expect, userEvent, waitFor, within } from 'storybook/test'
 import { AppLayout } from '@/components/ui/scdh/app-layout'
 import type { TopNavItem } from '@/components/ui/scdh/app-layout'
 import { Button } from '@/components/ui/button'
@@ -371,5 +371,95 @@ export const CollapsibleSidebar: Story = {
 
     await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
     await expect(canvas.getByText('Autoren')).toBeVisible()
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Crossing the mobile breakpoint
+// ---------------------------------------------------------------------------
+
+/**
+ * Stands in for the viewport in a test: answers the mobile media query of `useIsMobile` and
+ * switches it on demand, as resizing the window across 768px would.
+ */
+function fakeMobileQuery() {
+  const original = window.matchMedia
+  const listeners = new Set<(event: MediaQueryListEvent) => void>()
+  let matches = false
+  window.matchMedia = query => {
+    if (!query.includes('max-width: 767px')) return original.call(window, query)
+    return {
+      get matches() {
+        return matches
+      },
+      media: query,
+      onchange: null,
+      addEventListener: (_: string, l: (event: MediaQueryListEvent) => void) => listeners.add(l),
+      removeEventListener: (_: string, l: (event: MediaQueryListEvent) => void) =>
+        listeners.delete(l),
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false
+    } as MediaQueryList
+  }
+  return {
+    setMobile(mobile: boolean) {
+      matches = mobile
+      listeners.forEach(l => l({ matches: mobile } as MediaQueryListEvent))
+    },
+    restore() {
+      window.matchMedia = original
+    }
+  }
+}
+
+let viewport: ReturnType<typeof fakeMobileQuery> | undefined
+
+function Counter() {
+  const [count, setCount] = React.useState(0)
+  return (
+    <Button variant="secondary" onClick={() => setCount(c => c + 1)}>
+      Gezählt: {count}
+    </Button>
+  )
+}
+
+/**
+ * Switching between the desktop and the mobile layout (resizing the window across 768px) keeps
+ * what the content holds, e.g. the open views of a `ViewController`. Only the sidebar starts over:
+ * open next to the content on desktop, closed as an overlay on mobile. In this story the switch is
+ * simulated, the window size has no effect.
+ */
+export const KeepsContentAcrossBreakpoint: Story = {
+  beforeEach: () => {
+    viewport = fakeMobileQuery()
+    return () => viewport?.restore()
+  },
+  render: () => (
+    <AppLayout title="SCDH UI Components" sidebar={sidebarContent} sidebarTitle="Alle Briefe">
+      <div className="flex items-center gap-4 p-8">
+        <SidebarTrigger />
+        <Counter />
+      </div>
+    </AppLayout>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Gezählt: 0' }))
+    await expect(canvas.getByRole('button', { name: 'Gezählt: 1' })).toBeVisible()
+
+    // To mobile: the content keeps its state, the sidebar overlay starts closed
+    viewport!.setMobile(true)
+    await expect(await canvas.findByRole('button', { name: 'Menü öffnen' })).toBeVisible()
+    await expect(canvas.getByRole('button', { name: 'Gezählt: 1' })).toBeVisible()
+    await expect(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' })).toBeVisible()
+
+    // Back to desktop: still the same state, the sidebar is open again
+    viewport!.setMobile(false)
+    await waitFor(() =>
+      expect(canvas.queryByRole('button', { name: 'Menü öffnen' })).not.toBeInTheDocument()
+    )
+    await expect(canvas.getByRole('button', { name: 'Gezählt: 1' })).toBeVisible()
+    await expect(canvas.getByRole('button', { name: 'Seitenleiste einklappen' })).toBeVisible()
   }
 }
