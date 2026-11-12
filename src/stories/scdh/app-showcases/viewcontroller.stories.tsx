@@ -45,6 +45,35 @@ const LETTERS = [
   'PersonB an PersonD'
 ].map((label, i) => ({ id: `letter-${i}`, label }))
 
+/**
+ * Place and look of the sidebar button. Open and collapsed it is the same tertiary button in the
+ * same place, only its icon changes.
+ */
+function buttonLook(button: HTMLElement) {
+  const { left, top } = button.getBoundingClientRect()
+  const { backgroundColor, borderTopColor } = getComputedStyle(button)
+  return { left, top, backgroundColor, borderTopColor }
+}
+
+/**
+ * Watches the place of the sidebar button for `ms`, frame by frame: returns the frames in which no
+ * sidebar button could be clicked there (moved away, cut off or covered).
+ */
+function framesWithoutButton(place: { left: number; top: number }, ms: number) {
+  return new Promise<number[]>(resolve => {
+    const missing: number[] = []
+    const start = performance.now()
+    const check = () => {
+      const elapsed = performance.now() - start
+      const hit = document.elementFromPoint(place.left + 18, place.top + 18)
+      if (!hit?.closest('button[aria-label^="Seitenleiste"]')) missing.push(Math.round(elapsed))
+      if (elapsed < ms) requestAnimationFrame(check)
+      else resolve(missing)
+    }
+    requestAnimationFrame(check)
+  })
+}
+
 function LetterList() {
   return <EntryList entries={LETTERS} defaultValue="letter-0" aria-label="Alle Briefe" />
 }
@@ -63,7 +92,7 @@ function ViewerPage({ initialViewId }: { initialViewId?: string }) {
   return (
     <div className="flex h-full flex-col bg-background text-foreground">
       {/* Mobile: trigger, centred bold title and an icon button; desktop: title with date */}
-      <div className="flex shrink-0 items-center justify-between gap-4 px-6 pt-6 pb-2 md:items-start md:pb-6 md:pl-8">
+      <div className="flex shrink-0 items-center justify-between gap-4 px-6 pt-6 pb-2 md:items-start md:pb-6">
         <div className="flex min-w-0 flex-1 items-center gap-4 md:flex-none md:items-start">
           {/* Shown while the sidebar is collapsed: brings it back */}
           <SidebarTrigger />
@@ -77,13 +106,14 @@ function ViewerPage({ initialViewId }: { initialViewId?: string }) {
         <Button
           variant="secondary"
           className="text-foreground max-md:w-9 max-md:px-0 md:text-scdh-blue-500"
+          disabled={!controller.canAdd}
           onClick={() => controller.addView()}
         >
           <Plus className="md:hidden" aria-hidden />
           <span className="max-md:sr-only">Ansicht hinzufügen</span>
         </Button>
       </div>
-      <div className="min-h-0 flex-1 md:px-10">
+      <div className="min-h-0 flex-1">
         <ViewController controller={controller} closable />
       </div>
     </div>
@@ -94,6 +124,8 @@ function ViewerApp({ initialViewId }: { initialViewId?: string }) {
   return (
     <AppLayout
       fillViewport
+      // The Storybook iframe sizes its root to the content; the ViewController needs a set width
+      className="w-screen"
       logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
       title="Präsentator"
       sidebar={<LetterList />}
@@ -124,9 +156,10 @@ function ViewerApp({ initialViewId }: { initialViewId?: string }) {
 }
 
 /**
- * A letter viewer: title and "Ansicht hinzufügen" above the views. On desktop up to 3 views are
- * visible (the pinned "Metadaten" and 2 others), on tablet 2, on mobile 1. With more views a
- * `Pager` appears. Resize the window or switch the viewport to see the layouts.
+ * A letter viewer: title and "Ansicht hinzufügen" above the views. Up to 3 views can be open
+ * next to the pinned "Metadaten"; as many as the width allows sit side by side, on a narrow
+ * screen 1 at a time. Views that do not fit are reached with a `Pager`. Resize the window, switch
+ * the viewport or collapse the sidebar to see the layouts.
  */
 export const Demo: Story = {
   render: () => <ViewerApp />,
@@ -145,10 +178,15 @@ export const Demo: Story = {
 
     // Collapsing the sidebar gives the views more width, expanding takes it back
     const letters = canvas.getByRole('navigation', { name: 'Alle Briefe' })
-    const widthWithSidebar = reading.getBoundingClientRect().width
-    await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste einklappen' }))
+    const views = canvasElement.querySelector('main')!
+    const widthWithSidebar = views.getBoundingClientRect().width
+    const toggle = canvas.getByRole('button', { name: 'Seitenleiste einklappen' })
+    const openLook = buttonLook(toggle)
+    await userEvent.click(toggle)
+    // While the sidebar closes (animated), the button stays where it is
+    await expect(await framesWithoutButton(openLook, 500)).toEqual([])
     await waitFor(() =>
-      expect(reading.getBoundingClientRect().width).toBeGreaterThan(widthWithSidebar + 50)
+      expect(views.getBoundingClientRect().width).toBeGreaterThan(widthWithSidebar + 50)
     )
     await expect(letters).not.toBeVisible()
     // The sidebar is gone completely; only the trigger next to the title remains
@@ -158,9 +196,13 @@ export const Demo: Story = {
       canvas.queryByRole('button', { name: 'Seitenleiste einklappen' })
     ).not.toBeInTheDocument()
     await expect(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' })).toBeVisible()
+    // The button stays in place and keeps its look, only the icon changes
+    await expect(
+      buttonLook(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
+    ).toEqual(openLook)
     await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
     await waitFor(() =>
-      expect(Math.abs(reading.getBoundingClientRect().width - widthWithSidebar)).toBeLessThan(2)
+      expect(Math.abs(views.getBoundingClientRect().width - widthWithSidebar)).toBeLessThan(2)
     )
     await expect(letters).toBeVisible()
 
@@ -176,13 +218,12 @@ export const Demo: Story = {
     await expect(canvas.getByRole('heading', { name: 'PersonB an PersonA' })).toBeVisible()
     await expect(canvas.queryAllByRole('region')).toHaveLength(3)
 
-    // Adding a view operates the controller; a fourth view needs the pager
-    await expect(
-      canvas.queryByRole('navigation', { name: 'Ansicht wechseln' })
-    ).not.toBeInTheDocument()
-    await userEvent.click(canvas.getByRole('button', { name: 'Ansicht hinzufügen' }))
+    // Adding a view operates the controller (whether a pager is needed depends on the width, see
+    // the ViewController stories). With 3 views next to "Metadaten" no more can be added.
+    const add = canvas.getByRole('button', { name: 'Ansicht hinzufügen' })
+    await userEvent.click(add)
     await expect(canvas.queryAllByRole('region')).toHaveLength(4)
-    await expect(canvas.getByRole('navigation', { name: 'Ansicht wechseln' })).toBeInTheDocument()
+    await expect(add).toBeDisabled()
     await expect(document.scrollingElement!.scrollHeight).toBeLessThanOrEqual(window.innerHeight)
   }
 }
@@ -219,9 +260,20 @@ export const Mobile: Story = {
 
     // The list starts closed; the trigger next to the title opens it as an overlay
     await expect(canvas.queryByRole('navigation', { name: 'Alle Briefe' })).not.toBeInTheDocument()
+    const collapsedLook = buttonLook(
+      canvas.getByRole('button', { name: 'Seitenleiste ausklappen' })
+    )
     await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
+    // The button in the overlay is in the same place and looks the same, only the icon changes
+    await expect(
+      buttonLook(canvas.getByRole('button', { name: 'Seitenleiste einklappen' }))
+    ).toEqual(collapsedLook)
     const letters = canvas.getByRole('navigation', { name: 'Alle Briefe' })
     await expect(letters).toBeVisible()
+    // The label in the overlay is regular, as on desktop
+    await expect(
+      getComputedStyle(canvas.getByRole('heading', { name: 'Alle Briefe' })).fontWeight
+    ).toBe('400')
     const aside = canvasElement.querySelector('aside')!
     const menubar = canvasElement.querySelector('nav')!.getBoundingClientRect()
     const panel = aside.getBoundingClientRect()

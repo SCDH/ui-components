@@ -56,7 +56,7 @@ Composites bundle multiple components into a cohesive, reusable building block:
 | --------- | ------------ |
 | `FacetSearch` | Complete faceted search: combines `SearchBar`, `Facet`, and `ListItem` with a search service (`SearchServiceProvider`, `useSearchService`, `useSearchFacets`). |
 | `AppLayout` | Complete app layout: combines `Header`, `Menubar`, `Sidebar`, `Footer`, and a responsive `Sheet` for mobile navigation. On mobile the header shows the title only, the menu button and actions sit in the menubar. With `sidebarTitle` the sidebar gets a header with a collapse toggle (state via `sidebarCollapsed` / `defaultSidebarCollapsed`) and on mobile becomes an overlay below the menubar; with `fillViewport` the layout fits the viewport so only the content scrolls. |
-| `ViewController` | Arranges `View`s side by side and holds their state (open views, active view; `useViewController`). Shows up to 3 views on desktop, 2 on tablet and 1 on mobile; a pinned view ("Metadaten") stays in place, with more views a `Pager` appears and the views are swiped. |
+| `ViewController` | Arranges `View`s side by side and holds their state (open views, active view; `useViewController`). Up to 3 views can be open next to the pinned "Metadaten" (`canAdd`). Fits as many of them (320–600px) next to "Metadaten" (200–300px, half a view) as its width allows and centres them once all are at their maximum; views that do not fit are reached with a `Pager`. Below 601px (24px padding included) it shows one view at a time and the views are swiped. |
 
 ---
 
@@ -182,6 +182,8 @@ export function MyApp() {
   )
 }
 ```
+
+> **ViewController (since 0.6.0):** the layout follows the width of the controller itself, not the screen size, and the column widths are fixed in the component. Therefore `visibleViews` (`ViewController`), `size` (`ViewState`) and `defaultSize` / `minSize` (`View`) are gone – remove them where you pass them. At most 3 views can be open next to the pinned "Metadaten": check `canAdd` (e.g. to disable an "add view" button); `addView` returns `undefined` when no view can be added. Place the controller where its width is set from outside (a block, a `flex-1` or `1fr` area), not in a container that shrinks to fit its content.
 
 ### Notes
 

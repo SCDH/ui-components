@@ -123,14 +123,24 @@ function AppLayout({
 }: AppLayoutProps) {
   const isMobile = useIsMobile()
 
+  // Desktop and mobile start differently: the sidebar is open next to the content on desktop, on
+  // mobile it is an overlay that starts closed. Switching between them starts the sidebar over,
+  // but not the content, which keeps its state.
+  const initialCollapsed = defaultSidebarCollapsed ?? (isMobile && !!sidebarTitle)
+  const [ownCollapsed, setOwnCollapsed] = React.useState(initialCollapsed)
+  const [wasMobile, setWasMobile] = React.useState(isMobile)
+  if (wasMobile !== isMobile) {
+    setWasMobile(isMobile)
+    setOwnCollapsed(initialCollapsed)
+  }
+
   return (
     <SidebarProvider
-      // Desktop and mobile start differently: the sidebar is open next to the content on desktop,
-      // on mobile it is an overlay that starts closed
-      key={isMobile ? 'mobile' : 'desktop'}
-      collapsed={sidebarCollapsed}
-      defaultCollapsed={defaultSidebarCollapsed ?? (isMobile && !!sidebarTitle)}
-      onCollapsedChange={onSidebarCollapsedChange}
+      collapsed={sidebarCollapsed ?? ownCollapsed}
+      onCollapsedChange={collapsed => {
+        setOwnCollapsed(collapsed)
+        onSidebarCollapsedChange?.(collapsed)
+      }}
     >
       <div
         className={cn(
