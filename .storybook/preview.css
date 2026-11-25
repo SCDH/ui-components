@@ -32,10 +32,12 @@ a:hover {
   color: #0070e4;
 }
 
-/* Headings in Storybook docs */
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* Headings in Storybook docs. In the base layer, so that utility classes (e.g. `text-2xl`) win. */
+@layer base {
+  h1 {
+    font-size: 3.2em;
+    line-height: 1.1;
+  }
 }
 
 /* Body layout for Storybook preview */
@@ -45,6 +47,12 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+}
+
+/* Fullscreen stories span the whole width: centred, they would narrow to their content (e.g. an
+   AppLayout whose sidebar collapses) */
+.sb-main-fullscreen {
+  place-items: normal;
 }
 
 /* ============================================

@@ -44,6 +44,7 @@ These components live in [`src/components/ui/scdh/`](src/components/ui/scdh/) an
 | `Menubar` | Navigation bar (`MenubarItems`, `MenubarItem`, `MenubarActions`). |
 | `Sidebar` | Sidebar with header and content (`SidebarHeader`, `SidebarToggle`, `SidebarContent`). Collapsed, it disappears completely; `SidebarTrigger` (placed next to the page title) brings it back, `SidebarProvider` shares the state. |
 | `Footer` | Footer. |
+| `NavMenu` | **Prototype.** Main menu with sub items (mobile drawer): the label leads to the item's page, the arrow next to it expands the sub items. `NavSubmenu` shows the sub items of one main item as a column (desktop), `NavMenuItem` is a single row. |
 | `EntryList` | List of entries in a card (e.g. "Alle Briefe" in the sidebar) with the selected entry on grey and a blue edge. Entries are buttons or links; controlled or uncontrolled selection. |
 | `Pager` | Compact navigation for swipeable pages: arrows plus a progress bar (tap to jump). Does not swipe itself. |
 | `View` | One view of a document: fixed header with mode selection (e.g. reading text, TEI source, facsimile) above its own scrolling content. |
@@ -55,7 +56,7 @@ Composites bundle multiple components into a cohesive, reusable building block:
 | Composite | Description |
 | --------- | ------------ |
 | `FacetSearch` | Complete faceted search: combines `SearchBar`, `Facet`, and `ListItem` with a search service (`SearchServiceProvider`, `useSearchService`, `useSearchFacets`). |
-| `AppLayout` | Complete app layout: combines `Header`, `Menubar`, `Sidebar`, `Footer`, and a responsive `Sheet` for mobile navigation. On mobile the header shows the title only, the menu button and actions sit in the menubar. With `sidebarTitle` the sidebar gets a header with a collapse toggle (state via `sidebarCollapsed` / `defaultSidebarCollapsed`) and on mobile becomes an overlay below the menubar; with `fillViewport` the layout fits the viewport so only the content scrolls. |
+| `AppLayout` | Complete app layout: combines `Header`, `Menubar`, `NavMenu`, `Sidebar` and `Footer`. On desktop the sub items of the current main item appear in a submenu column on the left. On mobile the header shows the title only, the menu button and actions sit in the menubar; the menu button opens the `NavMenu` as a drawer below the menubar. The sidebar has a header with a collapse toggle and the optional `sidebarTitle` (state via `sidebarCollapsed` / `defaultSidebarCollapsed`) and on mobile is an overlay below the menubar; with `fillViewport` the layout fits the viewport so only the content scrolls. |
 | `ViewController` | Arranges `View`s side by side and holds their state (open views, active view; `useViewController`). Up to 3 views can be open next to the pinned "Metadaten" (`canAdd`). Fits as many of them (320–600px) next to "Metadaten" (200–300px, half a view) as its width allows and centres them once all are at their maximum; views that do not fit are reached with a `Pager`. Below 601px (24px padding included) it shows one view at a time and the views are swiped. |
 
 ---

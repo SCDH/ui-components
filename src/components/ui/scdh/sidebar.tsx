@@ -191,8 +191,9 @@ SidebarToggle.displayName = 'SidebarToggle'
 /**
  * Button that opens a collapsed sidebar. Place it in the header of the main content, next to the
  * page title, 24px from the top and the left: that is where the `SidebarToggle` in the
- * `SidebarHeader` sits, so the button seems to stay in place and only swap its icon. It is only
- * shown while the sidebar is collapsed.
+ * `SidebarHeader` sits, so the button seems to stay in place and only swap its icon. Keep the row
+ * no higher than the button (36px), e.g. a title with `leading-9`, so it is not centred lower.
+ * It is only shown while the sidebar is collapsed.
  */
 const SidebarTrigger = React.forwardRef<HTMLButtonElement, React.HTMLAttributes<HTMLButtonElement>>(
   ({ className, ...props }, ref) => {
@@ -223,6 +224,7 @@ SidebarTrigger.displayName = 'SidebarTrigger'
 
 /**
  * Header row of the sidebar: the collapse toggle with the title next to it (e.g. "Alle Briefe").
+ * Without a title only the toggle is shown.
  */
 const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, children, ...props }, ref) => {
@@ -237,9 +239,11 @@ const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTML
         {...props}
       >
         <SidebarToggle className="m-0 self-auto" />
-        <h2 className="min-w-0 truncate text-lg font-normal whitespace-nowrap text-foreground">
-          {children}
-        </h2>
+        {children && (
+          <h2 className="min-w-0 truncate text-lg font-normal whitespace-nowrap text-foreground">
+            {children}
+          </h2>
+        )}
       </div>
     )
   }
