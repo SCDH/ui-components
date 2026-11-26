@@ -6,7 +6,7 @@ import { AppLayout } from '@/components/ui/scdh/app-layout'
 import type { TopNavItem } from '@/components/ui/scdh/app-layout'
 import { Button } from '@/components/ui/button'
 import { SidebarTrigger } from '@/components/ui/scdh/sidebar'
-import { Facet, SearchBar, ListItem } from '@/components/ui/scdh'
+import { EntryList, Facet, SearchBar, ListItem } from '@/components/ui/scdh'
 import logoSrc from '@/assets/logo_uni_ms.svg'
 import { FACET_GROUPS, SEARCH_RESULTS } from './mock-data'
 
@@ -29,16 +29,54 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
+/** Viewports the stories open in (Storybook 10: `globals`, no longer `parameters`). */
+const DESKTOP = { viewport: { value: 'desktop', isRotated: false } }
+const TABLET = { viewport: { value: 'tablet', isRotated: false } }
+const MOBILE = { viewport: { value: 'mobile2', isRotated: false } }
+
 // ---------------------------------------------------------------------------
 // Static data (hoisted per rerender-no-inline-components)
 // ---------------------------------------------------------------------------
 
-const NAV_ITEMS = [
+interface NavItemDef {
+  id: string
+  label: string
+  /** `false`: the item has no page of its own, it only groups its sub items. */
+  ownPage?: boolean
+  children?: { id: string; label: string }[]
+}
+
+const NAV_ITEMS: NavItemDef[] = [
   { id: 'home', label: 'Home' },
   { id: 'search', label: 'Suche' },
-  { id: 'collections', label: 'Sammlungen' },
-  { id: 'about', label: 'Über uns' }
-] as const
+  {
+    id: 'collections',
+    label: 'Sammlungen',
+    children: [
+      { id: 'manuscripts', label: 'Handschriften' },
+      { id: 'incunabula', label: 'Inkunabeln' },
+      { id: 'charters', label: 'Urkunden' },
+      { id: 'maps', label: 'Karten & Pläne' }
+    ]
+  },
+  {
+    id: 'about',
+    label: 'Über uns',
+    ownPage: false,
+    children: [
+      { id: 'project', label: 'Projekt' },
+      { id: 'team', label: 'Team' },
+      { id: 'contact', label: 'Kontakt' }
+    ]
+  }
+]
+
+/** Main items without sub items (design "MobileMenu"). */
+const FLAT_NAV_ITEMS: NavItemDef[] = [
+  { id: 'overview', label: 'Übersicht' },
+  { id: 'data', label: 'Daten' },
+  { id: 'search', label: 'Suche' }
+]
 
 const actionButtons = (
   <>
@@ -51,31 +89,17 @@ const actionButtons = (
   </>
 )
 
-const sidebarContent = (
-  <nav className="flex flex-col gap-0.5 p-4">
-    <a href="#" className="px-3 py-2 rounded-md text-md text-ulb-grey-800 hover:bg-ulb-grey-100">
-      Autoren
-    </a>
-    <a href="#" className="px-3 py-2 rounded-md text-md text-ulb-grey-800 hover:bg-ulb-grey-100">
-      Regionen
-    </a>
-    <a
-      href="#"
-      className="px-3 py-2 rounded-md text-md text-scdh-blue-700 font-medium hover:bg-ulb-grey-100"
-    >
-      Epochen
-    </a>
-    <a href="#" className="px-3 py-2 rounded-md text-md text-ulb-grey-800 hover:bg-ulb-grey-100">
-      Werke
-    </a>
-    <a href="#" className="px-3 py-2 rounded-md text-md text-ulb-grey-800 hover:bg-ulb-grey-100">
-      Sammlungen
-    </a>
-    <a href="#" className="px-3 py-2 rounded-md text-md text-ulb-grey-800 hover:bg-ulb-grey-100">
-      Institutionen
-    </a>
-  </nav>
-)
+/** Content of the sidebar: the list of all letters (the title "Alle Briefe" comes from AppLayout). */
+const LETTERS = [
+  'PersonB an PersonA',
+  'PersonA an PersonB',
+  'PersonC an PersonA',
+  'PersonA an PersonC',
+  'PersonD an PersonB',
+  'PersonB an PersonD'
+].map((label, i) => ({ id: `letter-${i}`, label }))
+
+const letterList = <EntryList entries={LETTERS} defaultValue="letter-0" aria-label="Alle Briefe" />
 
 const footerContent = (
   <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-ulb-grey-600">
@@ -90,6 +114,8 @@ const footerContent = (
     </nav>
   </div>
 )
+
+const logoImage = <img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />
 
 const MainContent = () => (
   <div className="p-8">
@@ -112,28 +138,60 @@ const MainContent = () => (
   </div>
 )
 
+/** Content with the button that opens the collapsed sidebar next to the title. */
+const ContentWithSidebarTrigger = () => (
+  <>
+    <div className="flex items-center gap-4 px-6 pt-6">
+      <SidebarTrigger />
+      {/* No higher than the button, so it stays where the toggle in the sidebar was */}
+      <h1 className="text-2xl leading-9 font-bold text-ulb-grey-900">Briefe</h1>
+    </div>
+    <MainContent />
+  </>
+)
+
 // ---------------------------------------------------------------------------
 // Faceted search demo — static data for visual demonstration only
 // ---------------------------------------------------------------------------
 
-const facetedSidebarContent = (
-  <div className="flex flex-col">
-    {FACET_GROUPS.map(group => (
-      <Facet
-        key={group.value}
-        title={group.title}
-        items={group.items}
-        collapsible
-        defaultExpanded={group.defaultExpanded}
-        className="border-0 shadow-none bg-transparent"
-      />
-    ))}
-  </div>
-)
+/** The facets as in `FacetSearch`; the selection is only remembered, nothing is searched. */
+function FacetedSidebarContent() {
+  const [selected, setSelected] = React.useState<Record<string, string[]>>({})
+  const toggle = (group: string, value: string) =>
+    setSelected(current => {
+      const values = current[group] ?? []
+      return {
+        ...current,
+        [group]: values.includes(value) ? values.filter(v => v !== value) : [...values, value]
+      }
+    })
+
+  return (
+    <div className="flex flex-col gap-4">
+      {FACET_GROUPS.map(group => (
+        <Facet
+          key={group.value}
+          title={group.title}
+          items={group.items.map(item => ({
+            ...item,
+            isSelected: selected[group.value]?.includes(item.value)
+          }))}
+          selectionMode="checkbox"
+          collapsible
+          defaultExpanded={group.defaultExpanded}
+          onToggle={value => toggle(group.value, value)}
+        />
+      ))}
+    </div>
+  )
+}
 
 const SearchResultsContent = () => (
-  <div className="p-8">
-    <SearchBar placeholder="Volltextsuche im Katalog..." className="mb-6" />
+  <div className="px-6 pt-6 pb-8">
+    <div className="mb-6 flex items-center gap-4">
+      <SidebarTrigger />
+      <SearchBar placeholder="Volltextsuche im Katalog..." className="flex-1" />
+    </div>
     <p className="text-sm text-ulb-grey-600 mb-4">{SEARCH_RESULTS.length} Ergebnisse</p>
     <div className="flex flex-col gap-4">
       {SEARCH_RESULTS.map((item, i) => (
@@ -148,14 +206,16 @@ const SearchResultsContent = () => (
 //
 // Simulates the production pattern where active state is derived from the
 // current URL (via NavLink / useLocation). In Storybook we track it with
-// local state so clicking a nav item visibly marks it as active in both
-// the desktop Menubar and the mobile Sheet.
+// local state so clicking a nav item visibly marks it as active in the
+// desktop Menubar, the submenu and the mobile menu.
 // ---------------------------------------------------------------------------
 
 interface SelectableAppLayoutProps extends Omit<
   import('@/components/ui/scdh/app-layout').AppLayoutProps,
   'topNavItems' | 'title'
 > {
+  /** The menu items, by default with sub items. */
+  navItems?: NavItemDef[]
   /** ID of the initially active nav item, or undefined for none. */
   initialActiveId?: string
   /** Whether to show the action buttons (Help, Login). */
@@ -163,6 +223,7 @@ interface SelectableAppLayoutProps extends Omit<
 }
 
 function SelectableAppLayout({
+  navItems = NAV_ITEMS,
   initialActiveId = 'home',
   showActions = true,
   sidebar,
@@ -180,14 +241,21 @@ function SelectableAppLayout({
   // Derive topNavItems during render (rerender-derived-state-no-effect)
   const topNavItems: TopNavItem[] = React.useMemo(
     () => [
-      ...NAV_ITEMS.map(item => ({
+      ...navItems.map(item => ({
         label: item.label,
-        isActive: activeId === item.id,
-        onClick: () => handleSelect(item.id)
+        ...(item.ownPage !== false && {
+          isActive: activeId === item.id,
+          onClick: () => handleSelect(item.id)
+        }),
+        children: item.children?.map(child => ({
+          label: child.label,
+          isActive: activeId === child.id,
+          onClick: () => handleSelect(child.id)
+        }))
       })),
       ...(showActions ? [{ label: '', actions: actionButtons }] : [])
     ],
-    [activeId, handleSelect, showActions]
+    [navItems, activeId, handleSelect, showActions]
   )
 
   return (
@@ -205,95 +273,423 @@ function SelectableAppLayout({
 }
 
 // ---------------------------------------------------------------------------
-// Stories
+// Test helpers
 // ---------------------------------------------------------------------------
 
-/**
- * Full desktop layout with Header, Menubar, Sidebar, Content, and Footer.
- * - Header: Logo + centered title
- * - Menubar: Nav items left, action buttons right, "Home" initially active
- * - Sidebar: Collapsible with Accordion-based facets
- * - Footer: Copyright + legal links
- *
- * Click any nav item to mark it as active — the blue bottom border moves.
- * The same active state is reflected in the mobile Sheet.
- */
-export const Desktop: Story = {
-  render: () => (
-    <SelectableAppLayout
-      logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
-      sidebar={sidebarContent}
-      footer={footerContent}
-    >
-      <MainContent />
-    </SelectableAppLayout>
-  )
+/** The Menubar: the first `nav` of the layout. */
+function menubarOf(canvasElement: HTMLElement) {
+  return within(canvasElement.querySelector('nav')!)
+}
+
+function isBold(element: HTMLElement) {
+  return getComputedStyle(element).fontWeight === '700'
 }
 
 /**
- * Desktop layout with Sidebar initially collapsed.
+ * Collapses the sidebar and checks that the button which opens it again stands exactly where the
+ * toggle was: to the user it is one button that only swaps its icon.
  */
-export const DesktopCollapsedSidebar: Story = {
+async function collapseInPlace(canvasElement: HTMLElement) {
+  const canvas = within(canvasElement)
+  const position = (element: HTMLElement) => {
+    const { x, y } = element.getBoundingClientRect()
+    return [Math.round(x), Math.round(y)]
+  }
+  const toggle = canvas.getByRole('button', { name: 'Seitenleiste einklappen' })
+  const before = position(toggle)
+  await userEvent.click(toggle)
+  // The button in the content, shown once the sidebar has closed (until then the toggle in the
+  // sidebar carries the same name)
+  const trigger = await within(canvas.getByRole('main')).findByRole('button', {
+    name: 'Seitenleiste ausklappen'
+  })
+  await expect(position(trigger)).toEqual(before)
+}
+
+// ---------------------------------------------------------------------------
+// Desktop
+// ---------------------------------------------------------------------------
+
+/**
+ * Full desktop layout: Header, Menubar, submenu, sidebar, content and Footer.
+ * - Menubar: main items left, action buttons right. "Sammlungen" is marked, its sub item
+ *   "Handschriften" is the current page.
+ * - Submenu (**prototype**): the sub items of "Sammlungen", headed by the main item. It pushes
+ *   the content to the right.
+ * - Sidebar: "Alle Briefe", collapsible; the button next to the title brings it back.
+ *
+ * Click any item to mark it as active; on "Home" or "Suche" the submenu disappears.
+ */
+export const Desktop: Story = {
+  globals: DESKTOP,
   render: () => (
     <SelectableAppLayout
-      logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
-      sidebar={sidebarContent}
+      initialActiveId="manuscripts"
+      logo={logoImage}
+      sidebar={letterList}
+      sidebarTitle="Alle Briefe"
       footer={footerContent}
     >
-      <MainContent />
+      <ContentWithSidebarTrigger />
     </SelectableAppLayout>
   ),
   play: async ({ canvasElement }) => {
-    // Click the sidebar toggle to collapse
-    const toggle = canvasElement.querySelector(
-      '[aria-label="Seitenleiste einklappen"]'
-    ) as HTMLButtonElement
-    if (toggle) toggle.click()
+    const canvas = within(canvasElement)
+    // Submenu, then "Alle Briefe", then the content
+    const submenu = canvas.getByRole('navigation', { name: 'Untermenü' })
+    const sidebarHeading = canvas.getByRole('heading', { name: 'Alle Briefe' })
+    const main = canvas.getByRole('main')
+    await expect(sidebarHeading).toBeVisible()
+    const submenuBox = submenu.getBoundingClientRect()
+    const sidebarBox = sidebarHeading.closest('aside')!.getBoundingClientRect()
+    await expect(sidebarBox.left).toBeGreaterThanOrEqual(submenuBox.right - 1)
+    await expect(main.getBoundingClientRect().left).toBeGreaterThanOrEqual(sidebarBox.right - 1)
   }
 }
 
 /**
- * Mobile viewport — hamburger button opens a Sheet.
- * The Sheet contains topNavItems, a Separator, and the sidebar Accordion.
- * Click any item in the Sheet to mark it as active.
- * Use the Storybook viewport toolbar to switch to a mobile viewport width.
+ * **Prototype.** Desktop submenu: while the current page belongs to an item with sub items, they
+ * are shown in a fixed submenu on the left, headed by the main item (a link to its page). Nothing
+ * expands or collapses. "Über uns" has no page of its own; in the Menubar it leads to its first
+ * sub item, in the submenu its heading is plain text.
  */
-export const Mobile: Story = {
-  parameters: {
-    viewport: {
-      defaultViewport: 'mobile1'
-    }
-  },
+export const DesktopSubmenu: Story = {
+  globals: DESKTOP,
   render: () => (
-    <SelectableAppLayout
-      logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
-      sidebar={sidebarContent}
-      footer={footerContent}
-    >
+    <SelectableAppLayout initialActiveId="manuscripts" logo={logoImage} footer={footerContent}>
       <MainContent />
     </SelectableAppLayout>
-  )
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const menubar = menubarOf(canvasElement)
+    await expect(canvas.queryByRole('button', { name: 'Menü öffnen' })).not.toBeInTheDocument()
+
+    let submenu = canvas.getByRole('navigation', { name: 'Untermenü' })
+    let sub = within(submenu)
+    const heading = sub.getByRole('button', { name: 'Sammlungen' })
+    await expect(isBold(heading)).toBe(true)
+    await expect(sub.getByRole('button', { name: 'Handschriften' })).toHaveAttribute(
+      'aria-current',
+      'page'
+    )
+    // Fixed: nothing to expand or collapse
+    await expect(sub.queryByRole('button', { name: /Unterpunkte/ })).not.toBeInTheDocument()
+    // It pushes the content to the right
+    const main = canvas.getByRole('main')
+    await expect(main.getBoundingClientRect().left).toBeGreaterThanOrEqual(
+      submenu.getBoundingClientRect().right - 1
+    )
+
+    // Choosing another sub item moves the mark
+    await userEvent.click(sub.getByRole('button', { name: 'Inkunabeln' }))
+    await expect(sub.getByRole('button', { name: 'Inkunabeln' })).toHaveAttribute(
+      'aria-current',
+      'page'
+    )
+    await expect(sub.getByRole('button', { name: 'Handschriften' })).not.toHaveAttribute(
+      'aria-current'
+    )
+
+    // The heading leads to the page of the main item, which is then marked
+    await userEvent.click(heading)
+    await expect(sub.getByRole('button', { name: 'Sammlungen' })).toHaveAttribute(
+      'aria-current',
+      'page'
+    )
+
+    // A page without sub items: no submenu
+    await userEvent.click(menubar.getByRole('button', { name: 'Home' }))
+    await expect(canvas.queryByRole('navigation', { name: 'Untermenü' })).not.toBeInTheDocument()
+
+    // An item without a page of its own leads to its first sub item
+    await userEvent.click(menubar.getByRole('button', { name: 'Über uns' }))
+    submenu = canvas.getByRole('navigation', { name: 'Untermenü' })
+    sub = within(submenu)
+    await expect(sub.getByText('Über uns')).toBeVisible()
+    await expect(sub.queryByRole('button', { name: 'Über uns' })).not.toBeInTheDocument()
+    await expect(sub.getByRole('button', { name: 'Projekt' })).toHaveAttribute(
+      'aria-current',
+      'page'
+    )
+  }
 }
 
 /**
- * Tablet viewport — Menubar is visible, sidebar fits alongside content.
+ * The sidebar has a header row with the collapse toggle and its title ("sidebarTitle") above the
+ * content (design "3 Ansichten"). Collapsed, the sidebar is gone completely; the `SidebarTrigger`
+ * in the header of the main content brings it back.
  */
-export const Tablet: Story = {
-  parameters: {
-    viewport: {
-      defaultViewport: 'tablet'
-    }
-  },
+export const CollapsibleSidebar: Story = {
+  globals: DESKTOP,
   render: () => (
     <SelectableAppLayout
-      logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
-      sidebar={sidebarContent}
+      logo={logoImage}
+      sidebar={letterList}
+      sidebarTitle="Alle Briefe"
       footer={footerContent}
     >
+      <ContentWithSidebarTrigger />
+    </SelectableAppLayout>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const letter = () => canvas.getByRole('button', { name: 'PersonB an PersonA' })
+    await expect(canvas.getByRole('heading', { name: 'Alle Briefe' })).toBeVisible()
+    await expect(letter()).toBeVisible()
+    await expect(
+      canvas.queryByRole('button', { name: 'Seitenleiste ausklappen' })
+    ).not.toBeInTheDocument()
+
+    await collapseInPlace(canvasElement)
+    await expect(canvas.getByText('PersonB an PersonA')).not.toBeVisible()
+    // The header goes once the sidebar has closed (animated)
+    await waitFor(() =>
+      expect(canvas.queryByRole('heading', { name: 'Alle Briefe' })).not.toBeInTheDocument()
+    )
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
+    // The content fades in
+    await waitFor(() => expect(letter()).toBeVisible())
+  }
+}
+
+/**
+ * Without a title ("sidebarTitle") the header row of the sidebar shows only the toggle.
+ */
+export const SidebarWithoutTitle: Story = {
+  globals: DESKTOP,
+  render: () => (
+    <SelectableAppLayout logo={logoImage} sidebar={letterList} footer={footerContent}>
+      <ContentWithSidebarTrigger />
+    </SelectableAppLayout>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const sidebar = within(canvasElement.querySelector('aside')!)
+    await expect(sidebar.getByRole('button', { name: 'Seitenleiste einklappen' })).toBeVisible()
+    await expect(sidebar.queryByRole('heading')).not.toBeInTheDocument()
+
+    await collapseInPlace(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
+    await waitFor(() =>
+      expect(canvas.getByRole('button', { name: 'PersonB an PersonA' })).toBeVisible()
+    )
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Tablet
+// ---------------------------------------------------------------------------
+
+/**
+ * Tablet (narrower than 1024px): the Menubar is visible as on desktop. When the **prototype**
+ * submenu appears next to the sidebar, "Alle Briefe" starts collapsed so the content keeps enough
+ * room; the button next to the title opens it again.
+ */
+export const Tablet: Story = {
+  globals: TABLET,
+  render: () => (
+    <SelectableAppLayout
+      initialActiveId="home"
+      sidebar={letterList}
+      sidebarTitle="Alle Briefe"
+      footer={footerContent}
+    >
+      <ContentWithSidebarTrigger />
+    </SelectableAppLayout>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    // Without a submenu the sidebar is open
+    await expect(canvas.getByRole('heading', { name: 'Alle Briefe' })).toBeVisible()
+
+    // Into a section with sub items: the submenu appears, the sidebar collapses
+    await userEvent.click(menubarOf(canvasElement).getByRole('button', { name: 'Sammlungen' }))
+    await expect(canvas.getByRole('navigation', { name: 'Untermenü' })).toBeVisible()
+    await waitFor(() =>
+      expect(canvas.queryByRole('heading', { name: 'Alle Briefe' })).not.toBeInTheDocument()
+    )
+
+    // It can be opened again next to the submenu
+    await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
+    await expect(canvas.getByRole('heading', { name: 'Alle Briefe' })).toBeVisible()
+    await expect(canvas.getByRole('navigation', { name: 'Untermenü' })).toBeVisible()
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Mobile
+// ---------------------------------------------------------------------------
+
+/**
+ * **Prototype.** Mobile main menu: the hamburger opens a drawer below the Menubar that pushes in
+ * from the left over the dimmed content. Items with sub items have an arrow that expands and
+ * collapses them; the label itself leads to the item's page. "Über uns" has no page of its own,
+ * the whole row expands it. The group of the current page is expanded when the drawer opens.
+ * Choosing a page, tapping the hamburger again, tapping next to the drawer or Escape closes it.
+ */
+export const Mobile: Story = {
+  globals: MOBILE,
+  render: () => (
+    <SelectableAppLayout initialActiveId="manuscripts" footer={footerContent}>
       <MainContent />
     </SelectableAppLayout>
-  )
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const hamburger = canvas.getByRole('button', { name: 'Menü öffnen' })
+    await expect(hamburger).toHaveAttribute('aria-expanded', 'false')
+    await expect(canvas.queryByRole('navigation', { name: 'Hauptmenü' })).not.toBeInTheDocument()
+
+    // Open: focus moves into the drawer, the hamburger shows its open state
+    await userEvent.click(hamburger)
+    const drawer = await canvas.findByRole('navigation', { name: 'Hauptmenü' })
+    await expect(hamburger).toHaveAttribute('aria-expanded', 'true')
+    await expect(hamburger).toHaveAccessibleName('Menü schließen')
+    await waitFor(() => expect(drawer.contains(document.activeElement)).toBe(true))
+
+    // The group of the current page is expanded, its main item bold, the page itself marked
+    let menu = within(drawer)
+    const collections = menu.getByRole('button', { name: 'Sammlungen' })
+    await expect(isBold(collections)).toBe(true)
+    await expect(collections).not.toHaveAttribute('aria-current')
+    const arrow = menu.getByRole('button', { name: 'Unterpunkte von Sammlungen' })
+    await expect(arrow).toHaveAttribute('aria-expanded', 'true')
+    // The arrow is an icon button of the design system (36 × 36)
+    await expect(arrow.getBoundingClientRect().width).toBe(36)
+    await expect(arrow.getBoundingClientRect().height).toBe(36)
+    await expect(menu.getByRole('button', { name: 'Handschriften' })).toHaveAttribute(
+      'aria-current',
+      'page'
+    )
+    await expect(isBold(menu.getByRole('button', { name: 'Home' }))).toBe(false)
+
+    // "Über uns" has no page of its own: the row expands it, the drawer stays open
+    const about = menu.getByRole('button', { name: 'Über uns' })
+    await expect(about).toHaveAttribute('aria-expanded', 'false')
+    await expect(menu.queryByRole('button', { name: 'Team' })).not.toBeInTheDocument()
+    await userEvent.click(about)
+    await expect(about).toHaveAttribute('aria-expanded', 'true')
+    await expect(menu.getByRole('button', { name: 'Team' })).toBeVisible()
+
+    // The arrow collapses a group without closing the drawer
+    await userEvent.click(arrow)
+    await expect(menu.queryByRole('button', { name: 'Handschriften' })).not.toBeInTheDocument()
+    await expect(drawer).toBeVisible()
+
+    // Choosing a page closes the drawer
+    await userEvent.click(menu.getByRole('button', { name: 'Team' }))
+    await waitFor(() =>
+      expect(canvas.queryByRole('navigation', { name: 'Hauptmenü' })).not.toBeInTheDocument()
+    )
+    await expect(hamburger).toHaveAttribute('aria-expanded', 'false')
+
+    // Reopened, the group of the new page is expanded and the old one collapsed
+    await userEvent.click(hamburger)
+    menu = within(await canvas.findByRole('navigation', { name: 'Hauptmenü' }))
+    await expect(menu.getByRole('button', { name: 'Team' })).toHaveAttribute('aria-current', 'page')
+    await expect(isBold(menu.getByRole('button', { name: 'Über uns' }))).toBe(true)
+    await expect(menu.queryByRole('button', { name: 'Handschriften' })).not.toBeInTheDocument()
+
+    // The hamburger closes it again
+    await userEvent.click(hamburger)
+    await waitFor(() =>
+      expect(canvas.queryByRole('navigation', { name: 'Hauptmenü' })).not.toBeInTheDocument()
+    )
+
+    // Escape closes it and returns the focus to the hamburger
+    await userEvent.click(hamburger)
+    await canvas.findByRole('navigation', { name: 'Hauptmenü' })
+    await userEvent.keyboard('{Escape}')
+    await waitFor(() =>
+      expect(canvas.queryByRole('navigation', { name: 'Hauptmenü' })).not.toBeInTheDocument()
+    )
+    await expect(hamburger).toHaveFocus()
+
+    // The content next to the drawer is dimmed; tapping there closes the drawer
+    await userEvent.click(hamburger)
+    await canvas.findByRole('navigation', { name: 'Hauptmenü' })
+    const overlay = canvasElement.querySelector<HTMLElement>('[data-slot="nav-drawer-overlay"]')!
+    await expect(document.elementFromPoint(window.innerWidth - 20, 400)).toBe(overlay)
+    await userEvent.click(overlay)
+    await waitFor(() =>
+      expect(canvas.queryByRole('navigation', { name: 'Hauptmenü' })).not.toBeInTheDocument()
+    )
+  }
 }
+
+/**
+ * **Prototype.** Mobile main menu without sub items: only main items between the lines.
+ */
+export const MobileWithoutSubitems: Story = {
+  globals: MOBILE,
+  render: () => (
+    <SelectableAppLayout navItems={FLAT_NAV_ITEMS} initialActiveId="overview">
+      <MainContent />
+    </SelectableAppLayout>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    const hamburger = canvas.getByRole('button', { name: 'Menü öffnen' })
+    await userEvent.click(hamburger)
+    let menu = within(await canvas.findByRole('navigation', { name: 'Hauptmenü' }))
+    await expect(menu.getByRole('button', { name: 'Übersicht' })).toHaveAttribute(
+      'aria-current',
+      'page'
+    )
+    await expect(menu.getByRole('button', { name: 'Daten' })).not.toHaveAttribute('aria-expanded')
+    await expect(menu.queryByRole('button', { name: /Unterpunkte/ })).not.toBeInTheDocument()
+
+    // Choosing a page closes the drawer; reopened, that page is marked
+    await userEvent.click(menu.getByRole('button', { name: 'Daten' }))
+    await waitFor(() =>
+      expect(canvas.queryByRole('navigation', { name: 'Hauptmenü' })).not.toBeInTheDocument()
+    )
+    await userEvent.click(hamburger)
+    menu = within(await canvas.findByRole('navigation', { name: 'Hauptmenü' }))
+    await expect(menu.getByRole('button', { name: 'Daten' })).toHaveAttribute(
+      'aria-current',
+      'page'
+    )
+    await expect(menu.getByRole('button', { name: 'Übersicht' })).not.toHaveAttribute(
+      'aria-current'
+    )
+  }
+}
+
+/**
+ * **Prototype.** On mobile the main menu and the sidebar ("Alle Briefe") are overlays in the same
+ * place: with the sidebar open, the hamburger opens the menu and closes the sidebar. The other way
+ * round does not occur, the dimmed content covers the button that opens the sidebar.
+ */
+export const MobileWithSidebar: Story = {
+  globals: MOBILE,
+  render: () => (
+    <SelectableAppLayout
+      initialActiveId="manuscripts"
+      sidebar={letterList}
+      sidebarTitle="Alle Briefe"
+    >
+      <ContentWithSidebarTrigger />
+    </SelectableAppLayout>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement)
+    await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
+    await expect(canvas.getByRole('heading', { name: 'Alle Briefe' })).toBeVisible()
+
+    await userEvent.click(canvas.getByRole('button', { name: 'Menü öffnen' }))
+    await canvas.findByRole('navigation', { name: 'Hauptmenü' })
+    await waitFor(() =>
+      expect(canvas.queryByRole('heading', { name: 'Alle Briefe' })).not.toBeInTheDocument()
+    )
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Other layouts
+// ---------------------------------------------------------------------------
 
 /**
  * Minimal layout — no sidebar, no footer, just Header + Menubar + Content.
@@ -301,11 +697,7 @@ export const Tablet: Story = {
  */
 export const Minimal: Story = {
   render: () => (
-    <SelectableAppLayout
-      logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
-      initialActiveId={undefined}
-      showActions={false}
-    >
+    <SelectableAppLayout logo={logoImage} initialActiveId={undefined} showActions={false}>
       <MainContent />
     </SelectableAppLayout>
   )
@@ -315,12 +707,15 @@ export const Minimal: Story = {
  * Faceted search layout — visual demonstration of a full search interface
  * inside the SCDH AppLayout.
  *
- * - **Sidebar:** Three collapsible facets (Epoche, Autor:in, Sammlung)
- *   with item counts, purely visual — no active search engine.
+ * - **Sidebar "Filter":** Three collapsible facets (Epoche, Autor:in, Sammlung)
+ *   with checkboxes and item counts, styled as in the FacetSearch composite.
+ *   The toggle collapses the sidebar, the button next to the search bar opens
+ *   it again.
  * - **Main:** A static search bar and 8 example search results rendered
  *   as ListItem cards with thumbnails, metadata, and tags.
- * - **Not interactive** — unlike the FacetSearch composite, this needs no
- *   SearchServiceProvider, no MSW, and no play functions.
+ * - **No search** — the facets remember what is checked, but the results do
+ *   not change. Unlike the FacetSearch composite, this needs no
+ *   SearchServiceProvider and no MSW.
  *
  * The same Header, Menubar, and Footer from the other stories frame the
  * search interface in a realistic SCDH page layout.
@@ -328,53 +723,22 @@ export const Minimal: Story = {
 export const FacetedSearch: Story = {
   render: () => (
     <SelectableAppLayout
-      logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
-      sidebar={facetedSidebarContent}
+      initialActiveId="search"
+      logo={logoImage}
+      sidebar={<FacetedSidebarContent />}
+      sidebarTitle="Filter"
       footer={footerContent}
     >
       <SearchResultsContent />
     </SelectableAppLayout>
-  )
-}
-
-/**
- * Sidebar with a title ("sidebarTitle"): a header row with the collapse toggle and the title
- * appears above the content (design "3 Ansichten"). Collapsed, the sidebar is gone completely;
- * the `SidebarTrigger` in the header of the main content brings it back.
- */
-export const CollapsibleSidebar: Story = {
-  render: () => (
-    <SelectableAppLayout
-      logo={<img src={logoSrc} alt="SCDH Logo" className="h-[40px] w-auto" />}
-      sidebar={sidebarContent}
-      sidebarTitle="Alle Briefe"
-      footer={footerContent}
-    >
-      <div className="flex items-center gap-4 px-6 pt-6">
-        <SidebarTrigger />
-        <h1 className="text-2xl font-bold text-ulb-grey-900">Willkommen</h1>
-      </div>
-      <MainContent />
-    </SelectableAppLayout>
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    await expect(canvas.getByRole('heading', { name: 'Alle Briefe' })).toBeVisible()
-    await expect(canvas.getByText('Autoren')).toBeVisible()
-    await expect(
-      canvas.queryByRole('button', { name: 'Seitenleiste ausklappen' })
-    ).not.toBeInTheDocument()
+    const antike = canvas.getByRole('checkbox', { name: /Antike/ })
+    await userEvent.click(antike)
+    await expect(antike).toBeChecked()
 
-    await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste einklappen' }))
-    await expect(canvas.getByText('Autoren')).not.toBeVisible()
-    // The header goes once the sidebar has closed (animated)
-    await waitFor(() =>
-      expect(canvas.queryByRole('heading', { name: 'Alle Briefe' })).not.toBeInTheDocument()
-    )
-
-    await userEvent.click(canvas.getByRole('button', { name: 'Seitenleiste ausklappen' }))
-    // The content fades in
-    await waitFor(() => expect(canvas.getByText('Autoren')).toBeVisible())
+    await collapseInPlace(canvasElement)
   }
 }
 
@@ -440,7 +804,7 @@ export const KeepsContentAcrossBreakpoint: Story = {
     return () => viewport?.restore()
   },
   render: () => (
-    <AppLayout title="SCDH UI Components" sidebar={sidebarContent} sidebarTitle="Alle Briefe">
+    <AppLayout title="SCDH UI Components" sidebar={letterList} sidebarTitle="Alle Briefe">
       <div className="flex items-center gap-4 p-8">
         <SidebarTrigger />
         <Counter />

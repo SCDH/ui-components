@@ -46,6 +46,10 @@ export type { SidebarProviderProps, SidebarProps } from './sidebar'
 
 export { Footer } from './footer'
 
+export { NavMenu, NavMenuItem, NavSubmenu } from './nav-menu'
+export type { NavMenuProps, NavMenuItemProps, NavSubmenuProps } from './nav-menu'
+export type { NavMenuEntry, NavMenuLink } from './nav-menu-entry'
+
 export { AppLayout } from './app-layout'
 export type { AppLayoutProps, TopNavItem } from './app-layout'
 

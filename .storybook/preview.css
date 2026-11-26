@@ -1,62 +1,16 @@
 /**
  * Storybook Preview Styles
  * These styles are ONLY for Storybook and will NOT be included in the npm package.
- * They provide a nice environment for showcasing components.
+ *
+ * Keep this file small: stories should look as the components do in an app. Colours, fonts and
+ * headings come from the library (styles.css), the placement of a story from its `layout`
+ * parameter (`padded`, `centered`, `fullscreen`).
  */
 
-/* ============================================
-   Storybook Canvas/Preview Styling
-   ============================================ */
+/* Text rendering only, it does not change sizes or colours */
 :root {
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 1.5;
-}
-
-/* Default light theme for preview */
-:root {
-  color: #213547;
-  background-color: #ffffff;
-}
-
-/* Links in Storybook docs */
-a {
-  font-weight: 500;
-  color: #0070e4;
-  text-decoration: inherit;
-}
-
-a:hover {
-  color: #0070e4;
-}
-
-/* Headings in Storybook docs */
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-/* Body layout for Storybook preview */
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-/* ============================================
-   Dark Mode Support for Storybook
-   ============================================ */
-@media (prefers-color-scheme: dark) {
-  :root {
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
-  }
-  
-  a:hover {
-    color: #004997;
-  }
 }
